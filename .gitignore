@@ -1,0 +1,21 @@
+.vscode
+.env
+
+# Secrets et Certificats
+*.key
+*.pem
+*.crt
+
+# Base de données SQLite
+*.sqlite3
+*.db
+
+# Fichier sauvegardés
+*.save
+*.sav
+*.tar.gz
+*.zip
+*.bak
+
+# Fichier Log
+*.log
