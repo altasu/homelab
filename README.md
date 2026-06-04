@@ -34,13 +34,19 @@ Bienvenue sur le dépôt de mon infrastructure Homelab moderne, hautement sécur
 
 ### Prérequis et Déploiement
 
-#### 1. Configuration du Réseau Externe
+#### 1. Activation de la persistance utilisateur (Linger)
+Pour s'assurer que les conteneurs rootless et les tâches planifiées continuent de fonctionner en arrière-plan après votre déconnexion (SSH ou Cockpit), activez le *lingering* pour votre utilisateur système :
+```bash
+sudo loginctl enable-linger $USER
+```
+
+#### 2. Configuration du Réseau Externe
 Les services partagent un réseau virtuel isolé nommé `homelab-net`. Ce réseau doit être créé manuellement avant de démarrer les conteneurs :
 ```bash
 podman network create homelab-net
 ```
 
-#### 2. Configuration des Variables d'Environnement
+#### 3. Configuration des Variables d'Environnement
 Copiez le modèle d'environnement et ajustez-le avec vos configurations et jetons secrets :
 ```bash
 cp infrastructure/.env.example infrastructure/.env
@@ -48,7 +54,7 @@ cp infrastructure/.env.example infrastructure/.env
 nano infrastructure/.env
 ```
 
-#### 3. Lancement des Services
+#### 4. Lancement des Services
 Pour démarrer tous les conteneurs en mode arrière-plan (detached) :
 ```bash
 podman-compose -f infrastructure/compose.yaml up -d
@@ -134,13 +140,19 @@ Welcome to the repository of my modern, secure, and resilient Homelab infrastruc
 
 ### Prerequisites & Deployment
 
-#### 1. Create External Network
+#### 1. Enable User Lingering
+To ensure that rootless containers and systemd user services continue running in the background after you log out of your session (SSH or Cockpit), enable *lingering* for your system user:
+```bash
+sudo loginctl enable-linger $USER
+```
+
+#### 2. Create External Network
 The services share an isolated bridge network called `homelab-net`. This must be initialized manually before running the services:
 ```bash
 podman network create homelab-net
 ```
 
-#### 2. Configure Environment Variables
+#### 3. Configure Environment Variables
 Copy the template file to configure your local keys and backup directories:
 ```bash
 cp infrastructure/.env.example infrastructure/.env
@@ -148,7 +160,7 @@ cp infrastructure/.env.example infrastructure/.env
 nano infrastructure/.env
 ```
 
-#### 3. Run the Infrastructure
+#### 4. Run the Infrastructure
 Start the environment in detached mode:
 ```bash
 podman-compose -f infrastructure/compose.yaml up -d
