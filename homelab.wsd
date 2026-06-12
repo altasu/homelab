@@ -1,0 +1,33 @@
+@startuml homelab
+!theme toy
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+package "Monde Extérieur / Client" {
+    actor "Utilisateur / Admin" as User
+}
+
+package "Couche de Connexion (compose-gateway.yaml)" {
+    component "Cloudflare Tunnel\n[cloudflared]" as Cloudflare
+    component "Twingate Connector S\n[Host Mode]" as TwingateHost
+    component "Twingate Connector HL\n[Bridge Mode]" as TwingateNet
+}
+
+package "Couche d'Application (compose.yaml)" {
+    component "Vaultwarden\n[vaultwarden]" as Vaultwarden
+}
+
+cloud "Réseau Podman\n[homelab-net] (External)" as Net
+
+' Connexions d'accès
+User --> TwingateHost : "Accès VPN (Host)"
+User --> TwingateNet : "Accès VPN (Bridge)"
+User --> Cloudflare : "Accès HTTPS (Tunnels)"
+
+' Connexions réseau interne
+Cloudflare -(0)- Net
+TwingateNet -(0)- Net
+Vaultwarden -(0)- Net
+
+@enduml
