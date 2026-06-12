@@ -1,0 +1,41 @@
+# Couche de connexion (Gateway)
+# Ce fichier ne doit JAMAIS être arrêté à distance.
+# Il maintient les tunnels d'accès (Cloudflare + Twingate).
+#
+# Usage : podman-compose -f compose-gateway.yaml up -d
+
+services:
+  cloudflared:
+    image: docker.io/cloudflare/cloudflared:latest
+    container_name: cloudflared-tunnel
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - homelab-net
+
+  twingate-connector-s:
+    image: docker.io/twingate/connector:latest
+    container_name: twingate-connector-s
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - TWINGATE_NETWORK=${TWINGATE_NETWORK_S}
+      - TWINGATE_ACCESS_TOKEN=${TWINGATE_ACCESS_TOKEN_S}
+      - TWINGATE_REFRESH_TOKEN=${TWINGATE_REFRESH_TOKEN_S}
+
+  twingate-connector-hl:
+    image: docker.io/twingate/connector:latest
+    container_name: twingate-connector-hl
+    restart: unless-stopped
+    environment:
+      - TWINGATE_NETWORK=${TWINGATE_NETWORK_HL}
+      - TWINGATE_ACCESS_TOKEN=${TWINGATE_ACCESS_TOKEN_HL}
+      - TWINGATE_REFRESH_TOKEN=${TWINGATE_REFRESH_TOKEN_HL}
+    networks:
+      - homelab-net
+
+networks:
+  homelab-net:
+    external: true
