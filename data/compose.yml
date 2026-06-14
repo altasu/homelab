@@ -1,0 +1,48 @@
+# Couche applicative
+# Ce fichier peut être arrêté/redémarré sans couper l'accès distant.
+# La couche de connexion (compose-gateway.yaml) doit rester active.
+#
+# Usage : podman-compose -f compose.yaml up -d
+
+# Couche de connexion (Gateway)
+# Ce fichier ne doit JAMAIS être arrêté à distance.
+# Il maintient les connecteurs Twingate pour l'accès distant.
+#
+# Les connecteurs utilisent network_mode: host pour garantir
+# la connectivité sortante en mode rootless Podman.
+#
+# Usage : podman-compose -f compose-gateway.yaml up -d
+
+services:
+  twingate-connector:
+    image: docker.io/twingate/connector:latest
+    container_name: twingate-connector
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - TWINGATE_NETWORK=${TWINGATE_NETWORK}
+      - TWINGATE_ACCESS_TOKEN=${TWINGATE_ACCESS_TOKEN}
+      - TWINGATE_REFRESH_TOKEN=${TWINGATE_REFRESH_TOKEN}
+
+services:
+  vaultwarden:
+    image: docker.io/vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      - WEBSOCKET_ENABLED=true
+      - SIGNUPS_ALLOWED=false
+    ports:
+      - "127.0.0.1:8080:80"    # Accessible uniquement via localhost (Twingate)
+    volumes:
+      - vaultwarden_data:/data
+    networks:
+      - homelab-net
+
+networks:
+  homelab-net:
+    external: true
+
+# Déclarez le volume géré en bas de fichier
+volumes:
+  vaultwarden_data:

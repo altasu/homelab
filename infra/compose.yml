@@ -1,0 +1,25 @@
+services:
+  cloudflared:
+    image: docker.io/cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
+    networks:
+      - homelab_net
+
+  twingate-connector:
+    image: docker.io/twingate/connector:1
+    container_name: twingate-connector
+    restart: unless-stopped
+    environment:
+      - TWINGATE_NETWORK=${TWINGATE_NETWORK}
+      - TWINGATE_ACCESS_TOKEN=${TWINGATE_ACCESS_TOKEN}
+      - TWINGATE_REFRESH_TOKEN=${TWINGATE_REFRESH_TOKEN}
+    networks:
+      - homelab_net
+
+networks:
+  homelab_net:
+    external: true

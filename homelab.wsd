@@ -1,33 +1,34 @@
-@startuml homelab
-!theme toy
+@startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor #F9F9F9
+skinparam packageBackgroundColor #FFFFFF
 
-skinparam packageStyle rectangle
-skinparam shadowing false
+actor "Utilisateur / User" as user
+cloud "Internet / Zero Trust" as internet
 
-package "Monde Extérieur / Client" {
-    actor "Utilisateur / Admin" as User
+package "Serveur Homelab" {
+    
+    [Réseau Partagé / Shared Network\n(homelab_net)] as shared_net #LightBlue
+    
+    package "Stage 1: Core Infra (Actif/Active)\n(infra/)" {
+        [Twingate Connector] as twingate #LightGreen
+        [Cloudflare Tunnel] as cloudflare #LightGreen
+    }
+
+    package "Stage 2: Data\n(data/)" #White {
+        note "À venir / Coming soon" as n1
+    }
+
+    package "Stage 3: Apps\n(apps/)" #White {
+        note "À venir / Coming soon" as n2
+    }
 }
 
-package "Couche de Connexion (compose-gateway.yaml)" {
-    component "Cloudflare Tunnel\n[cloudflared]" as Cloudflare
-    component "Twingate Connector S\n[Host Mode]" as TwingateHost
-    component "Twingate Connector HL\n[Bridge Mode]" as TwingateNet
-}
+user =down=> internet
+internet ==down==> twingate : "Accès Sécurisé / Secure Access"
+internet -.down.-> cloudflare : "Trafic Web / Web Traffic"
 
-package "Couche d'Application (compose.yaml)" {
-    component "Vaultwarden\n[vaultwarden]" as Vaultwarden
-}
-
-cloud "Réseau Podman\n[homelab-net] (External)" as Net
-
-' Connexions d'accès
-User --> TwingateHost : "Accès VPN (Host)"
-User --> TwingateNet : "Accès VPN (Bridge)"
-User --> Cloudflare : "Accès HTTPS (Tunnels)"
-
-' Connexions réseau interne
-Cloudflare -(0)- Net
-TwingateNet -(0)- Net
-Vaultwarden -(0)- Net
+twingate ==down==> shared_net
+cloudflare ==down==> shared_net
 
 @enduml
