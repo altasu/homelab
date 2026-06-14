@@ -1,6 +1,6 @@
 services:
   cloudflared:
-    image: docker.io/cloudflare/cloudflared:latest
+    image: docker.io/cloudflare/cloudflared:2026.5.2
     container_name: cloudflare-tunnel
     restart: unless-stopped
     command: tunnel run
