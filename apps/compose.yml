@@ -1,28 +1,8 @@
-# Couche applicative
+# Stage 3: Applications
 # Ce fichier peut être arrêté/redémarré sans couper l'accès distant.
-# La couche de connexion (compose-gateway.yaml) doit rester active.
+# Prérequis: infra/ et data/ doivent être actifs (homelab_net doit exister).
 #
-# Usage : podman-compose -f compose.yaml up -d
-
-# Couche de connexion (Gateway)
-# Ce fichier ne doit JAMAIS être arrêté à distance.
-# Il maintient les connecteurs Twingate pour l'accès distant.
-#
-# Les connecteurs utilisent network_mode: host pour garantir
-# la connectivité sortante en mode rootless Podman.
-#
-# Usage : podman-compose -f compose-gateway.yaml up -d
-
-services:
-  twingate-connector:
-    image: docker.io/twingate/connector:latest
-    container_name: twingate-connector
-    restart: unless-stopped
-    network_mode: host
-    environment:
-      - TWINGATE_NETWORK=${TWINGATE_NETWORK}
-      - TWINGATE_ACCESS_TOKEN=${TWINGATE_ACCESS_TOKEN}
-      - TWINGATE_REFRESH_TOKEN=${TWINGATE_REFRESH_TOKEN}
+# Usage: podman-compose -f compose.yml up -d
 
 services:
   vaultwarden:
@@ -30,19 +10,23 @@ services:
     container_name: vaultwarden
     restart: unless-stopped
     environment:
-      - WEBSOCKET_ENABLED=true
+      # Connexion à PostgreSQL (Stage 2 - data/)
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-db:5432/${VAULTWARDEN_DB_NAME}
+      # Sécurité
+      - ADMIN_TOKEN=${VAULTWARDEN_ADMIN_TOKEN}
       - SIGNUPS_ALLOWED=false
-    ports:
-      - "127.0.0.1:8080:80"    # Accessible uniquement via localhost (Twingate)
+      - WEBSOCKET_ENABLED=true
     volumes:
+      # Fichiers statiques, pièces jointes, etc. (non-DB data)
       - vaultwarden_data:/data
     networks:
-      - homelab-net
+      - homelab_net
+    # Pas de `ports:` — l'accès se fait uniquement via Cloudflare Tunnel (infra/)
+    # Cloudflare route vers http://vaultwarden:80 via le réseau homelab_net partagé
 
 networks:
-  homelab-net:
+  homelab_net:
     external: true
 
-# Déclarez le volume géré en bas de fichier
 volumes:
   vaultwarden_data:
