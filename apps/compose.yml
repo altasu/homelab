@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
     environment:
       # Connexion à PostgreSQL (Stage 2 - data/)
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-db:5432/${VAULTWARDEN_DB_NAME}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-db:5432/${POSTGRES_DB}
       # Sécurité
       - ADMIN_TOKEN=${VAULTWARDEN_ADMIN_TOKEN}
       - SIGNUPS_ALLOWED=false
