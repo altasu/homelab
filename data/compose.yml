@@ -7,11 +7,14 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
-      # Nous enregistrons les données directement sur un disque externe (chemin sécurisé via .env)
-      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+      # Persistance via Named Volume géré par Podman (performances maximales sur SSD interne)
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - homelab_net
 
 networks:
   homelab_net:
     external: true
+
+volumes:
+  postgres_data:
