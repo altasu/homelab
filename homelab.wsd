@@ -11,8 +11,8 @@ cloud "Twingate\n(Zero Trust Network)" as twingate_cloud
 package "Serveur Homelab" {
 
     package "Stage 1: Core Infra (infra/)\n[NE JAMAIS ARRÊTER]" #LightYellow {
-        [cloudflared\n:2026.5.2] as cloudflared
-        [twingate-connector\n:1] as twingate
+        [cloudflared] as cloudflared
+        [twingate-connector] as twingate
     }
 
     package "Stage 2: Data (data/)\n[LE PLUS CRITIQUE]" #LightCoral {
@@ -20,7 +20,7 @@ package "Serveur Homelab" {
     }
 
     package "Stage 3: Apps (apps/)" #LightGreen {
-        [Vaultwarden\n:latest] as vaultwarden
+        [Vaultwarden] as vaultwarden
         [Homepage *(futur)*] as homepage
         [Glance *(futur)*] as glance
     }

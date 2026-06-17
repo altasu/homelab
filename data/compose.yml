@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: docker.io/postgres:16.3-alpine
+    image: docker.io/postgres:16.14-alpine
     container_name: postgres-db
     restart: unless-stopped
     environment:
@@ -12,6 +12,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - homelab_net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
 
 networks:
   homelab_net:

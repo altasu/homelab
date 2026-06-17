@@ -2,6 +2,7 @@
 .env
 .DS_Store
 
+
 # Secrets et Certificats
 *.key
 *.pem
@@ -17,6 +18,8 @@
 *.tar.gz
 *.zip
 *.bak
+backups/
+
 
 # Fichier Log
 *.log
