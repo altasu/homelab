@@ -1,57 +1,56 @@
 #!/bin/bash
 
 # ==============================================================================
-# Homelab Automated Backup Script
-# Description: Performs logical backups of databases (PostgreSQL) and application
-#              data (Vaultwarden), then copies them to the external HDD.
+# Script de Sauvegarde Automatisée du Homelab
+# Description : Effectue des sauvegardes logiques des bases de données (PostgreSQL)
+#               et des données d'application (Vaultwarden), puis les copie sur le HDD externe.
 # ==============================================================================
 
-# Load environment variables (to get BACKUP_DIR if needed)
-# Source the data env file to get DB credentials and path info
+# Charger les variables d'environnement (pour obtenir BACKUP_DIR si nécessaire)
+# Charger le fichier env de data pour obtenir les identifiants DB et les chemins
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set -a
-source ../data/.env
+source "${SCRIPT_DIR}/../data/.env"
 set +a
 
-# Ensure BACKUP_DIR is defined in .env (Fail-fast security pattern)
+# S'assurer que BACKUP_DIR est défini dans .env (Pattern de sécurité fail-fast)
 if [ -z "${BACKUP_DIR}" ]; then
-    echo "❌ ERROR: BACKUP_DIR is not defined in data/.env! Aborting backup."
+    echo "❌ ERREUR : BACKUP_DIR n'est pas défini dans data/.env ! Abandon de la sauvegarde."
     exit 1
 fi
 DEST_DIR="${BACKUP_DIR}"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
-# Ensure backup directory exists
+# S'assurer que le répertoire de sauvegarde existe
 mkdir -p "${DEST_DIR}/postgres"
 mkdir -p "${DEST_DIR}/vaultwarden"
 
 echo "================================================================="
-echo "Starting Homelab Backup - $(date)"
-echo "Destination: ${DEST_DIR}"
+echo "Début de la sauvegarde du Homelab - $(date)"
+echo "Destination : ${DEST_DIR}"
 echo "================================================================="
 
 # ------------------------------------------------------------------------------
-# 1. PostgreSQL Logical Backup (Stage 2)
+# 1. Sauvegarde Logique PostgreSQL (Niveau 2)
 # ------------------------------------------------------------------------------
-echo "[1/2] Backing up PostgreSQL databases..."
+echo "[1/2] Sauvegarde des bases de données PostgreSQL..."
 
-# Execute pg_dumpall inside the postgres-db container
-# We use gzip to compress the SQL dump on the fly
+# Exécuter pg_dumpall à l'intérieur du conteneur postgres-db
+# Nous utilisons gzip pour compresser le dump SQL à la volée
 podman exec postgres-db pg_dumpall -U "${POSTGRES_USER}" | gzip > "${DEST_DIR}/postgres/pg_dumpall_${TIMESTAMP}.sql.gz"
 
 if [ $? -eq 0 ]; then
-    echo "✅ PostgreSQL backup successful."
+    echo "✅ Sauvegarde de PostgreSQL réussie."
 else
-    echo "❌ PostgreSQL backup failed!"
+    echo "❌ Échec de la sauvegarde de PostgreSQL !"
 fi
 
 # ------------------------------------------------------------------------------
-# 2. Vaultwarden Attachments/RSA Keys Backup (Stage 3)
+# 2. Sauvegarde des Fichiers Statiques Vaultwarden (Niveau 3)
 # ------------------------------------------------------------------------------
-echo "[2/2] Backing up Vaultwarden static files..."
+echo "[2/2] Sauvegarde des fichiers statiques de Vaultwarden (pièces jointes, clés RSA)..."
 
-# Vaultwarden's database is in Postgres, but attachments and config/RSA keys 
-# are in the named volume 'vaultwarden_data'.
-# We create a temporary container attached to the volume to tar it up.
+# Archiver l'intégralité du volume contenant les données non-DB
 podman run --rm \
     --volume vaultwarden_data:/data:ro \
     --volume "${DEST_DIR}/vaultwarden":/backup:z \
@@ -59,17 +58,17 @@ podman run --rm \
     tar -czf "/backup/vaultwarden_data_${TIMESTAMP}.tar.gz" -C /data .
 
 if [ $? -eq 0 ]; then
-    echo "✅ Vaultwarden files backup successful."
+    echo "✅ Sauvegarde des fichiers statiques de Vaultwarden réussie."
 else
-    echo "❌ Vaultwarden files backup failed!"
+    echo "❌ Échec de la sauvegarde des fichiers statiques de Vaultwarden !"
 fi
 
 echo "================================================================="
-echo "Backup Completed - $(date)"
+echo "Sauvegarde terminée - $(date)"
 echo "================================================================="
 
 # ------------------------------------------------------------------------------
-# Cleanup older backups (Keep last 7 days)
+# Nettoyage des anciennes sauvegardes (Conserver les 7 derniers jours)
 # ------------------------------------------------------------------------------
 find "${DEST_DIR}/postgres" -type f -name "*.sql.gz" -mtime +7 -delete
 find "${DEST_DIR}/vaultwarden" -type f -name "*.tar.gz" -mtime +7 -delete
