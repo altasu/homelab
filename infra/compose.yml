@@ -18,7 +18,9 @@ services:
       - TWINGATE_ACCESS_TOKEN=${TWINGATE_ACCESS_TOKEN}
       - TWINGATE_REFRESH_TOKEN=${TWINGATE_REFRESH_TOKEN}
     networks:
-      - homelab_net
+      homelab_net:
+        ipv4_address: 10.89.0.100
+
 
 networks:
   homelab_net:
