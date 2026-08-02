@@ -1,0 +1,12 @@
+## 6. PROJECT CONTEXT: HOMELAB INFRASTRUCTURE & GITOPS
+- **Environment:** Linux server (x86_64), kernel networking (IP forwarding, firewalld masquerading). La distribution exacte n'est pas documentée dans les fichiers versionnés (règle anti-fingerprinting).
+- **Container Runtime:** Rootless Podman & Podman Compose (User: `homelab` with `loginctl enable-linger`).
+- **Storage & Partitions:**
+    - OS / Active Containers: internal SSD (XFS on LVM root).
+    - Backup Vault: dedicated external HDD (XFS), mounted via `/etc/fstab` — see `data/.env` (`BACKUP_DIR`) for the exact mount path.
+- **Core Services:** Vaultwarden, PostgreSQL (`vwarden_db`, superuser défini dans `data/.env` → `POSTGRES_USER`), Cloudflare Tunnel, Twingate, Actual Budget (prévu).
+- **Migration en cours:** orchestration `podman-compose` → Quadlet (unités systemd utilisateur, rootless conservé). Feuille de route et état d'avancement : `docs/quadlet-migration-plan.md`. Pas de Kubernetes sur ce serveur (décision documentée dans le plan).
+- **Documentation Standard:** Structured technical runbooks (.md) with explicit disaster recovery and restore verification steps. Diagrammes en **Mermaid intégrés aux fichiers Markdown** (rendu natif GitLab) — pas de PlantUML/`.wsd` ni de PNG générés.
+- **Operational Rules:**
+    - Never execute container orchestration changes without checking existing rootless systemd/Quadlet units.
+    - Always verify backup archive integrity before performing database restore operations.

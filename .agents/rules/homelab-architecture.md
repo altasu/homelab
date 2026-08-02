@@ -27,7 +27,9 @@ trigger: always_on
   * Pas de noms de domaine exacts dans les configurations Git (utiliser des variables comme `${DOMAIN}` ou des placeholders génériques).
   * Pas de chemins d'hôte absolus (sauf pour les points de montage spécifiques des disques externes dans les scripts de sauvegarde).
   * Pas de mots de passe ou clés d'API en clair dans le dépôt Git.
-  * Pas de numéros de version précis des images de conteneurs dans les schémas d'architecture et documentations publiques (ex: fichiers PlantUML `homelab.wsd`) afin d'éviter la divulgation d'informations de sécurité facilitant la recherche de vulnérabilités (CVE).
+  * Pas de numéros de version précis des images de conteneurs dans les schémas d'architecture et documentations publiques (ex : diagrammes Mermaid intégrés aux fichiers Markdown de `docs/`, comme `docs/architecture.md`) afin d'éviter la divulgation d'informations de sécurité facilitant la recherche de vulnérabilités (CVE).
+  * Pas de mention de la distribution/OS exacte du serveur dans les fichiers versionnés (anti-fingerprinting) — désigner le système par « serveur Linux » uniquement.
+  * Les diagrammes sont rédigés en **Mermaid, intégrés directement dans les fichiers Markdown** (rendu natif GitLab) — pas de fichiers PlantUML/`.wsd` ni d'images PNG générées à versionner.
 
 ## Cycle de Vie du Déploiement
 - Tous les niveaux DOIVENT partager le réseau externe `homelab_net`.
