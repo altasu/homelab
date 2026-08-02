@@ -1,6 +1,9 @@
-.vscode
+.vscode/
+.idea/
 .env
 .DS_Store
+.claude/*
+!.claude/CLAUDE.md
 
 
 # Secrets et Certificats
@@ -23,3 +26,7 @@ backups/
 
 # Fichier Log
 *.log
+
+# Images generees depuis les diagrammes (source = Mermaid dans les .md)
+docs/**/*.png
+docs/**/*.svg
