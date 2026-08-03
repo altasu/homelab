@@ -1,0 +1,26 @@
+# Unité Quadlet : Twingate Connector (niveau Infra)
+# Migration compose -> Quadlet : Étape 5 du plan — accès local requis.
+#
+# IP statique conservée (identique à infra/compose.yml) : les ressources
+# Twingate pointent cette adresse, la changer casserait l'accès VPN.
+# PRÉREQUIS : infra/twingate.env créé depuis twingate.env.example
+# (mêmes noms de variables que l'ancien infra/.env) et validé par
+# scripts/check-env.sh.
+
+[Unit]
+Description=Twingate Connector (niveau Infra)
+
+[Container]
+ContainerName=twingate-connector
+Image=docker.io/twingate/connector:1.89.0
+EnvironmentFile=%h/homelab/infra/twingate.env
+Network=homelab.network
+IP=10.89.0.100
+NoNewPrivileges=true
+PodmanArgs=--memory=128m --cpus=0.25
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

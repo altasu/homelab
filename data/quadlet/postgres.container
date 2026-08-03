@@ -25,8 +25,12 @@ EnvironmentFile=%h/homelab/data/postgres.env
 Volume=postgres.volume:/var/lib/postgresql/data
 Network=homelab.network
 NoNewPrivileges=true
-HealthCmd=pg_isready -q
-HealthInterval=10s
+# $$ : échappement systemd -> un seul $ à l'exécution ; la commande étant
+# lancée via sh -c dans le conteneur, $POSTGRES_USER y est résolu depuis
+# l'EnvironmentFile. Supprime le bruit « FATAL: role "root" does not exist ».
+# À valider au dry-run (l'ExecStart généré doit contenir $$POSTGRES_USER).
+HealthCmd=pg_isready -q -U $$POSTGRES_USER
+HealthInterval=30s
 Notify=healthy
 PodmanArgs=--memory=512m --cpus=0.5
 
