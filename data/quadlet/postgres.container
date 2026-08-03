@@ -1,0 +1,37 @@
+# Unité Quadlet : PostgreSQL (niveau Data)
+# Migration compose -> Quadlet : Étape 4 du plan (docs/quadlet-migration-plan.md).
+#
+# PRÉREQUIS AVANT BASCULE (bloquants) :
+#   1. Sauvegarde fraîche vérifiée (scripts/backup.sh + gunzip -t)
+#   2. data/postgres.env créé depuis data/postgres.env.example
+#      et validé par scripts/check-env.sh
+#
+# MÊME version épinglée que data/compose.yml : la bascule d'orchestrateur
+# ne change qu'une seule chose à la fois (jamais de montée de version
+# simultanée).
+#
+# Notify=healthy + HealthCmd : le service n'est déclaré démarré qu'une
+# fois PostgreSQL réellement prêt — les unités avec After=postgres.service
+# (Vaultwarden) attendent donc une base opérationnelle, pas juste un
+# conteneur lancé.
+
+[Unit]
+Description=PostgreSQL (niveau Data)
+
+[Container]
+ContainerName=postgres-db
+Image=docker.io/postgres:16.14-alpine
+EnvironmentFile=%h/homelab/data/postgres.env
+Volume=postgres.volume:/var/lib/postgresql/data
+Network=homelab.network
+NoNewPrivileges=true
+HealthCmd=pg_isready -q
+HealthInterval=10s
+Notify=healthy
+PodmanArgs=--memory=512m --cpus=0.5
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

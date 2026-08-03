@@ -11,13 +11,14 @@
 #      version ou une plus récente — jamais un retour en arrière, les
 #      migrations de schéma ne sont pas réversibles)
 #
-# NOTE : PostgreSQL est encore géré par compose (jusqu'à l'Étape 4) — aucune
-# dépendance systemd vers postgres ici pour l'instant ; Restart=on-failure
-# couvre l'attente de la base au démarrage. À l'Étape 4, ajouter :
-#   Requires=postgres.service / After=postgres.service
+# Dépendance data -> apps (Étape 4) : grâce à Notify=healthy sur l'unité
+# postgres, After= attend une base réellement prête (healthcheck passé),
+# pas seulement un conteneur lancé.
 
 [Unit]
 Description=Vaultwarden (gestionnaire de mots de passe)
+Requires=postgres.service
+After=postgres.service
 
 [Container]
 ContainerName=vaultwarden
