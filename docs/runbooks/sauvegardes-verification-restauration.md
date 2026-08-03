@@ -67,5 +67,5 @@ Vérification réussie le 2026-08-03 : base recréée, tables chargées, nombre 
 ## Améliorations futures retenues
 
 - [ ] Rôle PostgreSQL dédié non-superuser par application (moindre privilège OWASP) — prévu lors de la migration du niveau Data (voir plan Quadlet, Étape 4).
-- [ ] Étendre `backup.sh` aux volumes des futurs services (Actual Budget : données SQLite dans son volume — l'application ne supporte pas PostgreSQL).
+- [x] Étendre `backup.sh` aux volumes des futurs services — fait pour Actual Budget (données SQLite, l'application ne supporte pas PostgreSQL), avec garde-fou `podman volume exists`. Standard de nommage adopté : `<tier>_<service>_data`, le garde-fou et l'archive devant référencer exactement le même nom.
 - [ ] Alerte en cas d'échec de `backup.service` (`OnFailure=` vers une unité de notification) — à étudier avec l'observabilité (Étape 7).

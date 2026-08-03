@@ -1,0 +1,7 @@
+# Unité Quadlet : volume de données Actual Budget
+# Contient les fichiers SQLite du serveur (server-files/, user-files/).
+# ATTENTION : ce volume est la SEULE persistance d'Actual Budget
+# (pas de backend PostgreSQL supporté) — il est couvert par scripts/backup.sh.
+
+[Volume]
+VolumeName=apps_actual_budget_data
