@@ -1,0 +1,7 @@
+# Unité Quadlet : volume de données PostgreSQL.
+# VolumeName= pointe le volume EXISTANT créé par podman-compose
+# (standard <tier>_<service>_data) : `podman volume create --ignore`
+# le réutilise tel quel, données conservées.
+
+[Volume]
+VolumeName=data_postgres_data
