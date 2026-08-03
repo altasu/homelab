@@ -1,0 +1,35 @@
+# Unité Quadlet : Vaultwarden (gestionnaire de mots de passe)
+# Migration compose -> Quadlet : Étape 3 du plan (docs/quadlet-migration-plan.md).
+#
+# PRÉREQUIS AVANT BASCULE (voir plan) :
+#   1. Sauvegarde fraîche vérifiée (scripts/backup.sh + gunzip -t)
+#   2. Créer apps/vaultwarden.env depuis apps/vaultwarden.env.example
+#      (variables FINALES attendues par le conteneur, DATABASE_URL assemblée)
+#   3. Vérifier la version réellement en cours d'exécution avant d'épingler :
+#      podman exec vaultwarden /vaultwarden --version
+#      (le conteneur compose tourne sur latest-alpine ; épingler ici la MÊME
+#      version ou une plus récente — jamais un retour en arrière, les
+#      migrations de schéma ne sont pas réversibles)
+#
+# NOTE : PostgreSQL est encore géré par compose (jusqu'à l'Étape 4) — aucune
+# dépendance systemd vers postgres ici pour l'instant ; Restart=on-failure
+# couvre l'attente de la base au démarrage. À l'Étape 4, ajouter :
+#   Requires=postgres.service / After=postgres.service
+
+[Unit]
+Description=Vaultwarden (gestionnaire de mots de passe)
+
+[Container]
+ContainerName=vaultwarden
+Image=docker.io/vaultwarden/server:1.37.1-alpine
+EnvironmentFile=%h/homelab/apps/vaultwarden.env
+Volume=vaultwarden.volume:/data
+Network=homelab.network
+NoNewPrivileges=true
+PodmanArgs=--memory=256m --cpus=0.5
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
