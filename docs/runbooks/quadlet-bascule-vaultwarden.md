@@ -41,6 +41,8 @@ Le log de démarrage signalait : `[NOTICE] You are using a plain text ADMIN_TOKE
 
 **Règle à retenir pour tout portage compose → Quadlet** : les fichiers env par service contiennent des valeurs finales *sans* quotes et *sans* échappement `$$` — l'inverse exact des conventions compose.
 
+**Outillage** : ce contrôle est désormais automatisé par [`scripts/check-env.sh`](../../scripts/check-env.sh) (quotes, `$$`, placeholders `${...}`, valeurs d'exemple, permissions, formats connus — sans jamais afficher les valeurs). À exécuter sur chaque fichier env **avant toute bascule**.
+
 ## Leçons retenues
 
 - `EnvironmentFile=` de Quadlet est passé à `podman run --env-file` : valeurs lues **littéralement** (pas d'interpolation `${...}`, pas d'échappement `$$`, quotes incluses dans la valeur si présentes). Les fichiers env par service doivent contenir des valeurs finales, sans quotes.

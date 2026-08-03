@@ -76,6 +76,7 @@ Détail complet, procédure de vérification en 3 niveaux et leçons retenues : 
 
 ### Étape 4 — Migration : niveau Data (PostgreSQL)
 - [ ] Sauvegarde `pg_dumpall` fraîche + vérification d'intégrité **avant** la bascule (procédure : runbook sauvegardes)
+- [ ] Valider le fichier env du service avec `scripts/check-env.sh` **avant** la bascule (pièges d'échappement compose — leçon de l'Étape 3)
 - [ ] Écrire `postgres.container` (volume nommé existant réutilisé, `EnvironmentFile=`)
 - [ ] Bascule compose → Quadlet, vérification de la connexion Vaultwarden → PostgreSQL
 - [ ] Dépendance systemd : Vaultwarden démarre après PostgreSQL (`After=`/`Requires=`)
