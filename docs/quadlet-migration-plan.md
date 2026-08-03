@@ -67,11 +67,12 @@ Détail complet, procédure de vérification en 3 niveaux et leçons retenues : 
 - [x] Vérifier la synchronisation depuis l'application desktop et un navigateur mobile
 - [x] Runbook de l'étape rédigé : [`docs/runbooks/quadlet-pilote-actual-budget.md`](runbooks/quadlet-pilote-actual-budget.md) — modèle des migrations suivantes
 
-### Étape 3 — Migration : niveau Apps (Vaultwarden)
-- [ ] Écrire `vaultwarden.container` (image épinglée, `EnvironmentFile=`, volume nommé, réseau, limites de ressources)
-- [ ] Arrêter le service compose, démarrer l'unité Quadlet, vérifier l'accès via Cloudflare Tunnel
-- [ ] Procédure de rollback testée : arrêt de l'unité → `podman-compose up -d` → service restauré
-- [ ] Runbook de l'étape rédigé
+### Étape 3 — Migration : niveau Apps (Vaultwarden) ✅ (bascule du 2026-08-03)
+- [x] Écrire `vaultwarden.container` + `vaultwarden.volume` (image épinglée 1.37.0→1.37.1, env par service, volume existant réutilisé, limites de ressources)
+- [x] Bascule effectuée : arrêt compose, démarrage Quadlet, accès vérifié (web, desktop, mobile) — coupure < 1 min
+- [x] Procédure de rollback documentée dans le runbook (non exercée : bascule réussie du premier coup ; le chemin compose reste disponible jusqu'à l'Étape 6)
+- [x] Runbook : [`docs/runbooks/quadlet-bascule-vaultwarden.md`](runbooks/quadlet-bascule-vaultwarden.md)
+- [x] Durcissement post-bascule : NOTICE « plain text ADMIN_TOKEN » résolu — cause : échappement compose (`$$`, quotes) copié tel quel dans l'env Quadlet, lu littéralement par `podman --env-file` ; correction sans rotation (jeton jamais exposé), détail au runbook
 
 ### Étape 4 — Migration : niveau Data (PostgreSQL)
 - [ ] Sauvegarde `pg_dumpall` fraîche + vérification d'intégrité **avant** la bascule (procédure : runbook sauvegardes)
