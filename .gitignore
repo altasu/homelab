@@ -1,6 +1,6 @@
 .vscode/
 .idea/
-.env
+*.env
 .DS_Store
 .claude/*
 !.claude/CLAUDE.md

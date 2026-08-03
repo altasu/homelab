@@ -1,0 +1,7 @@
+# Unité Quadlet : volume de données Vaultwarden (fichiers hors base :
+# clés RSA, pièces jointes, sends — la base vit dans PostgreSQL).
+# VolumeName= pointe le volume EXISTANT créé par podman-compose :
+# `podman volume create --ignore` le réutilise tel quel, données conservées.
+
+[Volume]
+VolumeName=apps_vaultwarden_data

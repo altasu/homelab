@@ -48,7 +48,7 @@ L'évolution retenue est la migration de l'orchestration **`podman-compose` → 
 - [x] Inventorier les unités systemd/Quadlet existantes : aucune unité Quadlet, seul `podman-restart.service` est activé (sera retiré à l'Étape 6 quand Quadlet gérera le cycle de vie)
 - [x] Vérifier `loginctl enable-linger` (actif) et la version de Podman : prérequis Quadlet satisfaits (version récente, cgroups v2, générateur présent — versions exactes non documentées ici, règle anti-fingerprinting)
 - [x] Créer l'unité réseau `infra/quadlet/homelab.network` (Subnet/Gateway relevés sur le réseau existant : `10.89.0.0/24` / `10.89.0.1`)
-- [ ] Valider la syntaxe des unités avec `/usr/libexec/podman/quadlet -dryrun -user` (au premier déploiement, Étape 2)
+- [x] Valider la syntaxe des unités avec `/usr/libexec/podman/quadlet -dryrun -user` — effectué au déploiement de l'Étape 2, unités générées correctement (dépendances réseau/volume ajoutées automatiquement par le générateur)
 - [x] Vérifier l'intégrité de la dernière sauvegarde — **incident détecté et corrigé, voir Étape 1 bis**
 
 ### Étape 1 bis — Incident sauvegardes (détecté et résolu le 2026-08-03) ✅
@@ -59,12 +59,13 @@ Détail complet, procédure de vérification en 3 niveaux et leçons retenues : 
 - [x] Restauration de test PostgreSQL réussie (base, tables et utilisateurs conformes)
 
 ### Étape 2 — Pilote greenfield : Actual Budget (sync server)
-- [ ] Écrire `actual-budget.container` : image `docker.io/actualbudget/actual-server` épinglée, volume nommé pour les données SQLite, `EnvironmentFile=`, réseau `homelab_net`, limites de ressources
-- [ ] Ajouter la route Cloudflare Tunnel vers le service (même modèle que Vaultwarden : zéro port entrant, HTTPS partout)
-- [ ] Activer le mot de passe serveur et le **chiffrement de bout en bout** des fichiers de budget (les données restent chiffrées au repos côté serveur)
-- [ ] Étendre `scripts/backup.sh` au volume Actual Budget (fichiers SQLite)
-- [ ] Vérifier la synchronisation depuis l'application desktop et un navigateur mobile
-- [ ] Runbook de l'étape rédigé — ce workflow devient le modèle des migrations suivantes
+- [x] Écrire `actual-budget.container` + `actual-budget.volume` : image épinglée, volume `apps_actual_budget_data` (standard de nommage), réseau partagé, limites de ressources
+- [x] Déploiement validé : dry-run OK, service actif, test HTTP interne concluant
+- [x] Ajouter la route Cloudflare Tunnel vers le service (même modèle que Vaultwarden : zéro port entrant, HTTPS partout)
+- [x] Activer le mot de passe serveur et le **chiffrement de bout en bout** des fichiers de budget (les données restent chiffrées au repos côté serveur)
+- [x] Étendre `scripts/backup.sh` au volume Actual Budget — vérifié, section [3/3] ✅
+- [x] Vérifier la synchronisation depuis l'application desktop et un navigateur mobile
+- [x] Runbook de l'étape rédigé : [`docs/runbooks/quadlet-pilote-actual-budget.md`](runbooks/quadlet-pilote-actual-budget.md) — modèle des migrations suivantes
 
 ### Étape 3 — Migration : niveau Apps (Vaultwarden)
 - [ ] Écrire `vaultwarden.container` (image épinglée, `EnvironmentFile=`, volume nommé, réseau, limites de ressources)
