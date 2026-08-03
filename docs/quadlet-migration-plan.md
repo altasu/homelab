@@ -44,12 +44,19 @@ L'évolution retenue est la migration de l'orchestration **`podman-compose` → 
 - [x] Versions épinglées (`apps/compose.yml`), correction `.gitignore`
 - [ ] Commit et push de l'ensemble (en attente de validation)
 
-### Étape 1 — Inventaire et socle Quadlet
-- [ ] Inventorier les unités systemd/Quadlet existantes (`systemctl --user list-units`, règle opérationnelle obligatoire)
-- [ ] Vérifier `loginctl enable-linger` et la version de Podman (support Quadlet)
-- [ ] Créer l'unité réseau `homelab.network` (réseau `homelab_net` existant référencé ou géré)
-- [ ] Valider la syntaxe des unités avec `/usr/libexec/podman/quadlet -dryrun -user`
-- [ ] Vérifier l'intégrité de la dernière sauvegarde avant toute action
+### Étape 1 — Inventaire et socle Quadlet ✅ (hors dry-run, effectué à l'Étape 2)
+- [x] Inventorier les unités systemd/Quadlet existantes : aucune unité Quadlet, seul `podman-restart.service` est activé (sera retiré à l'Étape 6 quand Quadlet gérera le cycle de vie)
+- [x] Vérifier `loginctl enable-linger` (actif) et la version de Podman : prérequis Quadlet satisfaits (version récente, cgroups v2, générateur présent — versions exactes non documentées ici, règle anti-fingerprinting)
+- [x] Créer l'unité réseau `infra/quadlet/homelab.network` (Subnet/Gateway relevés sur le réseau existant : `10.89.0.0/24` / `10.89.0.1`)
+- [ ] Valider la syntaxe des unités avec `/usr/libexec/podman/quadlet -dryrun -user` (au premier déploiement, Étape 2)
+- [x] Vérifier l'intégrité de la dernière sauvegarde — **incident détecté et corrigé, voir Étape 1 bis**
+
+### Étape 1 bis — Incident sauvegardes (détecté et résolu le 2026-08-03) ✅
+L'inventaire a révélé que **aucune sauvegarde n'existait depuis la réinstallation du serveur** (4 causes cumulées : `BACKUP_DIR` erroné, permissions du point de montage, volume podman-compose préfixé non pris en compte par `backup.sh`, absence de planification). Corrections appliquées et vérifiées, y compris une restauration de test complète (niveau 3).
+Détail complet, procédure de vérification en 3 niveaux et leçons retenues : [`docs/runbooks/sauvegardes-verification-restauration.md`](runbooks/sauvegardes-verification-restauration.md).
+- [x] `backup.sh` corrigé (volume `apps_vaultwarden_data`) et synchronisé dans le dépôt
+- [x] Planification quotidienne par timer systemd utilisateur — unités versionnées dans `scripts/systemd/`
+- [x] Restauration de test PostgreSQL réussie (base, tables et utilisateurs conformes)
 
 ### Étape 2 — Pilote greenfield : Actual Budget (sync server)
 - [ ] Écrire `actual-budget.container` : image `docker.io/actualbudget/actual-server` épinglée, volume nommé pour les données SQLite, `EnvironmentFile=`, réseau `homelab_net`, limites de ressources
@@ -66,10 +73,11 @@ L'évolution retenue est la migration de l'orchestration **`podman-compose` → 
 - [ ] Runbook de l'étape rédigé
 
 ### Étape 4 — Migration : niveau Data (PostgreSQL)
-- [ ] Sauvegarde `pg_dumpall` fraîche + vérification d'intégrité **avant** la bascule
+- [ ] Sauvegarde `pg_dumpall` fraîche + vérification d'intégrité **avant** la bascule (procédure : runbook sauvegardes)
 - [ ] Écrire `postgres.container` (volume nommé existant réutilisé, `EnvironmentFile=`)
 - [ ] Bascule compose → Quadlet, vérification de la connexion Vaultwarden → PostgreSQL
 - [ ] Dépendance systemd : Vaultwarden démarre après PostgreSQL (`After=`/`Requires=`)
+- [ ] **Moindre privilège (OWASP)** : créer un rôle PostgreSQL dédié non-superuser pour Vaultwarden (droits limités à `vwarden_db`), remplacer le superuser dans `DATABASE_URL` — modèle à réutiliser pour chaque future application partageant l'instance
 - [ ] Runbook de l'étape rédigé
 
 ### Étape 5 — Migration : niveau Infra (Cloudflare Tunnel + Twingate)

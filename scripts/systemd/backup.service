@@ -1,0 +1,10 @@
+# Unité systemd (user) : sauvegarde du homelab
+# Déploiement : cp vers ~/.config/systemd/user/ puis
+#   systemctl --user daemon-reload && systemctl --user enable --now backup.timer
+
+[Unit]
+Description=Sauvegarde homelab (PostgreSQL + Vaultwarden)
+
+[Service]
+Type=oneshot
+ExecStart=%h/homelab/scripts/backup.sh
