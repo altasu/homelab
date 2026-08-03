@@ -1,0 +1,20 @@
+# Unité Quadlet : réseau partagé homelab_net
+# Déploiement : copier vers ~/.config/containers/systemd/ puis
+#   systemctl --user daemon-reload
+# Le générateur Quadlet exécute `podman network create --ignore` :
+# si homelab_net existe déjà (créé manuellement), il est conservé tel quel.
+#
+# Subnet/Gateway relevés sur le réseau existant (inventaire Étape 1) :
+# une re-création (disaster recovery) reproduit ainsi le même sous-réseau,
+# indispensable pour l'IP statique du twingate-connector.
+
+[Unit]
+Description=Reseau partage homelab_net (3 niveaux : infra, data, apps)
+
+[Network]
+NetworkName=homelab_net
+Subnet=10.89.0.0/24
+Gateway=10.89.0.1
+
+[Install]
+WantedBy=default.target

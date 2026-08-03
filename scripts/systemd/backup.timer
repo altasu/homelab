@@ -1,0 +1,13 @@
+# Unité systemd (user) : déclenchement quotidien de la sauvegarde
+# Persistent=true : si le serveur était éteint à l'heure prévue,
+# la sauvegarde manquée est rattrapée au démarrage suivant.
+
+[Unit]
+Description=Sauvegarde quotidienne du homelab
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

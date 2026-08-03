@@ -51,10 +51,15 @@ fi
 echo "[2/2] Sauvegarde des fichiers statiques de Vaultwarden (pièces jointes, clés RSA)..."
 
 # Archiver l'intégralité du volume contenant les données non-DB
+# ATTENTION : podman-compose préfixe les volumes nommés avec le nom du
+# répertoire (apps/compose.yml -> apps_vaultwarden_data). Un nom sans
+# préfixe créerait silencieusement un volume vide et produirait une
+# archive vide (incident corrigé le 2026-08-03, voir
+# docs/runbooks/sauvegardes-verification-restauration.md).
 podman run --rm \
-    --volume vaultwarden_data:/data:ro \
+    --volume apps_vaultwarden_data:/data:ro \
     --volume "${DEST_DIR}/vaultwarden":/backup:z \
-    docker.io/alpine:latest \
+    docker.io/alpine:3.22 \
     tar -czf "/backup/vaultwarden_data_${TIMESTAMP}.tar.gz" -C /data .
 
 if [ $? -eq 0 ]; then
