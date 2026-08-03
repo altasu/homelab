@@ -82,13 +82,16 @@ Détail complet, procédure de vérification en 3 niveaux et leçons retenues : 
 - [x] Dépendance systemd `Requires=`/`After=postgres.service` sur Vaultwarden — attend une base *prête* (healthcheck), pas un simple conteneur lancé
 - [x] Phase B : rôle `vaultwarden_app` non-superuser propriétaire de `vwarden_db` (tables et séquences transférées), `DATABASE_URL` migrée, redémarrage validé
 - [x] Runbook : [`docs/runbooks/quadlet-bascule-postgres.md`](runbooks/quadlet-bascule-postgres.md)
-- [ ] Reste à faire (Étape 5, au prochain redémarrage naturel) : healthcheck avec `-U $$POSTGRES_USER` pour supprimer le bruit bénin `FATAL: role "root" does not exist`
+- [x] Healthcheck assaini (Étape 5) : `-U $$POSTGRES_USER -d $$POSTGRES_DB` — zéro FATAL, la sonde vérifie désormais aussi l'accessibilité de la base applicative
 
-### Étape 5 — Migration : niveau Infra (Cloudflare Tunnel + Twingate)
-- [ ] **Prérequis : accès local physique au serveur disponible**
-- [ ] Écrire `cloudflared.container` et `twingate-connector.container` (IP statique conservée)
-- [ ] Bascule, vérification de l'accès distant complet (HTTPS + VPN Zero Trust)
-- [ ] Runbook de l'étape rédigé
+### Étape 5 — Migration : niveau Infra (Cloudflare Tunnel + Twingate) ✅ (bascule du 2026-08-04)
+- [x] Prérequis respecté : bascule effectuée avec accès local physique disponible
+- [x] `cloudflared.container` et `twingate-connector.container` (IP statique conservée, env par service avec `TUNNEL_TOKEN` sous son nom final)
+- [x] Bascule **un tunnel à la fois** (Twingate puis Cloudflare), accès distant vérifié depuis un réseau extérieur : VPN Zero Trust et HTTPS opérationnels
+- [x] Correctif healthcheck PostgreSQL appliqué au passage (zéro FATAL)
+- [x] Runbook : [`docs/runbooks/quadlet-bascule-infra.md`](runbooks/quadlet-bascule-infra.md)
+
+**Migration des services terminée** : les cinq services tournent désormais sous unités Quadlet.
 
 ### Étape 6 — Décommissionnement de podman-compose
 - [ ] Test de redémarrage complet du serveur : toutes les unités démarrent au boot dans le bon ordre

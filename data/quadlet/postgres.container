@@ -29,7 +29,9 @@ NoNewPrivileges=true
 # lancée via sh -c dans le conteneur, $POSTGRES_USER y est résolu depuis
 # l'EnvironmentFile. Supprime le bruit « FATAL: role "root" does not exist ».
 # À valider au dry-run (l'ExecStart généré doit contenir $$POSTGRES_USER).
-HealthCmd=pg_isready -q -U $$POSTGRES_USER
+# -d obligatoire : sans lui, pg_isready vise une base homonyme de
+# l'utilisateur (inexistante) et génère un FATAL bénin à chaque sonde.
+HealthCmd=pg_isready -q -U $$POSTGRES_USER -d $$POSTGRES_DB
 HealthInterval=30s
 Notify=healthy
 PodmanArgs=--memory=512m --cpus=0.5
