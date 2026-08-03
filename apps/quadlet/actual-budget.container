@@ -1,0 +1,32 @@
+# Unité Quadlet : Actual Budget (serveur de synchronisation)
+# Pilote greenfield de la migration Quadlet — voir docs/quadlet-migration-plan.md, Étape 2.
+#
+# Déploiement (utilisateur rootless) :
+#   cp apps/quadlet/actual-budget.{container,volume} ~/.config/containers/systemd/
+#   cp infra/quadlet/homelab.network ~/.config/containers/systemd/
+#   /usr/libexec/podman/quadlet -dryrun -user     # validation syntaxe
+#   systemctl --user daemon-reload
+#   systemctl --user start actual-budget
+#
+# Accès : uniquement via Cloudflare Tunnel -> http://actual-budget:5006
+# (zéro port entrant, posture Zero Trust inchangée).
+# Le mot de passe serveur se définit au premier accès web ; activer ensuite
+# le chiffrement de bout en bout dans le client (données chiffrées au repos).
+
+[Unit]
+Description=Actual Budget (serveur de synchronisation)
+
+[Container]
+ContainerName=actual-budget
+Image=docker.io/actualbudget/actual-server:26.8.0-alpine
+Volume=actual-budget.volume:/data
+Network=homelab.network
+NoNewPrivileges=true
+# Limites de ressources (serveur modeste, cohérent avec les autres services)
+PodmanArgs=--memory=256m --cpus=0.5
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -18,6 +18,7 @@ activation: always_on
 - **Active Stack:** Vaultwarden, PostgreSQL (`vwarden_db`, superuser defined in `data/.env` → `POSTGRES_USER`), Cloudflare Tunnel, Twingate, Actual Budget (planned).
 - **Orchestration Migration (in progress):** `podman-compose` → Quadlet (rootless systemd user units). Roadmap and current state: `docs/quadlet-migration-plan.md`. Compose rules below remain authoritative for any tier not yet migrated; Quadlet units live in the repo (e.g. `apps/quadlet/`) and are deployed to `~/.config/containers/systemd/`. No Kubernetes on this server.
 - **Quadlet Rules:** pinned image tags only (never `latest`), secrets via `EnvironmentFile=` pointing to untracked `.env` files, `homelab_net` shared network preserved, systemd dependencies (`After=`/`Requires=`) must reflect the tier order data → apps.
+- **Volume Naming Standard:** `<tier>_<service>_data` (e.g. `apps_vaultwarden_data`, `apps_actual_budget_data`) — matches the prefix podman-compose generates, and Quadlet units must set it explicitly via `VolumeName=`. Every backup script reference (archive step AND its existence guard) must use this exact name; a mismatched name silently produces an empty backup (incident of 2026-08-03).
 
 ## 5. SECRETS & PII HYGIENE
 - **Rule:** No real usernames, hostnames, exact OS/distribution names, or other personally/security-identifying values may be hardcoded in any tracked file (rules, docs, diagrams). Reference the `.env` variable name instead (e.g. `POSTGRES_USER`), never the literal value.
