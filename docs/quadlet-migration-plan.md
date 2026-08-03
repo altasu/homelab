@@ -74,14 +74,15 @@ Détail complet, procédure de vérification en 3 niveaux et leçons retenues : 
 - [x] Runbook : [`docs/runbooks/quadlet-bascule-vaultwarden.md`](runbooks/quadlet-bascule-vaultwarden.md)
 - [x] Durcissement post-bascule : NOTICE « plain text ADMIN_TOKEN » résolu — cause : échappement compose (`$$`, quotes) copié tel quel dans l'env Quadlet, lu littéralement par `podman --env-file` ; correction sans rotation (jeton jamais exposé), détail au runbook
 
-### Étape 4 — Migration : niveau Data (PostgreSQL)
-- [ ] Sauvegarde `pg_dumpall` fraîche + vérification d'intégrité **avant** la bascule (procédure : runbook sauvegardes)
-- [ ] Valider le fichier env du service avec `scripts/check-env.sh` **avant** la bascule (pièges d'échappement compose — leçon de l'Étape 3)
-- [ ] Écrire `postgres.container` (volume nommé existant réutilisé, `EnvironmentFile=`)
-- [ ] Bascule compose → Quadlet, vérification de la connexion Vaultwarden → PostgreSQL
-- [ ] Dépendance systemd : Vaultwarden démarre après PostgreSQL (`After=`/`Requires=`)
-- [ ] **Moindre privilège (OWASP)** : créer un rôle PostgreSQL dédié non-superuser pour Vaultwarden (droits limités à `vwarden_db`), remplacer le superuser dans `DATABASE_URL` — modèle à réutiliser pour chaque future application partageant l'instance
-- [ ] Runbook de l'étape rédigé
+### Étape 4 — Migration : niveau Data (PostgreSQL) ✅ (bascule du 2026-08-03, en deux phases)
+- [x] Sauvegarde `pg_dumpall` fraîche + vérification d'intégrité avant la bascule
+- [x] Fichier env validé par `scripts/check-env.sh` avant la bascule
+- [x] `postgres.container` + `postgres.volume` (volume compose réutilisé, même version épinglée, healthcheck `pg_isready` + `Notify=healthy`)
+- [x] Phase A : bascule compose → Quadlet, données intactes (« Skipping initialization »), conteneur healthy, connexions Vaultwarden vérifiées
+- [x] Dépendance systemd `Requires=`/`After=postgres.service` sur Vaultwarden — attend une base *prête* (healthcheck), pas un simple conteneur lancé
+- [x] Phase B : rôle `vaultwarden_app` non-superuser propriétaire de `vwarden_db` (tables et séquences transférées), `DATABASE_URL` migrée, redémarrage validé
+- [x] Runbook : [`docs/runbooks/quadlet-bascule-postgres.md`](runbooks/quadlet-bascule-postgres.md)
+- [ ] Reste à faire (Étape 5, au prochain redémarrage naturel) : healthcheck avec `-U $$POSTGRES_USER` pour supprimer le bruit bénin `FATAL: role "root" does not exist`
 
 ### Étape 5 — Migration : niveau Infra (Cloudflare Tunnel + Twingate)
 - [ ] **Prérequis : accès local physique au serveur disponible**

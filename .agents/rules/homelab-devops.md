@@ -22,6 +22,10 @@ activation: always_on
 
 ## 5. SECRETS & PII HYGIENE
 - **Rule:** No real usernames, hostnames, exact OS/distribution names, or other personally/security-identifying values may be hardcoded in any tracked file (rules, docs, diagrams). Reference the `.env` variable name instead (e.g. `POSTGRES_USER`), never the literal value.
+- **Classification — what counts as sensitive vs. structural:**
+  * *Secrets* (passwords, tokens, keys): never in tracked files, `.env` only.
+  * *Identifying values* (personal-looking usernames, real domains, hostnames, LAN/public IPs, OS/hardware fingerprints): never in tracked files — these carry personal information or reduce attacker reconnaissance cost.
+  * *Structural constants* (generic DB/role/container names like `vwarden_db`/`vaultwarden_app`/`postgres-db`, internal ports, the internal Podman subnet): **allowed and expected** in tracked files — they are required for IaC/disaster-recovery reproducibility, are first-guess generic names carrying no personal information, and grant no capability without network access plus credentials. Security rests on passwords and network isolation, not on name secrecy.
 - **Rationale:** A leaked username reduces attacker reconnaissance effort even without a password; the same "no fingerprinting info in versioned files" logic already applied to container image versions (see `homelab-architecture.md` → Audit de Sécurité) extends to credentials and personal identifiers.
 - **Local-only exception:** If an AI session genuinely needs the real value (e.g. for a specific debugging task), keep it in an untracked, gitignored local note — never in a file meant to be committed.
 - **Database Safety:** Always verify backup archive integrity before performing any database restore or schema migration operations.
