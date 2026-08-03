@@ -1,0 +1,26 @@
+# Unité Quadlet : Cloudflare Tunnel (niveau Infra)
+# Migration compose -> Quadlet : Étape 5 du plan — LIGNE DE VIE DE L'ACCÈS
+# DISTANT. Bascule uniquement avec un accès local physique au serveur.
+#
+# PRÉREQUIS : infra/cloudflared.env créé depuis cloudflared.env.example
+# (TUNNEL_TOKEN = valeur de CLOUDFLARE_TOKEN dans l'ancien infra/.env)
+# et validé par scripts/check-env.sh.
+# Même version épinglée que infra/compose.yml (une chose à la fois).
+
+[Unit]
+Description=Cloudflare Tunnel (niveau Infra)
+
+[Container]
+ContainerName=cloudflare-tunnel
+Image=docker.io/cloudflare/cloudflared:2026.6.0
+Exec=tunnel run
+EnvironmentFile=%h/homelab/infra/cloudflared.env
+Network=homelab.network
+NoNewPrivileges=true
+PodmanArgs=--memory=128m --cpus=0.25
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
