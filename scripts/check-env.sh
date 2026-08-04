@@ -68,6 +68,16 @@ check_file() {
         echo "✅ Pas de valeur d'exemple restante"
     fi
 
+    # Le caractère # peut être interprété comme un début de commentaire par
+    # l'analyseur de fichier d'environnement : la valeur serait alors
+    # silencieusement tronquée (échec d'authentification difficile à diagnostiquer).
+    if echo "$lines" | grep -q '#'; then
+        echo "❌ ERREUR : caractère # dans une valeur — risque de troncature silencieuse, choisir une valeur sans #"
+        STATUS=1
+    else
+        echo "✅ Pas de caractère # dans les valeurs"
+    fi
+
     # Règles spécifiques aux variables connues
     local v
     v=$(echo "$lines" | grep '^ADMIN_TOKEN=' || true)
