@@ -1,0 +1,6 @@
+# Unité Quadlet : volume Grafana (tableaux de bord, sources de données,
+# utilisateurs). Petit volume mais IRREMPLAÇABLE une fois les tableaux de
+# bord construits — couvert par scripts/backup.sh.
+
+[Volume]
+VolumeName=apps_grafana_data

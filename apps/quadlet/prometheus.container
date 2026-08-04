@@ -1,0 +1,27 @@
+# Unité Quadlet : Prometheus (collecte et stockage des métriques)
+# Étape 7 du plan — observabilité.
+#
+# Non exposé : aucune route de tunnel, aucun port publié. Prometheus n'est
+# joignable que depuis le réseau partagé (Grafana l'interroge par son nom).
+#
+# Rétention volontairement courte : les métriques sont des données
+# remplaçables, ce volume n'est donc PAS inclus dans les sauvegardes.
+
+[Unit]
+Description=Prometheus (collecte des metriques)
+
+[Container]
+ContainerName=prometheus
+Image=docker.io/prom/prometheus:v3.13.2
+Volume=prometheus.volume:/prometheus
+Volume=%h/homelab/apps/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro,z
+Network=homelab.network
+NoNewPrivileges=true
+Exec=--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=15d
+PodmanArgs=--memory=512m --cpus=0.5
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

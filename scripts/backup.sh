@@ -2,13 +2,15 @@
 
 # ==============================================================================
 # Script de Sauvegarde Automatisée du Homelab
-# Description : Effectue des sauvegardes logiques des bases de données (PostgreSQL)
-#               et des données d'application (Vaultwarden, Actual Budget),
-#               puis les copie sur le HDD externe.
+# Description : Effectue des sauvegardes logiques des bases de données
+#               (PostgreSQL) et des volumes applicatifs, puis les copie sur
+#               le disque de sauvegarde externe.
+#
+# Principe directeur : un échec doit être BRUYANT. Aucune archive vide ou
+# partielle n'est conservée, et le script sort en code non nul afin que le
+# timer systemd marque le service comme « failed ».
 # ==============================================================================
 
-# Charger les variables d'environnement (pour obtenir BACKUP_DIR si nécessaire)
-# Charger le fichier env de data pour obtenir les identifiants DB et les chemins
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set -a
 source "${SCRIPT_DIR}/../data/.env"
@@ -19,9 +21,12 @@ set +a
 # (incident du 2026-08-04, voir le runbook des sauvegardes).
 set -o pipefail
 
-# Code de sortie global : toute section en échec le fait passer à 1, afin que
-# `systemctl --user status backup.service` signale réellement l'échec.
+# Code de sortie global : toute section en échec le fait passer à 1.
 EXIT_CODE=0
+
+# Répertoire lu par le collecteur « textfile » de node_exporter :
+# permet d'alerter sur une sauvegarde absente, ancienne ou en échec.
+METRICS_DIR="${HOME}/.local/share/homelab-metrics"
 
 # S'assurer que BACKUP_DIR est défini dans .env (Pattern de sécurité fail-fast)
 if [ -z "${BACKUP_DIR}" ]; then
@@ -31,9 +36,7 @@ fi
 DEST_DIR="${BACKUP_DIR}"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
-# S'assurer que le répertoire de sauvegarde existe
 mkdir -p "${DEST_DIR}/postgres"
-mkdir -p "${DEST_DIR}/vaultwarden"
 
 echo "================================================================="
 echo "Début de la sauvegarde du Homelab - $(date)"
@@ -41,17 +44,53 @@ echo "Destination : ${DEST_DIR}"
 echo "================================================================="
 
 # ------------------------------------------------------------------------------
-# 1. Sauvegarde Logique PostgreSQL (Niveau 2)
+# Fonction générique de sauvegarde d'un volume nommé
+#
+# Usage : backup_volume <nom_du_volume> <sous_repertoire> <libelle> <requis|optionnel>
+#
+# Le nom du volume n'apparaît qu'UNE SEULE FOIS par appel : c'est la
+# duplication d'un même nom à deux endroits (archive et garde-fou) qui avait
+# produit une sauvegarde vide silencieuse le 2026-08-03.
+# Standard de nommage des volumes : <niveau>_<service>_data.
 # ------------------------------------------------------------------------------
-echo "[1/3] Sauvegarde des bases de données PostgreSQL..."
+backup_volume() {
+    local volume="$1" subdir="$2" label="$3" requirement="$4"
+    local archive="${subdir}_data_${TIMESTAMP}.tar.gz"
 
-# Garde-fou : sans conteneur en cours d'exécution, ne pas créer d'archive vide
+    if ! podman volume exists "${volume}"; then
+        if [ "${requirement}" = "requis" ]; then
+            echo "❌ Échec : volume ${volume} introuvable alors qu'il est attendu."
+            EXIT_CODE=1
+        else
+            echo "⏭  Volume ${volume} absent (service non déployé) — ${label} ignoré."
+        fi
+        return
+    fi
+
+    mkdir -p "${DEST_DIR}/${subdir}"
+    if podman run --rm \
+        --volume "${volume}:/data:ro" \
+        --volume "${DEST_DIR}/${subdir}:/backup:z" \
+        docker.io/alpine:3.22 \
+        tar -czf "/backup/${archive}" -C /data . ; then
+        echo "✅ Sauvegarde ${label} réussie."
+    else
+        echo "❌ Échec de la sauvegarde ${label} ! Archive incomplète supprimée."
+        rm -f "${DEST_DIR}/${subdir}/${archive}"
+        EXIT_CODE=1
+    fi
+}
+
+# ------------------------------------------------------------------------------
+# 1. Sauvegarde logique PostgreSQL (niveau Data)
+# ------------------------------------------------------------------------------
+echo "[1/4] Sauvegarde des bases de données PostgreSQL..."
+
 if ! podman container exists postgres-db; then
     echo "❌ Échec : le conteneur postgres-db n'existe pas — sauvegarde PostgreSQL ignorée."
     EXIT_CODE=1
 else
     PG_DUMP_FILE="${DEST_DIR}/postgres/pg_dumpall_${TIMESTAMP}.sql.gz"
-    # Exécuter pg_dumpall à l'intérieur du conteneur, compression à la volée.
     # Grâce à `set -o pipefail`, un échec de pg_dumpall est bien détecté ici.
     if podman exec postgres-db pg_dumpall -U "${POSTGRES_USER}" | gzip > "${PG_DUMP_FILE}"; then
         # Double contrôle : une archive valide mais vide reste un échec
@@ -70,55 +109,20 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 2. Sauvegarde des Fichiers Statiques Vaultwarden (Niveau 3)
+# 2-4. Sauvegarde des volumes applicatifs
+#
+# Note : le volume de Prometheus est volontairement ABSENT de cette liste —
+# l'historique de métriques est une donnée remplaçable dont la perte n'a
+# aucune conséquence opérationnelle.
 # ------------------------------------------------------------------------------
-echo "[2/3] Sauvegarde des fichiers statiques de Vaultwarden (pièces jointes, clés RSA)..."
+echo "[2/4] Sauvegarde du volume Vaultwarden (pièces jointes, clés RSA)..."
+backup_volume apps_vaultwarden_data   vaultwarden  "des fichiers statiques de Vaultwarden" requis
 
-# Archiver l'intégralité du volume contenant les données non-DB
-# ATTENTION : podman-compose préfixe les volumes nommés avec le nom du
-# répertoire (apps/compose.yml -> apps_vaultwarden_data). Un nom sans
-# préfixe créerait silencieusement un volume vide et produirait une
-# archive vide (incident corrigé le 2026-08-03, voir
-# docs/runbooks/sauvegardes-verification-restauration.md).
-podman run --rm \
-    --volume apps_vaultwarden_data:/data:ro \
-    --volume "${DEST_DIR}/vaultwarden":/backup:z \
-    docker.io/alpine:3.22 \
-    tar -czf "/backup/vaultwarden_data_${TIMESTAMP}.tar.gz" -C /data .
+echo "[3/4] Sauvegarde du volume Actual Budget (SQLite)..."
+backup_volume apps_actual_budget_data actualbudget "d'Actual Budget"                       requis
 
-if [ $? -eq 0 ]; then
-    echo "✅ Sauvegarde des fichiers statiques de Vaultwarden réussie."
-else
-    echo "❌ Échec de la sauvegarde des fichiers statiques de Vaultwarden !"
-    EXIT_CODE=1
-fi
-
-# ------------------------------------------------------------------------------
-# 3. Sauvegarde des Données Actual Budget (Niveau 3)
-# ------------------------------------------------------------------------------
-# Volume géré par Quadlet. STANDARD DE NOMMAGE : <tier>_<service>_data
-# (VolumeName= explicite aligné sur la convention compose, ex. apps_vaultwarden_data),
-# le garde-fou ci-dessous DOIT référencer exactement le même nom que l'archive.
-# SEULE persistance d'Actual Budget : fichiers SQLite (pas de backend PostgreSQL).
-# Garde-fou : ignoré tant que le service n'est pas déployé (Étape 2 du plan).
-if podman volume exists apps_actual_budget_data; then
-    echo "[3/3] Sauvegarde des données Actual Budget (SQLite)..."
-    mkdir -p "${DEST_DIR}/actualbudget"
-    podman run --rm \
-        --volume apps_actual_budget_data:/data:ro \
-        --volume "${DEST_DIR}/actualbudget":/backup:z \
-        docker.io/alpine:3.22 \
-        tar -czf "/backup/actualbudget_data_${TIMESTAMP}.tar.gz" -C /data .
-
-    if [ $? -eq 0 ]; then
-        echo "✅ Sauvegarde d'Actual Budget réussie."
-    else
-        echo "❌ Échec de la sauvegarde d'Actual Budget !"
-        EXIT_CODE=1
-    fi
-else
-    echo "[3/3] Volume apps_actual_budget_data absent — sauvegarde Actual Budget ignorée."
-fi
+echo "[4/4] Sauvegarde du volume Grafana (tableaux de bord)..."
+backup_volume apps_grafana_data       grafana      "des tableaux de bord Grafana"          optionnel
 
 echo "================================================================="
 if [ "${EXIT_CODE}" -eq 0 ]; then
@@ -129,14 +133,40 @@ fi
 echo "================================================================="
 
 # ------------------------------------------------------------------------------
-# Nettoyage des anciennes sauvegardes (Conserver les 7 derniers jours)
+# Publication des métriques pour node_exporter (collecteur textfile)
+#
+# Écriture atomique (fichier temporaire puis renommage) : node_exporter peut
+# lire le répertoire à tout instant et ne doit jamais voir un fichier partiel.
 # ------------------------------------------------------------------------------
-# Uniquement si tout s'est bien passé : ne jamais supprimer d'anciennes
-# sauvegardes valides lorsque celles du jour ont échoué.
+mkdir -p "${METRICS_DIR}"
+NOW_EPOCH=$(date +%s)
+{
+    echo "# HELP homelab_backup_last_run_timestamp_seconds Horodatage de la derniere execution de la sauvegarde."
+    echo "# TYPE homelab_backup_last_run_timestamp_seconds gauge"
+    echo "homelab_backup_last_run_timestamp_seconds ${NOW_EPOCH}"
+    echo "# HELP homelab_backup_last_exit_code Code de sortie de la derniere execution (0 = succes)."
+    echo "# TYPE homelab_backup_last_exit_code gauge"
+    echo "homelab_backup_last_exit_code ${EXIT_CODE}"
+    if [ "${EXIT_CODE}" -eq 0 ]; then
+        echo "# HELP homelab_backup_last_success_timestamp_seconds Horodatage de la derniere sauvegarde reussie."
+        echo "# TYPE homelab_backup_last_success_timestamp_seconds gauge"
+        echo "homelab_backup_last_success_timestamp_seconds ${NOW_EPOCH}"
+    fi
+} > "${METRICS_DIR}/backup.prom.tmp"
+mv "${METRICS_DIR}/backup.prom.tmp" "${METRICS_DIR}/backup.prom"
+
+# ------------------------------------------------------------------------------
+# Nettoyage des anciennes sauvegardes (conserver les 7 derniers jours)
+#
+# Uniquement en cas de succès : une panne silencieuse prolongée ne doit jamais
+# finir par supprimer les dernières archives saines.
+# ------------------------------------------------------------------------------
 if [ "${EXIT_CODE}" -eq 0 ]; then
     find "${DEST_DIR}/postgres" -type f -name "*.sql.gz" -mtime +7 -delete
-    find "${DEST_DIR}/vaultwarden" -type f -name "*.tar.gz" -mtime +7 -delete
-    find "${DEST_DIR}/actualbudget" -type f -name "*.tar.gz" -mtime +7 -delete 2>/dev/null
+    for subdir in vaultwarden actualbudget grafana; do
+        [ -d "${DEST_DIR}/${subdir}" ] && \
+            find "${DEST_DIR}/${subdir}" -type f -name "*.tar.gz" -mtime +7 -delete
+    done
 else
     echo "Rotation des anciennes sauvegardes ignorée (échec détecté)."
 fi

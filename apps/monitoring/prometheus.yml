@@ -1,0 +1,26 @@
+# Configuration Prometheus — homelab
+# Montée en lecture seule dans le conteneur par l'unité Quadlet.
+#
+# Intervalle volontairement large (serveur à 2 cœurs) : la granularité
+# fine n'apporte rien ici et coûte du CPU et de l'espace disque.
+
+global:
+  scrape_interval: 30s
+  scrape_timeout: 10s
+  evaluation_interval: 60s
+
+scrape_configs:
+  # Prometheus lui-même
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Métriques de l'hôte (CPU, mémoire, disques, systemd, textfile)
+  - job_name: node
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Métriques des conteneurs Podman (rootless, via le socket utilisateur)
+  - job_name: podman
+    static_configs:
+      - targets: ['podman-exporter:9882']

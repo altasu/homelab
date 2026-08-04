@@ -1,0 +1,29 @@
+# Unité Quadlet : Grafana (tableaux de bord)
+# Étape 7 du plan — observabilité.
+#
+# EXPOSITION : via le VPN Zero Trust uniquement (ressource Twingate vers
+# grafana:3000). Aucune route de tunnel public : les métriques d'un serveur
+# personnel n'ont pas à être joignables depuis Internet.
+#
+# PRÉREQUIS : apps/grafana.env créé depuis grafana.env.example,
+# chmod 600, validé par scripts/check-env.sh.
+
+[Unit]
+Description=Grafana (tableaux de bord)
+Requires=prometheus.service
+After=prometheus.service
+
+[Container]
+ContainerName=grafana
+Image=docker.io/grafana/grafana:13.1.2
+EnvironmentFile=%h/homelab/apps/grafana.env
+Volume=grafana.volume:/var/lib/grafana
+Network=homelab.network
+NoNewPrivileges=true
+PodmanArgs=--memory=256m --cpus=0.5
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
