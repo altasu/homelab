@@ -1,3 +1,7 @@
+# ⚠️ OBSOLÈTE — conservé à titre historique et comme solution de repli.
+# L'orchestration est assurée par les unités Quadlet de infra/quadlet/.
+# Voir docs/quadlet-migration-plan.md.
+
 services:
   cloudflared:
     image: docker.io/cloudflare/cloudflared:2026.6.0

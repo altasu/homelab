@@ -18,28 +18,36 @@ Ce dépôt contient l'Infrastructure as Code (IaC) de mon homelab personnel, con
 
 Tous les stages partagent le réseau externe Podman `homelab_net`.
 
-### Déploiement (Ordre Obligatoire)
+### Orchestration : unités Quadlet (systemd utilisateur)
+
+L'orchestration est assurée par **Quadlet** : chaque service est décrit par une unité `.container` versionnée dans le stage correspondant (`*/quadlet/`), exécutée en mode rootless par systemd utilisateur.
 
 ```bash
-# 1. Réseau partagé (une seule fois)
-podman network create homelab_net
+# 1. Déployer les unités (après git pull)
+cp infra/quadlet/* data/quadlet/* apps/quadlet/* ~/.config/containers/systemd/
 
-# 2. Stage 1 — Ne jamais arrêter à distance
-podman-compose -f infra/compose.yml up -d
+# 2. Valider la syntaxe AVANT activation
+/usr/libexec/podman/quadlet -dryrun -user
 
-# 3. Stage 2 — Bases de données
-podman-compose -f data/compose.yml up -d
-
-# 4. Stage 3 — Applications
-podman-compose -f apps/compose.yml up -d
+# 3. Recharger et démarrer
+systemctl --user daemon-reload
+systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector
 ```
+
+L'ordre de démarrage n'a plus à être appliqué manuellement : les dépendances systemd (`Requires=`/`After=`) et le healthcheck de la base le garantissent, au démarrage comme au boot (`loginctl enable-linger` + section `[Install]` des unités).
+
+Secrets : un fichier env par service (`<stage>/<service>.env`, jamais versionné), validé par `scripts/check-env.sh`.
+
+> Les fichiers `compose.yml` sont conservés à titre historique et comme solution de repli — voir [le plan de migration](docs/quadlet-migration-plan.md).
 
 ### Posture de Sécurité (Zero-Trust)
 
 - **Aucun port entrant ouvert** : Tout trafic passe par des tunnels sortants chiffrés.
 - **Rootless Podman** : Aucun privilège root requis pour les conteneurs.
-- **Secrets isolés** : Chaque stage possède son propre `.env` (ignoré par Git).
+- **Secrets isolés** : Chaque service possède son propre fichier env (ignoré par Git).
 - **Versions épinglées** : Les images sont versionnées pour éviter les régressions.
+- **Moindre privilège** : Chaque application dispose de son propre rôle PostgreSQL non-superuser.
+- **Sauvegardes vérifiées** : Sauvegarde quotidienne planifiée, échec bruyant, restauration testée — voir [le runbook](docs/runbooks/sauvegardes-verification-restauration.md).
 
 ---
 
@@ -57,25 +65,33 @@ This repository contains the Infrastructure as Code (IaC) for my personal homela
 
 All stages share the external Podman network `homelab_net`.
 
-### Deployment (Mandatory Order)
+### Orchestration: Quadlet units (user systemd)
+
+Orchestration relies on **Quadlet**: each service is described by a version-controlled `.container` unit inside its stage (`*/quadlet/`), run rootless by user systemd.
 
 ```bash
-# 1. Shared network (once only)
-podman network create homelab_net
+# 1. Deploy the units (after git pull)
+cp infra/quadlet/* data/quadlet/* apps/quadlet/* ~/.config/containers/systemd/
 
-# 2. Stage 1 — Never stop remotely
-podman-compose -f infra/compose.yml up -d
+# 2. Validate syntax BEFORE activation
+/usr/libexec/podman/quadlet -dryrun -user
 
-# 3. Stage 2 — Databases
-podman-compose -f data/compose.yml up -d
-
-# 4. Stage 3 — Applications
-podman-compose -f apps/compose.yml up -d
+# 3. Reload and start
+systemctl --user daemon-reload
+systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector
 ```
+
+Startup order no longer needs to be applied manually: systemd dependencies (`Requires=`/`After=`) plus the database healthcheck enforce it, both on demand and at boot (`loginctl enable-linger` + the units' `[Install]` section).
+
+Secrets: one env file per service (`<stage>/<service>.env`, never version-controlled), validated by `scripts/check-env.sh`.
+
+> The `compose.yml` files are kept as historical reference and fallback — see [the migration plan](docs/quadlet-migration-plan.md).
 
 ### Security Posture (Zero-Trust)
 
 - **Zero inbound ports**: All traffic flows through encrypted outbound tunnels only.
 - **Rootless Podman**: No root privileges required for container operations.
-- **Isolated secrets**: Each stage has its own `.env` file, excluded from Git history.
+- **Isolated secrets**: Each service has its own env file, excluded from Git history.
 - **Pinned versions**: Container images are versioned to prevent unexpected regressions.
+- **Least privilege**: Each application uses its own non-superuser PostgreSQL role.
+- **Verified backups**: Scheduled daily backups that fail loudly, with tested restore — see [the runbook](docs/runbooks/sauvegardes-verification-restauration.md).
