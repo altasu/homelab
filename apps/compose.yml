@@ -1,8 +1,11 @@
+# ⚠️ OBSOLÈTE — conservé à titre historique et comme solution de repli.
+# L'orchestration est assurée par les unités Quadlet de apps/quadlet/.
+# Voir docs/quadlet-migration-plan.md.
+#
 # Stage 3: Applications
-# Ce fichier peut être arrêté/redémarré sans couper l'accès distant.
 # Prérequis: infra/ et data/ doivent être actifs (homelab_net doit exister).
 #
-# Usage: podman-compose -f compose.yml up -d
+# Repli uniquement: podman-compose -f compose.yml up -d
 
 services:
   vaultwarden:

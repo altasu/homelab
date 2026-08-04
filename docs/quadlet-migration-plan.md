@@ -93,11 +93,15 @@ Détail complet, procédure de vérification en 3 niveaux et leçons retenues : 
 
 **Migration des services terminée** : les cinq services tournent désormais sous unités Quadlet.
 
-### Étape 6 — Décommissionnement de podman-compose
-- [ ] Test de redémarrage complet du serveur : toutes les unités démarrent au boot dans le bon ordre
-- [ ] Mise à jour du README et de `.agents/workflows/deploy-stage.md` (workflow Quadlet remplaçant le workflow compose)
-- [ ] Les fichiers `compose.yml` sont conservés dans le dépôt à titre de documentation historique et de solution de secours, avec une note d'obsolescence
-- [ ] Vérifier `scripts/backup.sh` (les noms de conteneurs restant identiques, l'impact attendu est nul)
+### Étape 6 — Décommissionnement de podman-compose ✅ (2026-08-04)
+- [x] `podman-restart.service` désactivé (Quadlet gère désormais le cycle de vie) et pods compose résiduels supprimés
+- [x] **Test de redémarrage complet réussi** : les cinq services redémarrent seuls au boot, dans le bon ordre (PostgreSQL puis Vaultwarden, l'attente du healthcheck étant visible dans les horodatages) ; le timer de sauvegarde est bien reprogrammé
+- [x] README mis à jour (déploiement Quadlet remplaçant les commandes compose, dans les deux langues)
+- [x] `.agents/workflows/deploy-stage.md` réécrit en workflow Quadlet (validation, secrets par service, dry-run, rollback, précautions)
+- [x] Note d'obsolescence ajoutée en tête des trois `compose.yml`, conservés comme repli
+- [x] `scripts/backup.sh` vérifié après bascule — et durci suite à l'incident du 2026-08-04 (échec silencieux, voir runbook des sauvegardes)
+
+**Migration terminée.** Les étapes suivantes sont des ajouts optionnels, plus des évolutions que des migrations.
 
 ### Étape 7 — Observabilité légère (optionnelle)
 - [ ] Prometheus + Grafana + node_exporter comme unités Quadlet avec limites de ressources strictes

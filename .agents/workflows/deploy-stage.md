@@ -1,28 +1,58 @@
 ---
-description: Valide et prépare un niveau spécifique (infra, data ou apps) pour le déploiement.
+description: Valide et déploie un service du homelab via son unité Quadlet (infra, data ou apps).
 ---
 
-# Workflow : Déploiement de Niveau Homelab
+# Workflow : Déploiement d'un Service Homelab (Quadlet)
 
-**Description :** Valide et prépare un niveau spécifique (infra, data ou apps) pour son déploiement.
+**Description :** Valide et déploie un service décrit par une unité Quadlet versionnée dans son niveau (`infra/quadlet/`, `data/quadlet/` ou `apps/quadlet/`).
 
-> **Note migration :** une migration `podman-compose` → Quadlet est en cours (voir `docs/quadlet-migration-plan.md`). Ce workflow reste valable pour les niveaux non encore migrés ; il sera remplacé par un workflow Quadlet à l'étape 6 du plan.
+> Les fichiers `compose.yml` sont conservés comme solution de repli uniquement. Toute évolution passe par les unités Quadlet.
 
 ## Étapes de Validation
-1. Naviguer vers le répertoire du niveau demandé (`infra/`, `data/` ou `apps/`).
-2. Valider la syntaxe du fichier `compose.yml`.
-3. Vérifier que le réseau `homelab_net` est déclaré comme externe. Si absent, s'assurer que la commande de création existe : `podman network create homelab_net`.
-4. **Vérification Architecturale :**
-    - S'assurer que toutes les images utilisées dans le fichier `compose.yml` ont le préfixe `docker.io/`.
-    - Vérifier que la persistance utilise exclusivement des Volumes Nommés Podman (Named Volumes) et aucun montage direct sur l'hôte (host bind mounts) pour les bases de données actives.
-    - S'assurer que les versions des images dans `compose.yml` sont figées (pas de tag `latest`), mais que ces versions ne sont **pas** exposées dans les fichiers de documentation générale (diagrammes Mermaid de `docs/`, ex. `docs/architecture.md`) pour éviter la fuite d'informations.
-5. S'assurer qu'un fichier `.env.example` existe dans le répertoire et que les fichiers `.env` et de sauvegarde de test (ex: `backups/`) sont ignorés dans le fichier `.gitignore` racine.
-6. **Audit de Sécurité :**
-    - Scanner tous les fichiers modifiés (ex: `compose.yml`, scripts, diagrammes) à la recherche de mots de passe codés en dur, de jetons, de clés d'API, de noms de domaine exacts ou de chemins absolus de l'hôte.
-    - S'assurer que les secrets sont encapsulés via des variables d'environnement (`${VARIABLE_NAME}`).
-    - **Validation Encodage :** Si un mot de passe dans un fichier `.env` local contient des caractères spéciaux réservés, vérifier que la variable `DATABASE_URL` les encode correctement en URL (percent-encoding) ou proposer de simplifier le mot de passe local en caractères alphanumériques.
-7. Préparer le message de commit en français (format Conventional Commits), et le soumettre à validation explicite de l'utilisateur avant tout `git commit`.
-8. **Pré-requis du Déploiement :**
-    - Vérifier que le réseau partagé existe sur la machine : `podman network inspect homelab_net || podman network create homelab_net`.
-    - Respecter l'ordre de déploiement strict : `infra` -> `data` -> `apps`. Si le niveau `apps` est déployé, s'assurer que `data` et `infra` sont déjà actifs.
-9. **Exécution :** Exécuter la commande `podman-compose -f <stage>/compose.yml up -d` pour le niveau concerné. Valider le statut avec `podman ps`.
+
+1. Identifier le niveau concerné (`infra/`, `data/` ou `apps/`) et les unités associées (`.container`, `.volume`).
+2. **Vérification Architecturale :**
+    - Toutes les images doivent porter le préfixe `docker.io/` et une **version épinglée** (jamais `latest`), sans que ces versions apparaissent dans la documentation générale (diagrammes Mermaid de `docs/`).
+    - La persistance doit utiliser exclusivement des volumes nommés Podman, déclarés par une unité `.volume` avec `VolumeName=` suivant le standard `<niveau>_<service>_data` (aucun montage direct de l'hôte pour les données actives).
+    - Le réseau doit être `homelab.network` (réseau partagé `homelab_net`) ; jamais `network_mode: host`, jamais de port publié.
+    - Les dépendances entre niveaux doivent être exprimées par `Requires=`/`After=` (ordre `data` → `apps`), et un service dont d'autres dépendent doit exposer un healthcheck avec `Notify=healthy`.
+3. **Secrets :**
+    - Un fichier env par service (`<niveau>/<service>.env`), consommé par `EnvironmentFile=`, accompagné d'un `<service>.env.example` versionné.
+    - Valeurs **finales** dans le fichier env : ni quotes, ni échappement `$$`, ni placeholders — contrairement aux conventions compose.
+    - Vérifier avec `scripts/check-env.sh <fichier>` et s'assurer des permissions `600`.
+4. **Audit de Sécurité** (dépôt public) :
+    - Scanner tous les fichiers modifiés à la recherche de secrets, d'identifiants réels, de noms de domaine, d'adresses IP du réseau local ou d'empreintes système.
+    - Se référer à la classification secrets / valeurs identifiantes / constantes structurelles de `.agents/rules/homelab-devops.md`.
+5. **Sauvegarde préalable** (tout service manipulant des données existantes) : exécuter `scripts/backup.sh` et vérifier l'intégrité de l'archive produite avant toute bascule.
+6. Préparer le message de commit en français (format Conventional Commits) et le soumettre à validation explicite de l'utilisateur avant tout `git commit`.
+
+## Déploiement
+
+```bash
+git pull
+cp <niveau>/quadlet/<service>.* ~/.config/containers/systemd/
+/usr/libexec/podman/quadlet -dryrun -user      # validation AVANT activation
+systemctl --user daemon-reload
+systemctl --user start <service>
+systemctl --user status <service> --no-pager
+podman ps
+```
+
+Vérifier ensuite l'accès applicatif depuis un réseau extérieur (le trafic devant traverser le tunnel) et, pour les services persistants, que `scripts/backup.sh` couvre bien leur volume.
+
+## Rollback
+
+```bash
+systemctl --user stop <service>
+rm ~/.config/containers/systemd/<service>.*
+systemctl --user daemon-reload
+podman-compose -f <niveau>/compose.yml up -d   # repli historique, si applicable
+```
+
+Le volume nommé n'est jamais supprimé par un rollback : les données sont conservées.
+
+## Précautions
+
+- Ne jamais migrer plusieurs composants d'accès distant (tunnels) simultanément : un chemin d'accès doit rester fonctionnel.
+- Toute bascule touchant le niveau `infra` exige un accès local physique au serveur.
+- `systemctl --user disable --now podman-restart.service` arrête les conteneurs en cours (`ExecStop`) : utiliser `disable` seul pour retirer une unité du démarrage sans interrompre le service.
