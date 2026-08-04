@@ -14,6 +14,15 @@ set -a
 source "${SCRIPT_DIR}/../data/.env"
 set +a
 
+# pipefail : sans lui, `commande | gzip > fichier` renvoie le code de gzip,
+# qui réussit même sur une entrée vide -> archive vide déclarée « réussie »
+# (incident du 2026-08-04, voir le runbook des sauvegardes).
+set -o pipefail
+
+# Code de sortie global : toute section en échec le fait passer à 1, afin que
+# `systemctl --user status backup.service` signale réellement l'échec.
+EXIT_CODE=0
+
 # S'assurer que BACKUP_DIR est défini dans .env (Pattern de sécurité fail-fast)
 if [ -z "${BACKUP_DIR}" ]; then
     echo "❌ ERREUR : BACKUP_DIR n'est pas défini dans data/.env ! Abandon de la sauvegarde."
@@ -36,14 +45,28 @@ echo "================================================================="
 # ------------------------------------------------------------------------------
 echo "[1/3] Sauvegarde des bases de données PostgreSQL..."
 
-# Exécuter pg_dumpall à l'intérieur du conteneur postgres-db
-# Nous utilisons gzip pour compresser le dump SQL à la volée
-podman exec postgres-db pg_dumpall -U "${POSTGRES_USER}" | gzip > "${DEST_DIR}/postgres/pg_dumpall_${TIMESTAMP}.sql.gz"
-
-if [ $? -eq 0 ]; then
-    echo "✅ Sauvegarde de PostgreSQL réussie."
+# Garde-fou : sans conteneur en cours d'exécution, ne pas créer d'archive vide
+if ! podman container exists postgres-db; then
+    echo "❌ Échec : le conteneur postgres-db n'existe pas — sauvegarde PostgreSQL ignorée."
+    EXIT_CODE=1
 else
-    echo "❌ Échec de la sauvegarde de PostgreSQL !"
+    PG_DUMP_FILE="${DEST_DIR}/postgres/pg_dumpall_${TIMESTAMP}.sql.gz"
+    # Exécuter pg_dumpall à l'intérieur du conteneur, compression à la volée.
+    # Grâce à `set -o pipefail`, un échec de pg_dumpall est bien détecté ici.
+    if podman exec postgres-db pg_dumpall -U "${POSTGRES_USER}" | gzip > "${PG_DUMP_FILE}"; then
+        # Double contrôle : une archive valide mais vide reste un échec
+        if [ "$(gzip -dc "${PG_DUMP_FILE}" | head -c 1 | wc -c)" -eq 0 ]; then
+            echo "❌ Échec : le dump PostgreSQL est vide — archive supprimée."
+            rm -f "${PG_DUMP_FILE}"
+            EXIT_CODE=1
+        else
+            echo "✅ Sauvegarde de PostgreSQL réussie."
+        fi
+    else
+        echo "❌ Échec de la sauvegarde de PostgreSQL ! Archive incomplète supprimée."
+        rm -f "${PG_DUMP_FILE}"
+        EXIT_CODE=1
+    fi
 fi
 
 # ------------------------------------------------------------------------------
@@ -67,6 +90,7 @@ if [ $? -eq 0 ]; then
     echo "✅ Sauvegarde des fichiers statiques de Vaultwarden réussie."
 else
     echo "❌ Échec de la sauvegarde des fichiers statiques de Vaultwarden !"
+    EXIT_CODE=1
 fi
 
 # ------------------------------------------------------------------------------
@@ -90,18 +114,33 @@ if podman volume exists apps_actual_budget_data; then
         echo "✅ Sauvegarde d'Actual Budget réussie."
     else
         echo "❌ Échec de la sauvegarde d'Actual Budget !"
+        EXIT_CODE=1
     fi
 else
     echo "[3/3] Volume apps_actual_budget_data absent — sauvegarde Actual Budget ignorée."
 fi
 
 echo "================================================================="
-echo "Sauvegarde terminée - $(date)"
+if [ "${EXIT_CODE}" -eq 0 ]; then
+    echo "Sauvegarde terminée avec succès - $(date)"
+else
+    echo "⚠️  Sauvegarde terminée AVEC ERREURS - $(date)"
+fi
 echo "================================================================="
 
 # ------------------------------------------------------------------------------
 # Nettoyage des anciennes sauvegardes (Conserver les 7 derniers jours)
 # ------------------------------------------------------------------------------
-find "${DEST_DIR}/postgres" -type f -name "*.sql.gz" -mtime +7 -delete
-find "${DEST_DIR}/vaultwarden" -type f -name "*.tar.gz" -mtime +7 -delete
-find "${DEST_DIR}/actualbudget" -type f -name "*.tar.gz" -mtime +7 -delete 2>/dev/null
+# Uniquement si tout s'est bien passé : ne jamais supprimer d'anciennes
+# sauvegardes valides lorsque celles du jour ont échoué.
+if [ "${EXIT_CODE}" -eq 0 ]; then
+    find "${DEST_DIR}/postgres" -type f -name "*.sql.gz" -mtime +7 -delete
+    find "${DEST_DIR}/vaultwarden" -type f -name "*.tar.gz" -mtime +7 -delete
+    find "${DEST_DIR}/actualbudget" -type f -name "*.tar.gz" -mtime +7 -delete 2>/dev/null
+else
+    echo "Rotation des anciennes sauvegardes ignorée (échec détecté)."
+fi
+
+# Code de sortie non nul en cas d'échec : le timer systemd marque le service
+# comme « failed » au lieu de masquer le problème.
+exit "${EXIT_CODE}"

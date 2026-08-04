@@ -4,7 +4,7 @@ Suit le modèle du pilote ([quadlet-pilote-actual-budget.md](quadlet-pilote-actu
 
 ## Prérequis exécutés (dans l'ordre, bloquants)
 
-1. **Sauvegarde fraîche vérifiée** : `backup.sh` + `gunzip -t` sur le dump PostgreSQL (« YEDEK_OK »).
+1. **Sauvegarde fraîche vérifiée** : `backup.sh` + `gunzip -t` sur le dump PostgreSQL.
 2. **Contrôle de version avant épinglage** : `podman exec vaultwarden /vaultwarden --version` sur le conteneur compose (tag `latest`) — la version épinglée dans l'unité doit être **égale ou supérieure** à la version en cours (les migrations de schéma ne sont pas réversibles). Ici : 1.37.0 en cours → 1.37.1 épinglé = mise à niveau, OK.
 3. **Env par service** : `apps/vaultwarden.env` créé depuis le template (variables finales, `DATABASE_URL` assemblée), `chmod 600`.
 

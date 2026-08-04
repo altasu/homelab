@@ -64,6 +64,23 @@ Vérification réussie le 2026-08-03 : base recréée, tables chargées, nombre 
 - Toute tâche critique doit être planifiée et journalisée (timer systemd + journalctl), jamais laissée à l'exécution manuelle.
 - Les noms de volumes podman-compose sont préfixés : toujours vérifier avec `podman volume ls` avant tout script les référençant.
 
+## Incident du 2026-08-04 — succès rapporté alors que la sauvegarde était vide
+
+**Symptôme** : le script affiche `Error: no container with name or ID "postgres-db" found` **puis** `✅ Sauvegarde de PostgreSQL réussie`. L'archive produite fait 20 octets (en-tête gzip seul). Le contrôle `gunzip -t` la déclare valide : la vérification de niveau 1 renvoie donc un faux positif.
+
+**Causes** :
+1. `commande | gzip > fichier` : `$?` ne reflète que le **dernier** maillon du pipeline (`gzip`), qui réussit sur une entrée vide. L'échec de `podman exec` était donc invisible. Même famille de défaut que l'incident du 2026-08-03 (volume mal nommé) : *un échec silencieux déclaré comme succès*.
+2. Contexte déclencheur : les conteneurs avaient été arrêtés par `systemctl --user disable --now podman-restart.service`. L'option `--now` déclenche l'`ExecStop` de cette unité, qui exécute un `podman stop`. **Pour retirer une unité du démarrage sans toucher aux services en cours, utiliser `disable` seul.**
+
+**Corrections apportées à `scripts/backup.sh`** :
+- `set -o pipefail` : les échecs de pipeline remontent réellement.
+- Garde-fou `podman container exists` avant le dump.
+- Contrôle de non-vacuité de l'archive ; une archive vide est supprimée et comptée comme échec.
+- Code de sortie global non nul en cas d'échec → `backup.service` apparaît en `failed` dans systemd au lieu de masquer le problème.
+- **Rotation conditionnelle** : les anciennes sauvegardes ne sont plus purgées lorsque la sauvegarde du jour a échoué (sinon une panne silencieuse prolongée finirait par supprimer les dernières archives saines).
+
+**Leçon transverse** : dans tout script de sauvegarde, l'échec doit être **bruyant**. Vérifier non seulement que la commande se termine, mais que le résultat est *plausible* (taille, marqueur de fin).
+
 ## Améliorations futures retenues
 
 - [ ] Rôle PostgreSQL dédié non-superuser par application (moindre privilège OWASP) — prévu lors de la migration du niveau Data (voir plan Quadlet, Étape 4).
