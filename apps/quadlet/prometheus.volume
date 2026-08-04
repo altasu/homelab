@@ -1,0 +1,6 @@
+# Unité Quadlet : volume de la base de séries temporelles Prometheus.
+# Données REMPLAÇABLES (historique de métriques) : volontairement exclu
+# de scripts/backup.sh — leur perte n'a aucune conséquence opérationnelle.
+
+[Volume]
+VolumeName=apps_prometheus_data

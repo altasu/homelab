@@ -1,0 +1,28 @@
+# Unité Quadlet : node_exporter (métriques de l'hôte)
+# Étape 7 du plan — observabilité.
+#
+# Le système de fichiers hôte est monté en LECTURE SEULE sous /host :
+# l'exportateur n'a besoin que de lire /proc et /sys.
+#
+# Collecteur « textfile » : scripts/backup.sh y dépose l'état de la dernière
+# sauvegarde, ce qui permet d'alerter sur une sauvegarde absente ou en échec
+# (leçon des incidents des 2026-08-03 et 2026-08-04).
+
+[Unit]
+Description=node_exporter (metriques de l'hote)
+
+[Container]
+ContainerName=node-exporter
+Image=docker.io/prom/node-exporter:v1.12.1
+Volume=/:/host:ro,rslave
+Volume=%h/.local/share/homelab-metrics:/textfile:ro,z
+Network=homelab.network
+NoNewPrivileges=true
+Exec=--path.rootfs=/host --collector.textfile.directory=/textfile
+PodmanArgs=--memory=128m --cpus=0.25
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
