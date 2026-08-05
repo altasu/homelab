@@ -57,9 +57,29 @@ podman run --rm --network homelab_net docker.io/alpine:3.22 \
   wget -qO- 'http://prometheus:9090/api/v1/query?query=homelab_backup_last_exit_code'
 ```
 
-## Point ouvert : acheminement des notifications
+## Acheminement des notifications (ntfy)
 
-Les alertes ne sont pour l'instant visibles que dans l'interface Grafana. **Une alerte que personne ne regarde n'a aucune valeur** : il reste à choisir un canal de notification (courriel via SMTP, service de notification auto-hébergé, messagerie instantanée) et à le déclarer, lui aussi, en tant que code.
+Une alerte que personne ne regarde n'a aucune valeur : les règles sont routées vers un service de notification auto-hébergé, dont le point de contact et la politique de routage sont eux aussi provisionnés en tant que code.
+
+**Choix d'exposition** : ce service passe par le tunnel public, contrairement aux autres services privés. Un canal d'alerte joignable seulement lorsque le VPN est actif manquerait précisément les moments où il est utile. Le trafic se limite à quelques centaines d'octets de texte.
+
+**Contrepartie obligatoire** : accès fermé par défaut (`deny-all`). Sans cela, un service de notification exposé publiquement devient un relais ouvert utilisable par n'importe qui.
+
+**Cloisonnement des comptes** :
+- un compte administrateur pour les clients (téléphone, navigateur) ;
+- un compte distinct pour Grafana, en **écriture seule** sur le seul sujet concerné, authentifié par jeton. Grafana ne peut donc pas lire les notifications ni écrire ailleurs.
+
+Le jeton vit dans le fichier d'environnement de Grafana et est référencé par `$__env{...}` dans le fichier de provisionnement : aucun secret n'entre dans le dépôt.
+
+### Mise en forme des notifications
+
+Grafana émet systématiquement un corps JSON complet. Publié tel quel, il produit une notification illisible sur téléphone. Le mode *template* de ntfy résout le problème : les paramètres de requête de l'URL du point de contact interprètent ce JSON et n'en retiennent que le titre et le message, déjà mis en forme par Grafana.
+
+### Vérification de bout en bout
+
+Utiliser le bouton **Test** du point de contact dans l'interface Grafana : ce chemin emprunte le jeton provisionné et valide toute la chaîne sans manipulation de secret.
+
+À noter : une publication lancée depuis le serveur sans identifiants renvoie un refus (`403`). Ce n'est pas une panne mais la preuve que la fermeture par défaut fonctionne.
 
 ## Consommation constatée au déploiement
 

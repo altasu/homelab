@@ -13,7 +13,11 @@ contactPoints:
       - uid: ntfy-homelab
         type: webhook
         settings:
-          url: http://ntfy:80/homelab
+          # Grafana émet toujours un corps JSON complet. Sans mise en forme,
+          # la notification affiche ce bloc brut, illisible sur un téléphone.
+          # Le mode template de ntfy interprète ce JSON et n'en extrait que
+          # le titre et le message déjà formatés par Grafana.
+          url: "http://ntfy:80/homelab?tpl=yes&t={{.title}}&m={{.message}}"
           httpMethod: POST
           authorization_scheme: Bearer
           authorization_credentials: $__env{NTFY_TOKEN}
