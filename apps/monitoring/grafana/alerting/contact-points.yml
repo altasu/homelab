@@ -15,9 +15,12 @@ contactPoints:
         settings:
           # Grafana émet toujours un corps JSON complet. Sans mise en forme,
           # la notification affiche ce bloc brut, illisible sur un téléphone.
-          # Le mode template de ntfy interprète ce JSON et n'en extrait que
-          # le titre et le message déjà formatés par Grafana.
-          url: "http://ntfy:80/homelab?tpl=yes&t={{.title}}&m={{.message}}"
+          # ntfy fournit un template prédéfini qui sait analyser le payload
+          # webhook de Grafana (titre, message, état firing/resolved) —
+          # approche recommandée par ntfy lorsqu'on contrôle le serveur,
+          # plus robuste que le templating générique par requête (tpl=yes)
+          # essayé initialement et resté sans effet.
+          url: "http://ntfy:80/homelab?template=grafana"
           httpMethod: POST
           authorization_scheme: Bearer
           authorization_credentials: $__env{NTFY_TOKEN}
