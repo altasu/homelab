@@ -1,0 +1,40 @@
+site_name: Homelab — Infrastructure as Code
+site_description: Migration d'un homelab Podman rootless vers Quadlet, documentée de bout en bout.
+repo_url: https://gitlab.com/altasu/homelab
+repo_name: altasu/homelab
+
+theme:
+  name: material
+  language: fr
+  palette:
+    scheme: slate
+    primary: teal
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - content.code.copy
+    - toc.follow
+
+nav:
+  - Accueil: index.md
+  - Architecture: architecture.md
+  - Plan de migration Quadlet: quadlet-migration-plan.md
+  - Runbooks:
+      - "Sauvegardes : vérification et restauration": runbooks/sauvegardes-verification-restauration.md
+      - "Pilote : Actual Budget": runbooks/quadlet-pilote-actual-budget.md
+      - "Bascule : Vaultwarden": runbooks/quadlet-bascule-vaultwarden.md
+      - "Bascule : PostgreSQL": runbooks/quadlet-bascule-postgres.md
+      - "Bascule : Infra (tunnels)": runbooks/quadlet-bascule-infra.md
+      - Observabilité: runbooks/observabilite.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: true

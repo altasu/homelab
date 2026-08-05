@@ -41,7 +41,7 @@ Le log de démarrage signalait : `[NOTICE] You are using a plain text ADMIN_TOKE
 
 **Règle à retenir pour tout portage compose → Quadlet** : les fichiers env par service contiennent des valeurs finales *sans* quotes et *sans* échappement `$$` — l'inverse exact des conventions compose.
 
-**Outillage** : ce contrôle est désormais automatisé par [`scripts/check-env.sh`](../../scripts/check-env.sh) (quotes, `$$`, placeholders `${...}`, valeurs d'exemple, permissions, formats connus — sans jamais afficher les valeurs). À exécuter sur chaque fichier env **avant toute bascule**.
+**Outillage** : ce contrôle est désormais automatisé par [`scripts/check-env.sh`](https://gitlab.com/altasu/homelab/-/blob/main/scripts/check-env.sh) (quotes, `$$`, placeholders `${...}`, valeurs d'exemple, permissions, formats connus — sans jamais afficher les valeurs). À exécuter sur chaque fichier env **avant toute bascule**.
 
 ## Leçons retenues
 

@@ -1,0 +1,17 @@
+# Publication automatique de la documentation via GitLab Pages.
+# Aucune ressource du serveur homelab n'est utilisée : la construction du
+# site s'exécute sur les runners GitLab, à chaque poussée sur main.
+
+pages:
+  image: python:3.13-slim
+  stage: deploy
+  script:
+    - pip install --no-cache-dir mkdocs-material==9.7.7
+    # --strict : échoue sur tout lien mort ou avertissement, plutôt que de
+    # publier silencieusement un site cassé.
+    - mkdocs build --strict --site-dir public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
