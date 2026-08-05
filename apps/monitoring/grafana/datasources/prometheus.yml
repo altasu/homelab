@@ -1,0 +1,16 @@
+# Provisionnement Grafana : source de données Prometheus
+# Monté en lecture seule dans /etc/grafana/provisioning/datasources/.
+#
+# Déclaré en tant que code plutôt que créé à la souris : après une
+# restauration, Grafana retrouve sa source de données sans intervention.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
