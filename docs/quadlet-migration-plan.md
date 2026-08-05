@@ -103,9 +103,14 @@ Détail complet, procédure de vérification en 3 niveaux et leçons retenues : 
 
 **Migration terminée.** Les étapes suivantes sont des ajouts optionnels, plus des évolutions que des migrations.
 
-### Étape 7 — Observabilité légère (optionnelle)
-- [ ] Prometheus + Grafana + node_exporter comme unités Quadlet avec limites de ressources strictes
-- [ ] Tableaux de bord : santé des conteneurs, ressources hôte, sauvegardes
+### Étape 7 — Observabilité légère ✅ (2026-08-05)
+- [x] Prometheus, Grafana, node_exporter et un exportateur Podman (retenu à la place de cAdvisor, mieux adapté au rootless) en unités Quadlet avec limites de ressources
+- [x] Grafana accessible via le VPN uniquement ; Prometheus non exposé
+- [x] Source de données et règles d'alerte provisionnées en tant que code
+- [x] Supervision de la sauvegarde elle-même via le collecteur textfile (leçon des incidents des 2026-08-03 et 08-04)
+- [x] Tableau de bord des ressources hôte importé ; volume Grafana inclus aux sauvegardes, volume Prometheus volontairement exclu
+- [x] Runbook : [`docs/runbooks/observabilite.md`](runbooks/observabilite.md)
+- [ ] Reste à faire : choisir et déclarer un canal de notification pour les alertes
 
 ### Étape 8 — SSO (optionnelle)
 - [ ] Comparer Keycloak / Authentik au regard des ressources du serveur
