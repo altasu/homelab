@@ -32,3 +32,7 @@ activation: always_on
 
 ## 4. DOCUMENTATION STANDARD
 - **Runbooks:** Keep structured technical runbooks (`.md`) with explicit disaster recovery and restore verification steps.
+
+## 6. GIT WORKFLOW
+- **Rule (since 2026-08-05):** Any major change — a new feature or a new service — is done on a dedicated feature branch, tested there (dry-run, deployment, verification), and only then merged into `main` via a merge request. Direct commits to `main` are reserved for small fixes/docs (the pattern used throughout the Quadlet migration itself, now considered the exception rather than the default going forward).
+- **How to apply:** Before starting work that adds a service or changes behavior, create a branch (e.g. `feat/<service-name>`), do the implementation + on-server validation there, then open an MR/PR to `main` instead of committing straight to `main`.
