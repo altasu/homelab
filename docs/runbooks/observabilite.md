@@ -73,7 +73,13 @@ Le jeton vit dans le fichier d'environnement de Grafana et est référencé par 
 
 ### Mise en forme des notifications
 
-Grafana émet systématiquement un corps JSON complet. Publié tel quel, il produit une notification illisible sur téléphone. Le mode *template* de ntfy résout le problème : les paramètres de requête de l'URL du point de contact interprètent ce JSON et n'en retiennent que le titre et le message, déjà mis en forme par Grafana.
+Grafana émet systématiquement un corps JSON complet. Publié tel quel, il produit une notification illisible sur téléphone.
+
+**Premier essai (sans effet)** : templating générique par requête (`?tpl=yes&t={{.title}}&m={{.message}}`), documenté par ntfy mais resté sans effet en pratique dans ce déploiement — la notification a continué à afficher le JSON brut. Cause probable : encodage des accolades `{{ }}` dans l'URL, non vérifié plus avant.
+
+**Correctif retenu** : le template prédéfini `grafana` de ntfy (`?template=grafana`), conçu spécifiquement pour analyser le payload webhook de Grafana (titre, message, état firing/resolved). ntfy recommande cette approche — plutôt que le templating générique — dès lors que l'on contrôle son propre serveur, ce qui est le cas ici.
+
+**Vérification après tout changement du point de contact** : renvoyer une notification de test (bouton **Test** du point de contact) et confirmer que le corps affiché est le titre/message mis en forme, pas le JSON brut — le simple fait qu'une notification arrive ne suffit pas à valider la mise en forme.
 
 ### Vérification de bout en bout
 
