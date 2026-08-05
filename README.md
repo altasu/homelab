@@ -8,13 +8,15 @@
 
 Ce dépôt contient l'Infrastructure as Code (IaC) de mon homelab personnel, conçu avec une architecture sécurisée à 3 niveaux (3-tier) en utilisant Podman rootless.
 
+📖 **Documentation publiée** : [GitLab Pages](https://homelab-ec5d79.gitlab.io/) · [GitHub Pages](https://altasu.github.io/homelab/) — démarche, incidents réels et runbooks détaillés.
+
 ### Architecture à 3 Niveaux
 
 | Stage | Dossier | Statut | Rôle |
 |:------|:--------|:------:|:-----|
 | **Stage 1** | `infra/` | ✅ Actif | Passerelle Zero Trust (Cloudflare + Twingate) |
 | **Stage 2** | `data/` | ✅ Actif | Persistance (PostgreSQL sur disque externe) |
-| **Stage 3** | `apps/` | ✅ Actif | Applications (Vaultwarden, ...) |
+| **Stage 3** | `apps/` | ✅ Actif | Applications (Vaultwarden, Actual Budget) et observabilité (Prometheus, Grafana, node_exporter, ntfy) |
 
 Tous les stages partagent le réseau externe Podman `homelab_net`.
 
@@ -31,7 +33,8 @@ cp infra/quadlet/* data/quadlet/* apps/quadlet/* ~/.config/containers/systemd/
 
 # 3. Recharger et démarrer
 systemctl --user daemon-reload
-systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector
+systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector \
+  prometheus grafana node-exporter podman-exporter ntfy
 ```
 
 L'ordre de démarrage n'a plus à être appliqué manuellement : les dépendances systemd (`Requires=`/`After=`) et le healthcheck de la base le garantissent, au démarrage comme au boot (`loginctl enable-linger` + section `[Install]` des unités).
@@ -55,13 +58,15 @@ Secrets : un fichier env par service (`<stage>/<service>.env`, jamais versionné
 
 This repository contains the Infrastructure as Code (IaC) for my personal homelab, designed with a secure 3-tier architecture using rootless Podman.
 
+📖 **Published documentation**: [GitLab Pages](https://homelab-ec5d79.gitlab.io/) · [GitHub Pages](https://altasu.github.io/homelab/) — approach, real incidents, and detailed runbooks.
+
 ### 3-Tier Architecture
 
 | Stage | Directory | Status | Role |
 |:------|:----------|:------:|:-----|
 | **Stage 1** | `infra/` | ✅ Active | Zero Trust Gateway (Cloudflare + Twingate) |
 | **Stage 2** | `data/` | ✅ Active | Persistence (PostgreSQL on external drive) |
-| **Stage 3** | `apps/` | ✅ Active | Applications (Vaultwarden, ...) |
+| **Stage 3** | `apps/` | ✅ Active | Applications (Vaultwarden, Actual Budget) and observability (Prometheus, Grafana, node_exporter, ntfy) |
 
 All stages share the external Podman network `homelab_net`.
 
@@ -78,7 +83,8 @@ cp infra/quadlet/* data/quadlet/* apps/quadlet/* ~/.config/containers/systemd/
 
 # 3. Reload and start
 systemctl --user daemon-reload
-systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector
+systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector \
+  prometheus grafana node-exporter podman-exporter ntfy
 ```
 
 Startup order no longer needs to be applied manually: systemd dependencies (`Requires=`/`After=`) plus the database healthcheck enforce it, both on demand and at boot (`loginctl enable-linger` + the units' `[Install]` section).
