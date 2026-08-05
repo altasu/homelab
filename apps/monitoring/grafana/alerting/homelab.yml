@@ -1,0 +1,136 @@
+# Provisionnement Grafana : règles d'alerte
+# Monté en lecture seule dans /etc/grafana/provisioning/alerting/.
+#
+# Deux alertes issues de l'expérience opérationnelle :
+#  - Sauvegarde silencieusement absente (incidents des 2026-08-03 et 08-04) :
+#    la métrique provient du collecteur textfile alimenté par scripts/backup.sh.
+#  - Saturation d'un système de fichiers, à surveiller avant tout ajout de
+#    service volumineux.
+
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: homelab
+    folder: Homelab
+    interval: 10m
+    rules:
+      - uid: homelab-backup-stale
+        title: Aucune sauvegarde reussie depuis plus de 48 heures
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: time() - homelab_backup_last_success_timestamp_seconds
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              refId: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [172800]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+                  type: query
+        # Absence de donnée = alerte : une métrique disparue signifie que le
+        # script ne s'exécute plus du tout, exactement le cas à détecter.
+        noDataState: Alerting
+        execErrState: Alerting
+        for: 10m
+        annotations:
+          summary: La derniere sauvegarde reussie remonte a plus de 48 heures.
+          description: Verifier `systemctl --user status backup.service` et `journalctl --user -u backup.service`.
+        labels:
+          severite: critique
+
+      - uid: homelab-backup-failed
+        title: La derniere sauvegarde s'est terminee en erreur
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: homelab_backup_last_exit_code
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              refId: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+                  type: query
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+        annotations:
+          summary: Le script de sauvegarde a signale au moins une section en echec.
+        labels:
+          severite: critique
+
+      - uid: homelab-filesystem-full
+        title: Systeme de fichiers rempli a plus de 85 pourcent
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: 100 - (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} * 100)
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              refId: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [85]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+                  type: query
+        noDataState: NoData
+        execErrState: Alerting
+        for: 30m
+        annotations:
+          summary: Un systeme de fichiers depasse 85 pourcent d'occupation.
+        labels:
+          severite: avertissement

@@ -18,6 +18,10 @@ ContainerName=grafana
 Image=docker.io/grafana/grafana:13.1.2
 EnvironmentFile=%h/homelab/apps/grafana.env
 Volume=grafana.volume:/var/lib/grafana
+# Provisionnement en tant que code : source de données et règles d'alerte
+# recréées automatiquement, y compris après une restauration complète.
+Volume=%h/homelab/apps/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro,z
+Volume=%h/homelab/apps/monitoring/grafana/alerting:/etc/grafana/provisioning/alerting:ro,z
 Network=homelab.network
 NoNewPrivileges=true
 PodmanArgs=--memory=256m --cpus=0.5
