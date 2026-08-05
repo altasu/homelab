@@ -110,7 +110,7 @@ Détail complet, procédure de vérification en 3 niveaux et leçons retenues : 
 - [x] Supervision de la sauvegarde elle-même via le collecteur textfile (leçon des incidents des 2026-08-03 et 08-04)
 - [x] Tableau de bord des ressources hôte importé ; volume Grafana inclus aux sauvegardes, volume Prometheus volontairement exclu
 - [x] Runbook : [`docs/runbooks/observabilite.md`](runbooks/observabilite.md)
-- [ ] Reste à faire : choisir et déclarer un canal de notification pour les alertes
+- [x] Canal de notification : service auto-hébergé exposé par le tunnel public (un canal d'alerte tributaire du VPN manquerait les moments où il est utile), fermé par défaut, compte Grafana distinct en écriture seule sur un sujet unique, jeton hors dépôt. Point de contact et politique de routage provisionnés ; chaîne validée de bout en bout jusqu'au téléphone et au navigateur.
 
 ### Étape 8 — SSO (optionnelle)
 - [ ] Comparer Keycloak / Authentik au regard des ressources du serveur
