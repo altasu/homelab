@@ -30,3 +30,7 @@ backups/
 # Images generees depuis les diagrammes (source = Mermaid dans les .md)
 docs/**/*.png
 docs/**/*.svg
+
+# Site statique genere localement par mkdocs (GitLab Pages le reconstruit en CI)
+site/
+public/

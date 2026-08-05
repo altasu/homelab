@@ -1,0 +1,51 @@
+# Publication automatique de la documentation via GitHub Pages.
+# Miroir de .gitlab-ci.yml : même source (mkdocs.yml, docs/), même
+# construction --strict. Aucune ressource du serveur homelab utilisée.
+#
+# Prérequis unique côté dépôt : Settings > Pages > Source = "GitHub Actions".
+
+name: Publier la documentation
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - run: pip install --no-cache-dir mkdocs-material==9.7.7
+
+      # --strict : échoue sur tout lien mort ou avertissement, plutôt que de
+      # publier silencieusement un site cassé.
+      - run: mkdocs build --strict --site-dir public
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -42,7 +42,7 @@ L'évolution retenue est la migration de l'orchestration **`podman-compose` → 
 ### Étape 0 — Assainissement des fichiers de configuration ✅
 - [x] Redaction des identifiants réels, généralisation matériel/stockage, règle Secrets & PII
 - [x] Versions épinglées (`apps/compose.yml`), correction `.gitignore`
-- [ ] Commit et push de l'ensemble (en attente de validation)
+- [x] Commit et push de l'ensemble (en attente de validation)
 
 ### Étape 1 — Inventaire et socle Quadlet ✅ (hors dry-run, effectué à l'Étape 2)
 - [x] Inventorier les unités systemd/Quadlet existantes : aucune unité Quadlet, seul `podman-restart.service` est activé (sera retiré à l'Étape 6 quand Quadlet gérera le cycle de vie)
@@ -112,15 +112,18 @@ Détail complet, procédure de vérification en 3 niveaux et leçons retenues : 
 - [x] Runbook : [`docs/runbooks/observabilite.md`](runbooks/observabilite.md)
 - [x] Canal de notification : service auto-hébergé exposé par le tunnel public (un canal d'alerte tributaire du VPN manquerait les moments où il est utile), fermé par défaut, compte Grafana distinct en écriture seule sur un sujet unique, jeton hors dépôt. Point de contact et politique de routage provisionnés ; chaîne validée de bout en bout jusqu'au téléphone et au navigateur.
 
-### Étape 8 — SSO (optionnelle)
-- [ ] Comparer Keycloak / Authentik au regard des ressources du serveur
-- [ ] Déployer le choix retenu comme unité Quadlet
+### Étape 8 — SSO (abandonnée)
+Décision du 2026-08-05 : aucune application actuellement hébergée (Vaultwarden, Actual Budget) ne supporte l'authentification déléguée (OIDC/SAML) en version stable. Déployer Keycloak ou Authentik reviendrait à mobiliser 500 Mo à 1 Go de RAM pour ne couvrir que Grafana seule. Réévaluation possible si une future application supportant l'OIDC rejoint la stack.
 
-### Étape 9 — Documentation auto-hébergée (optionnelle)
-- [ ] Choisir BookStack / Wiki.js, déployer comme unité Quadlet
+### Étape 9 — Publication automatique de la documentation (GitLab Pages) ✅
+Décision du 2026-08-05 : BookStack/Wiki.js abandonné au profit de GitLab Pages. Tout le contenu à publier est déjà de la documentation de projet versionnée — un service self-hosted supplémentaire (base de données, sauvegarde, mises à jour) aurait dupliqué inutilement ce que Git fournit déjà, pour un contenu qui n'a pas besoin d'édition interactive depuis un navigateur.
+- [x] `mkdocs.yml` (thème Material, rendu des diagrammes Mermaid déjà utilisés dans `docs/`)
+- [x] `.gitlab-ci.yml` : construction et publication automatiques à chaque push sur `main`, sans consommer de ressource du serveur homelab (exécution sur les runners GitLab)
+- [x] Le dépôt étant également miroité sur GitHub, `.github/workflows/pages.yml` reproduit la même publication (mêmes `mkdocs.yml`/`docs/`, même construction `--strict`) via GitHub Actions — activation manuelle unique requise : Settings > Pages > Source = "GitHub Actions"
+- [x] Page d'accueil (`docs/index.md`) — voir Étape 10, les deux tâches ont été fusionnées
 
-### Étape 10 — Runbooks & portfolio
-- [ ] Consolider les runbooks des étapes 2-6 (démarche, incidents, rollback) pour usage portfolio, sans éléments personnels
+### Étape 10 — Runbooks & portfolio ✅
+- [x] Consolidation des runbooks des étapes 2-7 en une page d'accueil de portfolio (`docs/index.md`) : démarche, incidents réels et résolutions, état actuel — sans élément personnel, publiée via GitLab Pages (Étape 9)
 
 ## Architecture cible
 
