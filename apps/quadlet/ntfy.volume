@@ -1,0 +1,7 @@
+# Unité Quadlet : volume ntfy.
+# Contient la base des comptes et jetons d'accès ainsi que le cache des
+# messages. Petit mais IRREMPLAÇABLE (recréer les comptes obligerait à
+# reconfigurer chaque client) — couvert par scripts/backup.sh.
+
+[Volume]
+VolumeName=apps_ntfy_data

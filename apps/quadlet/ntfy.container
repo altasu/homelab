@@ -1,0 +1,35 @@
+# Unité Quadlet : ntfy (notifications push auto-hébergées)
+# Étape 7 — canal de notification des alertes Grafana.
+#
+# Configuration entièrement par variables d'environnement (ntfy accepte
+# chaque option sous la forme NTFY_*) : pas de fichier de configuration à
+# monter, et l'URL publique réelle reste hors du dépôt.
+#
+# EXPOSITION — décision à prendre au déploiement :
+#   - Tunnel public : les notifications arrivent en permanence, y compris
+#     sans VPN actif. Trafic texte minime, sans enjeu vis-à-vis des
+#     conditions d'utilisation. Le serveur DOIT alors rester fermé
+#     (NTFY_AUTH_DEFAULT_ACCESS=deny-all + jeton), sinon il devient un
+#     relais ouvert.
+#   - VPN Zero Trust : strictement privé, mais les notifications ne
+#     parviennent que lorsque le VPN est connecté — ce qui affaiblit
+#     l'intérêt d'un canal d'alerte.
+
+[Unit]
+Description=ntfy (notifications push)
+
+[Container]
+ContainerName=ntfy
+Image=docker.io/binwiederhier/ntfy:v2.27.0
+Exec=serve
+EnvironmentFile=%h/homelab/apps/ntfy.env
+Volume=ntfy.volume:/var/lib/ntfy
+Network=homelab.network
+NoNewPrivileges=true
+PodmanArgs=--memory=128m --cpus=0.25
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

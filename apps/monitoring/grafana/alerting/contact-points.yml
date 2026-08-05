@@ -1,0 +1,31 @@
+# Provisionnement Grafana : point de contact et politique de notification
+#
+# Le jeton d'accès ntfy n'est PAS écrit ici : il est lu depuis une variable
+# d'environnement du conteneur Grafana (`NTFY_TOKEN`, défini dans
+# apps/grafana.env, non versionné). Le dépôt reste ainsi exempt de secret.
+
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: ntfy
+    receivers:
+      - uid: ntfy-homelab
+        type: webhook
+        settings:
+          url: http://ntfy:80/homelab
+          httpMethod: POST
+          authorization_scheme: Bearer
+          authorization_credentials: $__env{NTFY_TOKEN}
+
+policies:
+  - orgId: 1
+    receiver: ntfy
+    group_by:
+      - alertname
+    # Regroupement volontairement espacé : ces alertes portent sur des états
+    # durables (sauvegarde absente, disque plein), pas sur des incidents
+    # transitoires — inutile de multiplier les notifications.
+    group_wait: 1m
+    group_interval: 10m
+    repeat_interval: 12h

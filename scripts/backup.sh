@@ -121,8 +121,11 @@ backup_volume apps_vaultwarden_data   vaultwarden  "des fichiers statiques de Va
 echo "[3/4] Sauvegarde du volume Actual Budget (SQLite)..."
 backup_volume apps_actual_budget_data actualbudget "d'Actual Budget"                       requis
 
-echo "[4/4] Sauvegarde du volume Grafana (tableaux de bord)..."
+echo "[4/5] Sauvegarde du volume Grafana (tableaux de bord)..."
 backup_volume apps_grafana_data       grafana      "des tableaux de bord Grafana"          optionnel
+
+echo "[5/5] Sauvegarde du volume ntfy (comptes et jetons)..."
+backup_volume apps_ntfy_data          ntfy         "des comptes ntfy"                      optionnel
 
 echo "================================================================="
 if [ "${EXIT_CODE}" -eq 0 ]; then
