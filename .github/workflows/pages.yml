@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: "3.13"
 
-      - run: pip install --no-cache-dir mkdocs-material==9.7.7
+      - run: pip install --no-cache-dir mkdocs-material==9.7.7 mkdocs-static-i18n
 
       # --strict : échoue sur tout lien mort ou avertissement, plutôt que de
       # publier silencieusement un site cassé.

@@ -16,6 +16,29 @@ theme:
     - content.code.copy
     - toc.follow
 
+extra:
+  alternate:
+    - name: Français
+      link: /
+      lang: fr
+    - name: English
+      link: /en/
+      lang: en
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      languages:
+        - locale: fr
+          default: true
+          name: Français
+          build: true
+        - locale: en
+          name: English
+          build: true
+
 nav:
   - Accueil: index.md
   - Architecture: architecture.md
