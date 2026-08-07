@@ -9,6 +9,8 @@ name: Publier la documentation
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -36,12 +38,16 @@ jobs:
       # publier silencieusement un site cassé.
       - run: mkdocs build --strict --site-dir public
 
+      # Désactiver Jekyll sur GitHub Pages pour éviter les erreurs 404 de routage
+      - run: touch public/.nojekyll
+
       - uses: actions/upload-pages-artifact@v5
         with:
           path: public
 
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

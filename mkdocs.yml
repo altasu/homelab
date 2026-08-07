@@ -18,10 +18,10 @@ theme:
 extra:
   alternate:
     - name: Français
-      link: /
+      link: /homelab/
       lang: fr
     - name: English
-      link: /en/
+      link: /homelab/en/
       lang: en
 
 plugins:
