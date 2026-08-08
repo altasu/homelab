@@ -1,4 +1,5 @@
 site_name: Homelab — Infrastructure as Code
+site_url: https://altasu.gitlab.io/homelab/
 site_description: Migration d'un homelab Podman rootless vers Quadlet, documentée de bout en bout.
 repo_url: https://gitlab.com/altasu/homelab
 repo_name: altasu/homelab
@@ -16,19 +17,16 @@ theme:
     - toc.follow
 
 extra:
-  alternate:
-    - name: Français
-      link: /homelab/
-      lang: fr
-    - name: English
-      link: /homelab/en/
-      lang: en
+  social:
+    - icon: fontawesome/brands/gitlab
+      link: https://gitlab.com/altasu/homelab
 
 plugins:
   - search
   - i18n:
       docs_structure: suffix
       fallback_to_default: true
+      reconfigure_material: true
       languages:
         - locale: fr
           default: true
@@ -37,6 +35,17 @@ plugins:
         - locale: en
           name: English
           build: true
+          nav_translations:
+            Accueil: Home
+            Architecture: Architecture
+            "Plan de migration Quadlet": "Quadlet Migration Plan"
+            Runbooks: Runbooks
+            "Sauvegardes : vérification et restauration": "Backups: verification and restoration"
+            "Pilote : Actual Budget": "Pilot: Actual Budget"
+            "Bascule : Vaultwarden": "Cutover: Vaultwarden"
+            "Bascule : PostgreSQL": "Cutover: PostgreSQL"
+            "Bascule : Infra (tunnels)": "Cutover: Infra (tunnels)"
+            Observabilité: Observability
 
 nav:
   - Accueil: index.md
