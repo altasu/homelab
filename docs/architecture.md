@@ -47,4 +47,15 @@ flowchart TB
 - **Versions épinglées** : les images sont figées dans les fichiers d'orchestration ; les versions précises ne sont pas exposées dans les diagrammes publics.
 - **Ordre de déploiement obligatoire** : `infra` → `data` → `apps`.
 
+## Stratégie d'Architecture des Bases de Données (Modèle Hybride)
+
+Le homelab adopte une approche hybride d'organisation des bases de données selon les besoins des services :
+
+1. **SQLite embarqué par service (`apps_<service>_data`)** :
+   - Utilisé pour Forgejo, Actual Budget, ntfy.
+   - **Avantages** : empreinte mémoire nulle (0 MB RAM de daemon), isolation totale du rayon d'impact (blast radius), persistance autonome dans le Named Volume Quadlet et restauration 1:1 sans dépendance réseau.
+2. **PostgreSQL centralisé (Niveau `data/`)** :
+   - Réservé aux applications à fortes transactions ou multi-utilisateurs complexes (Vaultwarden).
+   - **Sécurité** : application stricte du principe du moindre privilège OWASP (rôle application dédié non-superuser par base de données, pas d'accès global).
+
 > **Migration en cours** : l'orchestration `podman-compose` évolue vers Quadlet (unités systemd utilisateur) — voir [quadlet-migration-plan.md](quadlet-migration-plan.md).

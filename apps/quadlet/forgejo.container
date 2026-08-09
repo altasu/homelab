@@ -1,0 +1,32 @@
+# Unité Quadlet : Forgejo (service Git self-hosted)
+# Service d'hébergement Git et de forge logicielle souverain.
+#
+# Déploiement (utilisateur rootless) :
+#   cp apps/quadlet/forgejo.{container,volume} ~/.config/containers/systemd/
+#   cp infra/quadlet/homelab.network ~/.config/containers/systemd/
+#   /usr/libexec/podman/quadlet -dryrun -user     # validation syntaxe
+#   systemctl --user daemon-reload
+#   systemctl --user start forgejo
+#
+# Accès : uniquement via Cloudflare Tunnel -> http://forgejo:3000
+# (zéro port entrant, posture Zero Trust inchangée).
+
+[Unit]
+Description=Forgejo (service Git self-hosted)
+After=homelab-network.service forgejo-volume.service
+Requires=homelab-network.service forgejo-volume.service
+
+[Container]
+ContainerName=forgejo
+Image=docker.io/codeberg/forgejo:10.0.1-rootless
+Volume=forgejo.volume:/var/lib/gitea
+Network=homelab.network
+NoNewPrivileges=true
+# Limites de ressources (serveur modeste, 512MB RAM alloués)
+PodmanArgs=--memory=512m --cpus=1.0
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
