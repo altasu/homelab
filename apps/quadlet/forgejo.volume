@@ -1,0 +1,7 @@
+# Unité Quadlet : volume de données Forgejo
+# Contient la base de données SQLite, les dépôts Git et la configuration (/data).
+# ATTENTION : ce volume est la SEULE persistance de Forgejo
+# (couvert par le script automatisé scripts/backup.sh).
+
+[Volume]
+VolumeName=apps_forgejo_data
