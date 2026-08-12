@@ -2,9 +2,12 @@
 .idea/
 *.env
 .DS_Store
-.claude/*
-!.claude/CLAUDE.md
 
+# Outils IA & Assistants (Aider, Claude, Gemini, Agent Workspace)
+.agents/
+.claude/
+.aider*
+.gemini/
 
 # Secrets et Certificats
 *.key
@@ -22,7 +25,6 @@
 *.zip
 *.bak
 backups/
-
 
 # Fichier Log
 *.log

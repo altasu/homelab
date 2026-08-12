@@ -6,7 +6,7 @@ Ce runbook décrit le déploiement, l'exploitation et la restauration du service
 
 | Fichier (dépôt) | Rôle |
 |---|---|
-| `apps/quadlet/forgejo.container` | Unité conteneur Quadlet (image `codeberg/forgejo:10.0.1-rootless`, limites de ressources 512MB RAM) |
+| `apps/quadlet/forgejo.container` | Unité conteneur Quadlet (image `codeberg.org/forgejo/forgejo:16-rootless`, limites de ressources 512MB RAM) |
 | `apps/quadlet/forgejo.volume` | Volume nommé `apps_forgejo_data` (persistance SQLite, dépôts Git, clés SSH) |
 | `apps/forgejo.env.example` | Modèle de variables d'environnement (`FORGEJO__server__ROOT_URL`, etc.) |
 | `infra/quadlet/homelab.network` | Réseau partagé externe |

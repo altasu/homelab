@@ -18,7 +18,8 @@ Requires=homelab-network.service forgejo-volume.service
 
 [Container]
 ContainerName=forgejo
-Image=docker.io/codeberg/forgejo:10.0.1-rootless
+Image=codeberg.org/forgejo/forgejo:16-rootless
+EnvironmentFile=%h/homelab/apps/forgejo.env
 Volume=forgejo.volume:/var/lib/gitea
 Network=homelab.network
 NoNewPrivileges=true
