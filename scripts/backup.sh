@@ -124,8 +124,11 @@ backup_volume apps_actual_budget_data actualbudget "d'Actual Budget"            
 echo "[4/5] Sauvegarde du volume Grafana (tableaux de bord)..."
 backup_volume apps_grafana_data       grafana      "des tableaux de bord Grafana"          optionnel
 
-echo "[5/5] Sauvegarde du volume ntfy (comptes et jetons)..."
+echo "[5/6] Sauvegarde du volume ntfy (comptes et jetons)..."
 backup_volume apps_ntfy_data          ntfy         "des comptes ntfy"                      optionnel
+
+echo "[6/6] Sauvegarde du volume OmniRoute (SQLite et cles chiffrees)..."
+backup_volume apps_omniroute_data     omniroute    "d'OmniRoute"                           optionnel
 
 echo "================================================================="
 if [ "${EXIT_CODE}" -eq 0 ]; then
@@ -166,7 +169,7 @@ mv "${METRICS_DIR}/backup.prom.tmp" "${METRICS_DIR}/backup.prom"
 # ------------------------------------------------------------------------------
 if [ "${EXIT_CODE}" -eq 0 ]; then
     find "${DEST_DIR}/postgres" -type f -name "*.sql.gz" -mtime +7 -delete
-    for subdir in vaultwarden actualbudget grafana; do
+    for subdir in vaultwarden actualbudget grafana omniroute; do
         [ -d "${DEST_DIR}/${subdir}" ] && \
             find "${DEST_DIR}/${subdir}" -type f -name "*.tar.gz" -mtime +7 -delete
     done

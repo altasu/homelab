@@ -1,0 +1,6 @@
+# Unité Quadlet : volume de données OmniRoute
+# Contient la base de données SQLite, la configuration chiffrée et les audits (/app/data).
+# Couvert par le script automatisé scripts/backup.sh.
+
+[Volume]
+VolumeName=apps_omniroute_data

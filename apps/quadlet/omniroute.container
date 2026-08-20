@@ -1,0 +1,33 @@
+# Unité Quadlet : OmniRoute (Passerelle & Proxy IA multi-fournisseurs)
+# Agrège les fournisseurs LLM (OpenAI, Anthropic, Gemini, DeepSeek, etc.) en un endpoint unique.
+#
+# Déploiement (utilisateur rootless) :
+#   cp apps/quadlet/omniroute.{container,volume} ~/.config/containers/systemd/
+#   /usr/libexec/podman/quadlet -dryrun -user     # validation syntaxe
+#   systemctl --user daemon-reload
+#   systemctl --user start omniroute
+#
+# Accès : Cloudflare Tunnel -> http://omniroute:20128 ou via VPN Twingate
+# (zéro port entrant, posture Zero Trust inchangée).
+
+[Unit]
+Description=OmniRoute AI Gateway & Proxy
+After=homelab-network.service omniroute-volume.service
+Requires=homelab-network.service omniroute-volume.service
+
+[Container]
+ContainerName=omniroute
+Image=ghcr.io/diegosouzapw/omniroute:3.8.49
+EnvironmentFile=%h/homelab/apps/omniroute.env
+Volume=omniroute.volume:/app/data
+Network=homelab.network
+Exec=node server.js
+NoNewPrivileges=true
+# Limites de ressources (1GB RAM alloués pour Next.js + SQLite migrations)
+PodmanArgs=--memory=1024m --cpus=1.0
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
