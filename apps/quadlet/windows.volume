@@ -1,0 +1,6 @@
+# Unité Quadlet : volume de stockage Windows VM
+# Contient le disque virtuel (data.qcow2), l'installation Windows et les profils.
+# ATTENTION : volume de grande taille (~64GB) ; stockage persistant dédié.
+
+[Volume]
+VolumeName=apps_windows_data

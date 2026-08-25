@@ -18,7 +18,8 @@ flowchart TB
         end
         subgraph apps["Stage 3 : Apps (apps/)"]
             vw["Vaultwarden"]
-            ab["Actual Budget (prévu)"]
+            ab["Actual Budget"]
+            win["Windows 11 VM (KVM)"]
         end
         subgraph data["Stage 2 : Data (data/) — LE PLUS CRITIQUE"]
             pg[("PostgreSQL")]
@@ -33,9 +34,11 @@ flowchart TB
     twingate --- net
     vw --- net
     ab --- net
+    win --- net
     pg --- net
 
     cloudflared -.->|"http://vaultwarden:80"| vw
+    twingate -.->|"RDP:3389 / HTTP:8006"| win
     vw -.->|"postgres-db:5432"| pg
 ```
 
