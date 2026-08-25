@@ -1,0 +1,38 @@
+# Unité Quadlet : Windows 11 Virtual Machine (Remote Workstation)
+# Exécute un environnement Windows 11 virtualisé via KVM rootless.
+#
+# Déploiement (utilisateur rootless) :
+#   cp apps/quadlet/windows.{container,volume} ~/.config/containers/systemd/
+#   /usr/libexec/podman/quadlet -dryrun -user     # validation syntaxe
+#   systemctl --user daemon-reload
+#   systemctl --user start windows
+#
+# Accès :
+#   - Web Viewer / Initial Setup : Cloudflare Tunnel -> http://windows:8006 ou via Twingate
+#   - RDP Natif (Bureau à distance) : via Twingate VPN -> windows:3389 (port interne)
+#   (zéro port entrant sur l'hôte, posture Zero Trust inchangée).
+
+[Unit]
+Description=Windows 11 Virtual Machine (Rootless KVM)
+After=homelab-network.service windows-volume.service
+Requires=homelab-network.service windows-volume.service
+
+[Container]
+ContainerName=windows
+Image=docker.io/dockurr/windows:6.05
+EnvironmentFile=%h/homelab/apps/windows.env
+Volume=windows.volume:/storage
+Network=homelab.network
+# Accélération matérielle KVM et périphériques réseau
+AddDevice=/dev/kvm
+AddDevice=/dev/net/tun
+AddCapability=NET_ADMIN
+# Limites de ressources (4GB RAM alloués à la VM + marge hôte, 2 vCPUs)
+PodmanArgs=--memory=5120m --cpus=2.0
+
+[Service]
+Restart=always
+TimeoutStartSec=600
+
+[Install]
+WantedBy=default.target
