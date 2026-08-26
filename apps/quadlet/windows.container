@@ -22,13 +22,14 @@ ContainerName=windows
 Image=docker.io/dockurr/windows:6.05
 EnvironmentFile=%h/homelab/apps/windows.env
 Volume=windows.volume:/storage
+Volume=/etc/localtime:/etc/localtime:ro
 Network=homelab.network
 # Accélération matérielle KVM et périphériques réseau
 AddDevice=/dev/kvm
 AddDevice=/dev/net/tun
 AddCapability=NET_ADMIN
-# Limites de ressources (4GB RAM alloués à la VM + marge hôte, 2 vCPUs)
-PodmanArgs=--memory=5120m --cpus=2.0
+# Limites de ressources (6GB RAM alloués à la VM + marge hôte, 2 vCPUs)
+PodmanArgs=--memory=8192m --cpus=2.0
 
 [Service]
 Restart=always
