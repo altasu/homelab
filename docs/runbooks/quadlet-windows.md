@@ -12,12 +12,12 @@ Ce runbook décrit le déploiement, l'exploitation et la maintenance d'une machi
 
 | Fichier (dépôt) | Rôle |
 |---|---|
-| `apps/quadlet/windows.container` | Unité conteneur Quadlet (image `docker.io/dockurr/windows:6.05`, KVM, 4GB RAM / 2 vCPUs) |
+| `apps/quadlet/windows.container` | Unité conteneur Quadlet (image `docker.io/dockurr/windows:6.05`, KVM, 6GB RAM / 2 vCPUs) |
 | `apps/quadlet/windows.volume` | Volume nommé `apps_windows_data` (disque virtuel `data.qcow2` de 64GB) |
 | `apps/windows.env.example` | Modèle de variables d'environnement (`VERSION`, `RAM_SIZE`, `PASSWORD`, etc.) |
 | `infra/quadlet/homelab.network` | Réseau interne partagé `homelab_net` |
 
-## Prérequis Hôte (Sanallaştırma / KVM)
+## Prérequis Hôte (Virtualisation / KVM)
 
 1. **Virtualisation matérielle active** (Intel VT-x ou AMD-V dans le BIOS/UEFI).
 2. **Droits d'accès KVM pour l'utilisateur rootless** :
@@ -82,7 +82,7 @@ Une fois l'installation terminée, la méthode d'accès recommandée est le **RD
 
 ## Recommandations d'Exploitation & Bonnes Pratiques
 
-- **Synchronisation du fuseau horaire** : Vérifier dans les paramètres Windows que le fuseau horaire correspond exactement à la localisation de l'IP publique de votre homelab.
+- **Synchronisation du fuseau horaire** : Le fuseau horaire et l'horloge matérielle (RTC) sont automatiquement synchronisés avec l'hôte via le montage de `/etc/localtime` et la variable `TZ` dans l'unité Quadlet. Aucun ajustement manuel n'est requis dans Windows.
 - **Gestion de l'alimentation** : L'image `dockurr/windows` désactive automatiquement la mise en veille (*Never Sleep*) pour garantir que la VM reste joignable 24h/24 sans interruption de session.
 - **Ressources en veille** : Lorsque vous fermez votre session RDP, Windows bascule ses cœurs en état de veille processeur (C-States) et ne consomme que ~0.5% CPU et ~2GB RAM.
 

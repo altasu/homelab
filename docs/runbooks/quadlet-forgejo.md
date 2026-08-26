@@ -15,7 +15,7 @@ Ce runbook décrit le déploiement, l'exploitation et la restauration du service
 
 Conformément à la stratégie d'architecture du homelab (voir `docs/architecture.md`), Forgejo utilise le modèle **SQLite embarqué** :
 - Le fichier de base de données SQLite `gitea.db` et l'ensemble des dépôts Git résident exclusivement dans le volume nommé `apps_forgejo_data` (monté dans `/var/lib/gitea`).
-- **Avantages** : zéro daemon veritabanı harici, empreinte RAM minimale (~200MB), isolation totale et sauvegarde/restauration atomique par le script `scripts/backup.sh`.
+- **Avantages** : zéro daemon de base de données externe, empreinte RAM minimale (~200MB), isolation totale et sauvegarde/restauration atomique par le script `scripts/backup.sh`.
 
 ## Procédure de Déploiement (Rootless)
 
