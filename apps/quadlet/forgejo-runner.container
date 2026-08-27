@@ -1,0 +1,34 @@
+# Unité Quadlet : Forgejo Runner (Exécuteur CI/CD local)
+# S'enregistre automatiquement auprès de Forgejo et exécute les pipelines.
+
+[Unit]
+Description=Forgejo Runner (CI/CD)
+After=homelab-network.service forgejo.service podman.socket
+Requires=homelab-network.service podman.socket
+
+[Container]
+ContainerName=forgejo-runner
+Image=docker.io/codeberg/forgejo-runner:3.5.0
+Network=homelab.network
+NoNewPrivileges=true
+
+# Désactiver SELinux pour ce conteneur afin qu'il puisse parler au socket Podman rootless
+SecurityLabelDisable=true
+
+# Variables d'environnement pour l'auto-enregistrement
+EnvironmentFile=%h/homelab/apps/forgejo-runner.env
+
+# Indiquer au runner comment parler à "Docker" (qui est en fait notre Podman rootless)
+Environment=DOCKER_HOST=unix:///var/run/docker.sock
+
+# Monter le socket Podman rootless de l'hôte vers le conteneur
+Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock
+
+# Monter le fichier de configuration (généré automatiquement par le runner)
+Volume=forgejo-runner.volume:/data
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
