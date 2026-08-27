@@ -11,7 +11,7 @@ ContainerName=forgejo-runner
 Image=data.forgejo.org/forgejo/runner:3.5.0
 Network=homelab.network
 NoNewPrivileges=true
-Exec=daemon
+Exec=forgejo-runner daemon
 
 # Désactiver SELinux pour ce conteneur afin qu'il puisse parler au socket Podman rootless
 SecurityLabelDisable=true
