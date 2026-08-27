@@ -22,7 +22,7 @@ EnvironmentFile=%h/homelab/apps/forgejo-runner.env
 Environment=DOCKER_HOST=unix:///var/run/docker.sock
 
 # Monter le socket Podman rootless de l'hôte vers le conteneur
-Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock
+Volume=%t/podman/podman.sock:/var/run/docker.sock
 
 # Monter le fichier de configuration (généré automatiquement par le runner)
 Volume=forgejo-runner.volume:/data
