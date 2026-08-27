@@ -8,7 +8,7 @@ Requires=homelab-network.service podman.socket
 
 [Container]
 ContainerName=forgejo-runner
-Image=docker.io/codeberg/forgejo-runner:3.5.0
+Image=data.forgejo.org/forgejo/runner:3.5.0
 Network=homelab.network
 NoNewPrivileges=true
 
