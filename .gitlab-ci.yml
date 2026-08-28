@@ -2,6 +2,50 @@
 # Aucune ressource du serveur homelab n'est utilisée : la construction du
 # site s'exécute sur les runners GitLab, à chaque poussée sur main.
 
+stages:
+  - test
+  - deploy
+
+validate-architecture:
+  stage: test
+  image: alpine:latest
+  script:
+    - apk add --no-cache bash
+    - |
+      echo "Vérification de la présence des fichiers .env.example..."
+      MISSING=0
+      
+      # 1. Vérification des projets docker-compose
+      for compose_file in $(find . -type f -name "compose.yml"); do
+        dir=$(dirname "$compose_file")
+        if [ ! -f "$dir/.env.example" ]; then
+          echo "❌ ERREUR : Le dossier $dir contient un compose.yml mais aucun .env.example !"
+          MISSING=1
+        fi
+      done
+      
+      # 2. Vérification des unités Quadlet
+      for container_file in $(find . -type f -name "*.container"); do
+        service_name=$(basename "$container_file" .container)
+        quadlet_dir=$(dirname "$container_file")
+        level_dir=$(dirname "$quadlet_dir")
+        
+        # On cherche <service>.env.example ou un .env.example générique au niveau parent
+        if [ ! -f "$level_dir/${service_name}.env.example" ] && [ ! -f "$level_dir/.env.example" ]; then
+          echo "❌ ERREUR : L'unité Quadlet '$service_name' dans $level_dir n'a pas de fichier .env.example associé !"
+          MISSING=1
+        fi
+      done
+      
+      if [ $MISSING -eq 1 ]; then
+        echo "Validation échouée : respectez les règles d'architecture Zero Trust."
+        exit 1
+      else
+        echo "✅ Tous les dossiers de déploiement possèdent un .env.example."
+      fi
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"
+
 pages:
   image: python:3.13-slim
   stage: deploy

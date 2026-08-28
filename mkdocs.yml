@@ -27,6 +27,7 @@ nav:
       - "Bascule : PostgreSQL": runbooks/quadlet-bascule-postgres.md
       - "Bascule : Infra (tunnels)": runbooks/quadlet-bascule-infra.md
       - "Service Git : Forgejo": runbooks/quadlet-forgejo.md
+      - "Service Git : Forgejo Runner (CI/CD)": runbooks/quadlet-forgejo-runner.md
       - "Machine Virtuelle : Windows 11": runbooks/quadlet-windows.md
       - Observabilité: runbooks/observabilite.md
 
