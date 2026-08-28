@@ -21,10 +21,12 @@ SecurityLabelDisable=true
 EnvironmentFile=%h/homelab/apps/forgejo-runner.env
 
 # Indiquer au runner comment parler à "Docker" (qui est en fait notre Podman rootless)
-Environment=DOCKER_HOST=unix:///var/run/docker.sock
+# Les chemins DOIVENT correspondre exactement avec l'hôte pour que les sous-conteneurs
+# puissent monter le bon chemin du socket depuis l'hôte.
+Environment=DOCKER_HOST=unix:///run/user/1000/podman/podman.sock
 
-# Monter le socket Podman rootless de l'hôte vers le conteneur
-Volume=%t/podman/podman.sock:/var/run/docker.sock
+# Monter le socket Podman rootless de l'hôte vers le conteneur (même chemin)
+Volume=%t/podman/podman.sock:/run/user/1000/podman/podman.sock
 
 # Monter le fichier de configuration (généré automatiquement par le runner)
 Volume=forgejo-runner.volume:/data
