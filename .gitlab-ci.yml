@@ -15,10 +15,24 @@ validate-architecture:
       echo "Vérification de la présence des fichiers .env.example..."
       MISSING=0
       
-      # Recherche tous les dossiers contenant un compose.yml OU un fichier .container (Quadlet)
-      for dir in $(find . -type f \( -name "compose.yml" -o -name "*.container" \) -exec dirname {} \; | sort -u); do
+      # 1. Vérification des projets docker-compose
+      for compose_file in $(find . -type f -name "compose.yml"); do
+        dir=$(dirname "$compose_file")
         if [ ! -f "$dir/.env.example" ]; then
-          echo "❌ ERREUR : Le dossier $dir contient un fichier de déploiement (compose.yml ou .container) mais aucun fichier .env.example !"
+          echo "❌ ERREUR : Le dossier $dir contient un compose.yml mais aucun .env.example !"
+          MISSING=1
+        fi
+      done
+      
+      # 2. Vérification des unités Quadlet
+      for container_file in $(find . -type f -name "*.container"); do
+        service_name=$(basename "$container_file" .container)
+        quadlet_dir=$(dirname "$container_file")
+        level_dir=$(dirname "$quadlet_dir")
+        
+        # On cherche <service>.env.example ou un .env.example générique au niveau parent
+        if [ ! -f "$level_dir/${service_name}.env.example" ] && [ ! -f "$level_dir/.env.example" ]; then
+          echo "❌ ERREUR : L'unité Quadlet '$service_name' dans $level_dir n'a pas de fichier .env.example associé !"
           MISSING=1
         fi
       done
