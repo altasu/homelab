@@ -1,0 +1,51 @@
+name: Homelab CI Validation
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  validate-architecture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Check scripts syntax (ShellCheck)
+        uses: koalaman/shellcheck-action@v0.0.0
+        with:
+          scandir: './scripts'
+
+      - name: Verify Architecture Rules (.env.example presence)
+        run: |
+          echo "Vérification de la présence des fichiers .env.example..."
+          MISSING=0
+          
+          # Recherche tous les dossiers contenant un compose.yml OU un fichier .container (Quadlet)
+          for dir in $(find . -type f \( -name "compose.yml" -o -name "*.container" \) -exec dirname {} \; | sort -u); do
+            if [ ! -f "$dir/.env.example" ]; then
+              echo "❌ ERREUR : Le dossier $dir contient un fichier de déploiement (compose.yml ou .container) mais aucun fichier .env.example !"
+              MISSING=1
+            fi
+          done
+          
+          if [ $MISSING -eq 1 ]; then
+            echo "Validation échouée : respectez les règles d'architecture Zero Trust."
+            exit 1
+          else
+            echo "✅ Tous les dossiers de déploiement possèdent un .env.example."
+          fi
+
+  validate-docs:
+    runs-on: ubuntu-latest
+    container: python:3.13-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Install dependencies
+        run: pip install --no-cache-dir mkdocs-material==9.7.7
+        
+      - name: Check Documentation Build (Strict)
+        run: mkdocs build --strict
