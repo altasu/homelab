@@ -47,6 +47,7 @@ check_file() {
         echo "✅ Pas de quotes"
     fi
 
+    # shellcheck disable=SC2016
     if echo "$lines" | grep -q '\${'; then
         echo "❌ ERREUR : placeholder \${...} non résolu (les env Quadlet contiennent des valeurs finales)"
         STATUS=1
@@ -54,6 +55,7 @@ check_file() {
         echo "✅ Pas de placeholder \${...}"
     fi
 
+    # shellcheck disable=SC2016
     if echo "$lines" | grep -q '\$\$'; then
         echo "❌ ERREUR : \$\$ détecté — échappement compose à retirer (un seul \$ en Quadlet)"
         STATUS=1
