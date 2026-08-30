@@ -21,6 +21,7 @@ PodmanArgs=--memory=128m --cpus=0.25
 
 [Service]
 Restart=on-failure
+ExecStartPre=/bin/sh -c 'while ! ping -c 1 1.1.1.1 >/dev/null 2>&1; do sleep 2; done'
 
 [Install]
 WantedBy=default.target
