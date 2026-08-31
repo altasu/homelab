@@ -13,6 +13,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set -a
+# shellcheck source=/dev/null
 source "${SCRIPT_DIR}/../data/.env"
 set +a
 

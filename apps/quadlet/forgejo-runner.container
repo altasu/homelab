@@ -12,7 +12,7 @@ Image=data.forgejo.org/forgejo/runner:3.5.0
 Network=homelab.network
 User=0:0
 NoNewPrivileges=true
-Exec=/bin/sh -c 'cd /data && if [ ! -f .runner ]; then forgejo-runner generate-config > config.yml && forgejo-runner register --no-interactive --instance "$FORGEJO_URL" --token "$FORGEJO_TOKEN" --name "$FORGEJO_RUNNER_NAME" --labels "$FORGEJO_RUNNER_LABELS" --config config.yml; fi && exec forgejo-runner daemon --config config.yml'
+Exec=/bin/sh -c 'cd /data && if [ ! -f .runner ]; then forgejo-runner generate-config > config.yml && forgejo-runner register --no-interactive --instance "$FORGEJO_URL" --token "$FORGEJO_TOKEN" --name "$FORGEJO_RUNNER_NAME" --labels "$FORGEJO_RUNNER_LABELS" --config config.yml; fi && sed -i "s|docker_host:.*|docker_host: \"unix:///run/user/1000/podman/podman.sock\"|g" config.yml && sed -i "s|network: \"\"|network: \"homelab_net\"|g" config.yml && exec forgejo-runner daemon --config config.yml'
 
 # Désactiver SELinux pour ce conteneur afin qu'il puisse parler au socket Podman rootless
 SecurityLabelDisable=true
@@ -21,10 +21,12 @@ SecurityLabelDisable=true
 EnvironmentFile=%h/homelab/apps/forgejo-runner.env
 
 # Indiquer au runner comment parler à "Docker" (qui est en fait notre Podman rootless)
-Environment=DOCKER_HOST=unix:///var/run/docker.sock
+# Les chemins DOIVENT correspondre exactement avec l'hôte pour que les sous-conteneurs
+# puissent monter le bon chemin du socket depuis l'hôte.
+Environment=DOCKER_HOST=unix:///run/user/1000/podman/podman.sock
 
-# Monter le socket Podman rootless de l'hôte vers le conteneur
-Volume=%t/podman/podman.sock:/var/run/docker.sock
+# Monter le socket Podman rootless de l'hôte vers le conteneur (même chemin)
+Volume=%t/podman/podman.sock:/run/user/1000/podman/podman.sock
 
 # Monter le fichier de configuration (généré automatiquement par le runner)
 Volume=forgejo-runner.volume:/data
