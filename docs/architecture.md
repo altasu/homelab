@@ -14,12 +14,14 @@ flowchart TB
     subgraph server["Serveur Homelab — Podman rootless"]
         subgraph infra["Stage 1 : Core Infra (infra/) — NE JAMAIS ARRÊTER"]
             cloudflared["cloudflared"]
-            twingate["twingate-connector"]
+            twingate["twingate-connector<br>(Réseau Conteneurs)"]
+            twingate_host["twingate-host-connector<br>(Réseau Hôte)"]
         end
         subgraph apps["Stage 3 : Apps (apps/)"]
             vw["Vaultwarden"]
             ab["Actual Budget"]
             win["Windows 11 VM (KVM)"]
+            forgejo["Forgejo & Runner"]
         end
         subgraph data["Stage 2 : Data (data/) — LE PLUS CRITIQUE"]
             pg[("PostgreSQL")]
@@ -29,16 +31,19 @@ flowchart TB
 
     cloudflared -.->|"Tunnel sortant (outbound)"| cf
     twingate -.->|"Tunnel sortant (outbound)"| tg
+    twingate_host -.->|"Tunnel sortant (outbound)"| tg
 
     cloudflared --- net
     twingate --- net
     vw --- net
     ab --- net
     win --- net
+    forgejo --- net
     pg --- net
 
     cloudflared -.->|"http://vaultwarden:80"| vw
     twingate -.->|"RDP:3389 / HTTP:8006"| win
+    twingate_host -.->|"Cockpit:9090 / SSH:22"| server
     vw -.->|"postgres-db:5432"| pg
 ```
 

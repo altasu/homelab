@@ -1,0 +1,22 @@
+# Unité Quadlet : Twingate Connector (niveau Host)
+# Permet l'accès VPN aux ressources de l'hôte physique (Cockpit, LAN).
+# PRÉREQUIS : infra/twingate-host.env créé depuis twingate-host.env.example
+# et validé par scripts/check-env.sh.
+
+[Unit]
+Description=Twingate Connector (niveau Host)
+
+[Container]
+ContainerName=twingate-host-connector
+Image=docker.io/twingate/connector:1.89.0
+EnvironmentFile=%h/homelab/infra/twingate-host.env
+Network=host
+NoNewPrivileges=true
+PodmanArgs=--memory=128m --cpus=0.25
+
+[Service]
+Restart=on-failure
+ExecStartPre=/bin/sh -c 'while ! ping -c 1 1.1.1.1 >/dev/null 2>&1; do sleep 2; done'
+
+[Install]
+WantedBy=default.target
