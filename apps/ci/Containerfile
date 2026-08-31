@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-venv \
     shellcheck \
+    xz-utils \
  && rm -rf /var/lib/apt/lists/*
 
 # Pré-installation de l'outil de documentation MkDocs pour accélérer les pipelines
