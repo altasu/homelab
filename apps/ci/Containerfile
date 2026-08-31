@@ -1,0 +1,17 @@
+# Image de base pour l'exécuteur CI/CD (Forgejo Runner)
+# Basée sur l'image officielle Node.js 20 (Debian Bookworm) avec outils de validation
+FROM docker.io/library/node:20-bookworm-slim
+
+# Installation des dépendances essentielles pour la CI
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    git \
+    python3 \
+    python3-pip \
+    python3-venv \
+    shellcheck \
+ && rm -rf /var/lib/apt/lists/*
+
+# Pré-installation de l'outil de documentation MkDocs pour accélérer les pipelines
+RUN pip3 install --no-cache-dir --break-system-packages mkdocs-material==9.7.7

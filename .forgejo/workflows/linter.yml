@@ -13,9 +13,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Check scripts syntax (ShellCheck)
-        run: |
-          apt-get update && apt-get install -y --no-install-recommends shellcheck
-          find ./scripts -type f -name "*.sh" -exec shellcheck {} +
+        run: find ./scripts -type f -name "*.sh" -exec shellcheck {} +
 
       - name: Verify Architecture Rules (.env.example presence)
         run: |
@@ -56,11 +54,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get install -y --no-install-recommends python3 python3-pip
-          pip3 install --no-cache-dir --break-system-packages mkdocs-material==9.7.7
         
       - name: Check Documentation Build (Strict)
         run: mkdocs build --strict
