@@ -9,13 +9,15 @@ Ce runbook décrit le déploiement et l'exploitation de **Forgejo Runner**, l'ag
 | `apps/quadlet/forgejo-runner.container` | Unité conteneur Quadlet (image `data.forgejo.org/forgejo/runner:3.5.0`) |
 | `apps/quadlet/forgejo-runner.volume` | Volume nommé `apps_forgejo_runner_data` (persistance du fichier `.runner` et config) |
 | `apps/forgejo-runner.env.example` | Modèle de variables d'environnement (Token, URL, Labels) |
+| `apps/ci/Containerfile` | Recette de construction de l'image locale d'exécution CI (`localhost/homelab-ci:latest`) |
 
 ## Spécificités d'Architecture (Zero Trust)
 
 Conformément à nos règles de sécurité :
-1. **Accès au Socket Podman :** Le runner a besoin de démarrer des conteneurs éphémères pour exécuter les jobs CI. Il monte le socket `/run/user/1000/podman/podman.sock`.
-2. **User=0:0 :** Pour que le runner puisse accéder à ce socket (appartenant à l'hôte), le conteneur est forcé à s'exécuter en tant que root `0:0` en interne, ce qui correspond de manière sécurisée à l'utilisateur non privilégié `homelab` sur l'hôte (grâce aux *User Namespaces* de Podman rootless).
-3. **Auto-enregistrement :** L'unité contient un script `Exec=` qui enregistre automatiquement le runner auprès de l'instance Forgejo s'il n'est pas encore enregistré.
+1. **Image locale dédiée (`homelab-ci`) :** Pour respecter la posture Zero Trust et éviter les risques de supply chain tiers, les pipelines s'exécutent dans une image construite localement depuis `node:20-bookworm-slim` avec les outils de validation préinstallés (`git`, `curl`, `python3`, `shellcheck`, `mkdocs-material`).
+2. **Accès au Socket Podman :** Le runner a besoin de démarrer des conteneurs éphémères pour exécuter les jobs CI. Il monte le socket `/run/user/1000/podman/podman.sock`.
+3. **User=0:0 :** Pour que le runner puisse accéder à ce socket (appartenant à l'hôte), le conteneur est forcé à s'exécuter en tant que root `0:0` en interne, ce qui correspond de manière sécurisée à l'utilisateur non privilégié `homelab` sur l'hôte (grâce aux *User Namespaces* de Podman rootless).
+4. **Auto-enregistrement :** L'unité contient un script `Exec=` qui enregistre automatiquement le runner auprès de l'instance Forgejo s'il n'est pas encore enregistré.
 
 ## Procédure de Déploiement
 
@@ -25,7 +27,12 @@ Avant de lancer le runner, il faut générer un jeton d'enregistrement global de
 podman exec -u git forgejo forgejo forgejo-cli actions generate-runner-token
 ```
 
-### 2. Configuration
+### 2. Construire l'image locale d'exécution CI
+```bash
+podman build -t localhost/homelab-ci:latest apps/ci/
+```
+
+### 3. Configuration
 Copiez le modèle et insérez le jeton :
 ```bash
 cp apps/forgejo-runner.env.example apps/forgejo-runner.env
@@ -33,13 +40,13 @@ nano apps/forgejo-runner.env
 ```
 Ajoutez :
 ```env
-FORGEJO_URL=https://git.votre-domaine.com/
+FORGEJO_URL=http://forgejo:3000
 FORGEJO_TOKEN=votre_jeton_ici
 FORGEJO_RUNNER_NAME=homelab-runner
-FORGEJO_RUNNER_LABELS=docker:docker://node:20-bookworm-slim
+FORGEJO_RUNNER_LABELS=docker:docker://localhost/homelab-ci:latest,ubuntu-latest:docker://localhost/homelab-ci:latest,ubuntu-22.04:docker://localhost/homelab-ci:latest
 ```
 
-### 3. Déploiement
+### 4. Déploiement
 ```bash
 mkdir -p ~/.config/containers/systemd
 cp apps/quadlet/forgejo-runner.{container,volume} ~/.config/containers/systemd/
