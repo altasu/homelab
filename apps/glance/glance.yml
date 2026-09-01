@@ -26,8 +26,12 @@ pages:
                     url: https://homelab-ec5d79.gitlab.io/
                     icon: si:materialformkdocs
                     description: Site MkDocs publié
-              - title: Passerelles & Sécurité
+              - title: Passerelles & Administration
                 links:
+                  - title: Cockpit Console
+                    url: ${URL_COCKPIT}
+                    icon: sh:cockpit
+                    description: Administration système hôte
                   - title: Cloudflare Zero Trust
                     url: https://dash.cloudflare.com
                     icon: si:cloudflare
@@ -65,18 +69,6 @@ pages:
                 icon: si:forgejo
                 url: ${URL_FORGEJO}
                 check-url: http://forgejo:3000
-
-              - title: Cockpit
-                icon: sh:cockpit
-                url: ${URL_COCKPIT}
-                check-url: https://10.89.0.1:9090
-                allow-insecure: true
-                alt-status-codes:
-                  - 401
-                  - 403
-                  - 302
-                  - 301
-                  - 200
 
               - title: Grafana
                 icon: si:grafana
