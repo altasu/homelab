@@ -22,6 +22,7 @@ flowchart TB
             ab["Actual Budget"]
             win["Windows 11 VM (KVM)"]
             forgejo["Forgejo & Runner"]
+            glance["Glance Dashboard"]
         end
         subgraph data["Stage 2 : Data (data/) — LE PLUS CRITIQUE"]
             pg[("PostgreSQL")]
@@ -39,10 +40,12 @@ flowchart TB
     ab --- net
     win --- net
     forgejo --- net
+    glance --- net
     pg --- net
 
     cloudflared -.->|"http://vaultwarden:80"| vw
     twingate -.->|"RDP:3389 / HTTP:8006"| win
+    twingate -.->|"http://glance:8080"| glance
     twingate_host -.->|"Cockpit:9090 / SSH:22"| server
     vw -.->|"postgres-db:5432"| pg
 ```
