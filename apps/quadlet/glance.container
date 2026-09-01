@@ -1,0 +1,24 @@
+# Unité Quadlet : Glance (Dashboard Homelab)
+# Portail d'accueil léger et moderne (Go) avec surveillance de l'état des services.
+
+[Unit]
+Description=Glance (Homelab Dashboard)
+After=homelab-network.service
+Requires=homelab-network.service
+
+[Container]
+ContainerName=glance
+Image=docker.io/glanceapp/glance:v0.8.5
+Volume=%h/homelab/apps/glance/glance.yml:/app/glance.yml:ro,Z
+Volume=/etc/timezone:/etc/timezone:ro
+Volume=/etc/localtime:/etc/localtime:ro
+Network=homelab.network
+EnvironmentFile=%h/homelab/apps/glance.env
+NoNewPrivileges=true
+PodmanArgs=--memory=64m --cpus=0.25
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

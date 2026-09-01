@@ -29,6 +29,7 @@ nav:
       - "Réseau Hôte : Twingate (Zero Trust)": runbooks/quadlet-twingate-host.md
       - "Service Git : Forgejo": runbooks/quadlet-forgejo.md
       - "Service Git : Forgejo Runner (CI/CD)": runbooks/quadlet-forgejo-runner.md
+      - "Portail d'accueil : Glance": runbooks/quadlet-glance.md
       - "Machine Virtuelle : Windows 11": runbooks/quadlet-windows.md
       - Observabilité: runbooks/observabilite.md
 
