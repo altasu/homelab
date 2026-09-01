@@ -34,7 +34,7 @@ pages:
                     description: Console des tunnels
                   - title: Twingate Admin
                     url: https://twingate.com
-                    icon: si:twingate
+                    icon: auto-invert si:twingate
                     description: Console Zero Trust SDN
 
       # Colonne 2 : Portail Centralisé des Services Homelab (Cartes Unifiées Santé + Liens)
@@ -50,7 +50,7 @@ pages:
                 check-url: http://vaultwarden:80
 
               - title: Actual Budget
-                icon: di:actual
+                icon: si:actualbudget
                 url: ${URL_ACTUAL_BUDGET}
                 check-url: http://actual-budget:5006
 
@@ -60,10 +60,15 @@ pages:
                 check-url: http://forgejo:3000
 
               - title: Cockpit
-                icon: di:cockpit
+                icon: si:cockpit
                 url: ${URL_COCKPIT}
                 check-url: ${URL_COCKPIT}
                 allow-insecure: true
+                alt-status-codes:
+                  - 401
+                  - 403
+                  - 302
+                  - 301
 
               - title: Windows 11
                 icon: si:windows11
