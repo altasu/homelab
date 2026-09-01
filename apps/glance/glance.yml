@@ -70,11 +70,6 @@ pages:
                   - 302
                   - 301
 
-              - title: Windows 11
-                icon: si:windows11
-                url: ${URL_WINDOWS}
-                check-url: http://windows:8006
-
               - title: Grafana
                 icon: si:grafana
                 url: ${URL_GRAFANA}

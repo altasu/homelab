@@ -33,7 +33,6 @@ URL_VAULTWARDEN=https://vaultwarden.votre-domaine.com
 URL_ACTUAL_BUDGET=https://budget.votre-domaine.com
 URL_FORGEJO=https://git.votre-domaine.com
 URL_COCKPIT=https://192.168.x.x:9090
-URL_WINDOWS=http://windows:8006
 URL_GRAFANA=https://grafana.votre-domaine.com
 URL_PROMETHEUS=http://prometheus:9090
 URL_NTFY=https://ntfy.votre-domaine.com
