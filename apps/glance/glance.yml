@@ -34,8 +34,15 @@ pages:
                     description: Console des tunnels
                   - title: Twingate Admin
                     url: https://twingate.com
-                    icon: auto-invert si:twingate
+                    icon: sh:twingate
                     description: Console Zero Trust SDN
+
+          - type: server-stats
+            title: Métriques Système
+            servers:
+              - type: local
+                name: Homelab Node
+                hide-swap: true
 
       # Colonne 2 : Portail Centralisé des Services Homelab (Cartes Unifiées Santé + Liens)
       - size: full
@@ -60,15 +67,16 @@ pages:
                 check-url: http://forgejo:3000
 
               - title: Cockpit
-                icon: si:cockpit
+                icon: sh:cockpit
                 url: ${URL_COCKPIT}
-                check-url: ${URL_COCKPIT}
+                check-url: https://10.89.0.1:9090
                 allow-insecure: true
                 alt-status-codes:
                   - 401
                   - 403
                   - 302
                   - 301
+                  - 200
 
               - title: Grafana
                 icon: si:grafana
