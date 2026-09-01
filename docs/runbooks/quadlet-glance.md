@@ -5,9 +5,9 @@ Ce runbook décrit le déploiement et la gestion de **Glance**, le portail d'acc
 ## Rôle et Architecture
 
 Glance (`glanceapp/glance:v0.8.5`) est un tableau de bord ultra-léger écrit en Go (~15-20 MB RAM). Il sert de page de démarrage pour le homelab :
-- **Navigation centralisée :** Liens directs vers tous les services applicatifs (Vaultwarden, Actual Budget, Forgejo, Windows VM, Cockpit).
+- **Navigation centralisée :** Liens directs vers tous les services applicatifs (Vaultwarden, Actual Budget, Forgejo, Cockpit, Grafana, Prometheus, ntfy).
 - **Surveillance de disponibilité (Healthcheck) :** Sondes HTTP régulières sur le réseau interne `homelab_net` pour afficher l'état (en ligne / hors ligne) de chaque conteneur.
-- **Flux d'information :** Intégration de flux RSS et widgets temporels.
+- **Métriques & Flux d'information :** Télémétrie CPU/RAM/Disque en direct, flux RSS et suivi automatique des versions logicielles.
 
 ## Fichiers IaC impliqués
 

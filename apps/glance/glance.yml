@@ -34,7 +34,7 @@ pages:
                 links:
                   - title: Cockpit Console
                     url: ${URL_COCKPIT}
-                    icon: sh:cockpit
+                    icon: sh:cockpit-light
                     description: Administration système hôte
                   - title: Cloudflare Zero Trust
                     url: https://dash.cloudflare.com
@@ -42,7 +42,7 @@ pages:
                     description: Console des tunnels
                   - title: Twingate Admin
                     url: https://twingate.com
-                    icon: sh:twingate
+                    icon: sh:twingate-light
                     description: Console Zero Trust SDN
 
       # Colonne 2 : Portail Centralisé des Services Homelab
