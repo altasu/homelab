@@ -8,61 +8,7 @@ theme:
 pages:
   - name: Homelab
     columns:
-      # Colonne 1 : Navigation & Services Applicatifs
-      - size: small
-        widgets:
-          - type: bookmarks
-            groups:
-              - title: Applications
-                links:
-                  - title: Vaultwarden
-                    url: ${URL_VAULTWARDEN}
-                    description: Gestionnaire de mots de passe
-                  - title: Actual Budget
-                    url: ${URL_ACTUAL_BUDGET}
-                    description: Gestion financière personnelle
-                  - title: Forgejo
-                    url: ${URL_FORGEJO}
-                    description: Dépôts Git & CI/CD
-              - title: Administration & Système
-                links:
-                  - title: Cockpit
-                    url: ${URL_COCKPIT}
-                    description: Console de gestion hôte
-                  - title: Windows 11
-                    url: ${URL_WINDOWS}
-                    description: Machine virtuelle KVM
-
-      # Colonne 2 : Surveillance & Statut en Direct
-      - size: full
-        widgets:
-          - type: monitor
-            title: État des Services (Healthcheck)
-            cache: 1m
-            sites:
-              - title: Vaultwarden
-                url: http://vaultwarden:80
-              - title: Actual Budget
-                url: http://actual-budget:5006
-              - title: Forgejo
-                url: http://forgejo:3000
-              - title: Grafana
-                url: http://grafana:3000
-              - title: Prometheus
-                url: http://prometheus:9090
-              - title: ntfy
-                url: http://ntfy:80
-
-          - type: rss
-            title: Actualités Homelab & Open Source
-            limit: 6
-            collapse-after: 3
-            cache: 6h
-            feeds:
-              - url: https://selfh.st/rss/
-                title: selfh.st
-
-      # Colonne 3 : Observabilité & Calendrier
+      # Colonne 1 : Calendrier & Raccourcis Externes (Documentation, Repositories)
       - size: small
         widgets:
           - type: calendar
@@ -70,14 +16,83 @@ pages:
 
           - type: bookmarks
             groups:
-              - title: Observabilité
+              - title: Dépôts & Documentation
                 links:
-                  - title: Grafana
-                    url: ${URL_GRAFANA}
-                    description: Tableaux de bord & métriques
-                  - title: Prometheus
-                    url: ${URL_PROMETHEUS}
-                    description: Collecte de métriques (interne)
-                  - title: ntfy
-                    url: ${URL_NTFY}
-                    description: Alertes & notifications
+                  - title: GitLab (Source of Truth)
+                    url: https://gitlab.com/altasu/homelab
+                    icon: si:gitlab
+                    description: Dépôt principal & CI/CD
+                  - title: Documentation IaC
+                    url: https://homelab-ec5d79.gitlab.io/
+                    icon: si:materialformkdocs
+                    description: Site MkDocs publié
+              - title: Passerelles & Sécurité
+                links:
+                  - title: Cloudflare Zero Trust
+                    url: https://dash.cloudflare.com
+                    icon: si:cloudflare
+                    description: Console des tunnels
+                  - title: Twingate Admin
+                    url: https://twingate.com
+                    icon: si:twingate
+                    description: Console Zero Trust SDN
+
+      # Colonne 2 : Portail Centralisé des Services Homelab (Cartes Unifiées Santé + Liens)
+      - size: full
+        widgets:
+          - type: monitor
+            title: Services & Applications Homelab
+            cache: 30s
+            sites:
+              - title: Vaultwarden
+                icon: si:bitwarden
+                url: ${URL_VAULTWARDEN}
+                check-url: http://vaultwarden:80
+
+              - title: Actual Budget
+                icon: di:actual
+                url: ${URL_ACTUAL_BUDGET}
+                check-url: http://actual-budget:5006
+
+              - title: Forgejo
+                icon: si:forgejo
+                url: ${URL_FORGEJO}
+                check-url: http://forgejo:3000
+
+              - title: Cockpit
+                icon: di:cockpit
+                url: ${URL_COCKPIT}
+                check-url: ${URL_COCKPIT}
+                allow-insecure: true
+
+              - title: Windows 11
+                icon: si:windows11
+                url: ${URL_WINDOWS}
+                check-url: http://windows:8006
+
+              - title: Grafana
+                icon: si:grafana
+                url: ${URL_GRAFANA}
+                check-url: http://grafana:3000
+
+              - title: Prometheus
+                icon: si:prometheus
+                url: ${URL_PROMETHEUS}
+                check-url: http://prometheus:9090
+
+              - title: ntfy
+                icon: di:ntfy
+                url: ${URL_NTFY}
+                check-url: http://ntfy:80
+
+      # Colonne 3 : Actualités & Flux RSS
+      - size: small
+        widgets:
+          - type: rss
+            title: Actualités Homelab & Open Source
+            limit: 8
+            collapse-after: 4
+            cache: 6h
+            feeds:
+              - url: https://selfh.st/rss/
+                title: selfh.st
