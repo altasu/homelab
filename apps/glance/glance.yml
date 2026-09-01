@@ -8,11 +8,15 @@ theme:
 pages:
   - name: Homelab
     columns:
-      # Colonne 1 : Calendrier & Raccourcis Externes (Documentation, Repositories)
+      # Colonne 1 : Télémétrie Système & Raccourcis d'Administration
       - size: small
         widgets:
-          - type: calendar
-            first-day-of-week: monday
+          - type: server-stats
+            title: Métriques Système
+            servers:
+              - type: local
+                name: Homelab Node
+                hide-swap: true
 
           - type: bookmarks
             groups:
@@ -41,14 +45,7 @@ pages:
                     icon: sh:twingate
                     description: Console Zero Trust SDN
 
-          - type: server-stats
-            title: Métriques Système
-            servers:
-              - type: local
-                name: Homelab Node
-                hide-swap: true
-
-      # Colonne 2 : Portail Centralisé des Services Homelab (Cartes Unifiées Santé + Liens)
+      # Colonne 2 : Portail Centralisé des Services Homelab
       - size: full
         widgets:
           - type: monitor
@@ -85,14 +82,26 @@ pages:
                 url: ${URL_NTFY}
                 check-url: http://ntfy:80
 
-      # Colonne 3 : Actualités & Flux RSS
-      - size: small
-        widgets:
           - type: rss
-            title: Actualités Homelab & Open Source
-            limit: 8
-            collapse-after: 4
+            title: Veille Technique & Open Source
+            limit: 6
+            collapse-after: 3
             cache: 6h
             feeds:
               - url: https://selfh.st/rss/
                 title: selfh.st
+
+      # Colonne 3 : Calendrier & Mises à Jour
+      - size: small
+        widgets:
+          - type: calendar
+            first-day-of-week: monday
+
+          - type: releases
+            title: Suivi des Versions Logicielles
+            repositories:
+              - glanceapp/glance
+              - dani-garcia/vaultwarden
+              - grafana/grafana
+              - prometheus/prometheus
+              - actualbudget/actual
