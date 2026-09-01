@@ -13,7 +13,7 @@ Linkding (`sissbruecker/linkding:1.46.2`) est une application web ultra-légère
 
 | Fichier (dépôt) | Rôle |
 |---|---|
-| `apps/quadlet/linkding.container` | Unité conteneur Quadlet (image `docker.io/sissbruecker/linkding:1.46.2`, limites 128MB RAM / 0.5 CPU) |
+| `apps/quadlet/linkding.container` | Unité conteneur Quadlet (image `docker.io/sissbruecker/linkding:1.46.2`, limites 512MB RAM / 0.5 CPU) |
 | `apps/quadlet/linkding.volume` | Volume nommé `apps_linkding_data` (persistance SQLite et signets dans `/etc/linkding/data`) |
 | `apps/linkding.env.example` | Modèle de variables d'environnement (`LD_SUPERUSER_NAME`, `LD_CSRF_TRUSTED_ORIGINS`, etc.) |
 | `apps/glance/glance.yml` | Portail d'accueil Glance (sonde de disponibilité `http://linkding:9090` et suivi de version) |

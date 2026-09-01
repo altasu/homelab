@@ -14,7 +14,7 @@ Volume=/etc/localtime:/etc/localtime:ro
 Network=homelab.network
 EnvironmentFile=%h/homelab/apps/linkding.env
 NoNewPrivileges=true
-PodmanArgs=--memory=128m --cpus=0.5
+PodmanArgs=--memory=512m --cpus=0.5
 
 [Service]
 Restart=on-failure
