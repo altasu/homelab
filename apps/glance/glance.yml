@@ -82,6 +82,11 @@ pages:
                 url: ${URL_NTFY}
                 check-url: http://ntfy:80
 
+              - title: Linkding
+                icon: si:linkding
+                url: ${URL_LINKDING}
+                check-url: http://linkding:9090
+
           - type: rss
             title: Veille Technique & Open Source
             limit: 6
@@ -105,3 +110,4 @@ pages:
               - grafana/grafana
               - prometheus/prometheus
               - actualbudget/actual
+              - sissbruecker/linkding
