@@ -44,3 +44,4 @@ Huit services tournent sous Quadlet, rootless, avec :
 - [Gestionnaire de signets : Linkding](runbooks/quadlet-linkding.md)
 - [Machine Virtuelle : Windows 11](runbooks/quadlet-windows.md)
 - [Observabilité](runbooks/observabilite.md)
+- [GitOps & Déploiement continu](runbooks/gitops-renovate-sync.md)
