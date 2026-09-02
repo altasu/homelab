@@ -16,7 +16,7 @@ Ce dépôt contient l'Infrastructure as Code (IaC) de mon homelab personnel, con
 |:------|:--------|:------:|:-----|
 | **Stage 1** | `infra/` | ✅ Actif | Passerelle Zero Trust (Cloudflare + Twingate) |
 | **Stage 2** | `data/` | ✅ Actif | Persistance (PostgreSQL sur disque externe) |
-| **Stage 3** | `apps/` | ✅ Actif | Applications (Vaultwarden, Actual Budget, Windows 11 VM, Forgejo & Runner, Glance) et observabilité (Prometheus, Grafana, node_exporter, ntfy) |
+| **Stage 3** | `apps/` | ✅ Actif | Applications (Vaultwarden, Actual Budget, Windows 11 VM, Forgejo & Runner, Glance, Linkding) et observabilité (Prometheus, Grafana, node_exporter, ntfy) |
 
 Tous les stages partagent le réseau externe Podman `homelab_net` (sauf les connecteurs hôtes).
 
@@ -34,7 +34,7 @@ cp infra/quadlet/* data/quadlet/* apps/quadlet/* ~/.config/containers/systemd/
 # 3. Recharger et démarrer
 systemctl --user daemon-reload
 systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector twingate-host \
-  prometheus grafana node-exporter podman-exporter ntfy windows forgejo forgejo-runner glance
+  prometheus grafana node-exporter podman-exporter ntfy windows forgejo forgejo-runner glance linkding
 ```
 
 L'ordre de démarrage n'a plus à être appliqué manuellement : les dépendances systemd (`Requires=`/`After=`) et le healthcheck de la base le garantissent, au démarrage comme au boot (`loginctl enable-linger` + section `[Install]` des unités).
@@ -66,7 +66,7 @@ This repository contains the Infrastructure as Code (IaC) for my personal homela
 |:------|:----------|:------:|:-----|
 | **Stage 1** | `infra/` | ✅ Active | Zero Trust Gateway (Cloudflare + Twingate) |
 | **Stage 2** | `data/` | ✅ Active | Persistence (PostgreSQL on external drive) |
-| **Stage 3** | `apps/` | ✅ Active | Applications (Vaultwarden, Actual Budget, Windows 11 VM, Forgejo & Runner, Glance) and observability (Prometheus, Grafana, node_exporter, ntfy) |
+| **Stage 3** | `apps/` | ✅ Active | Applications (Vaultwarden, Actual Budget, Windows 11 VM, Forgejo & Runner, Glance, Linkding) and observability (Prometheus, Grafana, node_exporter, ntfy) |
 
 All stages share the external Podman network `homelab_net` (except host connectors).
 
@@ -84,7 +84,7 @@ cp infra/quadlet/* data/quadlet/* apps/quadlet/* ~/.config/containers/systemd/
 # 3. Reload and start
 systemctl --user daemon-reload
 systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector twingate-host \
-  prometheus grafana node-exporter podman-exporter ntfy windows forgejo forgejo-runner glance
+  prometheus grafana node-exporter podman-exporter ntfy windows forgejo forgejo-runner glance linkding
 ```
 
 Startup order no longer needs to be applied manually: systemd dependencies (`Requires=`/`After=`) plus the database healthcheck enforce it, both on demand and at boot (`loginctl enable-linger` + the units' `[Install]` section).

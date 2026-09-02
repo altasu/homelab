@@ -41,5 +41,6 @@ Huit services tournent sous Quadlet, rootless, avec :
 - [Service Git : Forgejo](runbooks/quadlet-forgejo.md)
 - [Service Git : Forgejo Runner (CI/CD)](runbooks/quadlet-forgejo-runner.md)
 - [Portail d'accueil : Glance Dashboard](runbooks/quadlet-glance.md)
+- [Gestionnaire de signets : Linkding](runbooks/quadlet-linkding.md)
 - [Machine Virtuelle : Windows 11](runbooks/quadlet-windows.md)
 - [Observabilité](runbooks/observabilite.md)

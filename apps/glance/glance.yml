@@ -34,7 +34,7 @@ pages:
                 links:
                   - title: Cockpit Console
                     url: ${URL_COCKPIT}
-                    icon: sh:cockpit-light
+                    icon: mdi:console
                     description: Administration système hôte
                   - title: Cloudflare Zero Trust
                     url: https://dash.cloudflare.com
@@ -42,7 +42,7 @@ pages:
                     description: Console des tunnels
                   - title: Twingate Admin
                     url: https://twingate.com
-                    icon: sh:twingate-light
+                    icon: mdi:vpn
                     description: Console Zero Trust SDN
 
       # Colonne 2 : Portail Centralisé des Services Homelab
@@ -78,9 +78,14 @@ pages:
                 check-url: http://prometheus:9090
 
               - title: ntfy
-                icon: di:ntfy
+                icon: mdi:bell-ring
                 url: ${URL_NTFY}
                 check-url: http://ntfy:80
+
+              - title: Linkding
+                icon: mdi:bookmark-multiple
+                url: ${URL_LINKDING}
+                check-url: http://linkding:9090
 
           - type: rss
             title: Veille Technique & Open Source
@@ -99,9 +104,13 @@ pages:
 
           - type: releases
             title: Suivi des Versions Logicielles
+            cache: 6h
             repositories:
               - glanceapp/glance
               - dani-garcia/vaultwarden
               - grafana/grafana
               - prometheus/prometheus
               - actualbudget/actual
+              - sissbruecker/linkding
+              - forgejo/forgejo
+              - binwiederhier/ntfy

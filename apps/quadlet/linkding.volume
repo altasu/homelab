@@ -1,0 +1,7 @@
+# Unité Quadlet : volume de données Linkding
+# Contient la base de données SQLite et les fichiers de signets (/etc/linkding/data).
+# ATTENTION : ce volume est la SEULE persistance de Linkding
+# (couvert par le script automatisé scripts/backup.sh).
+
+[Volume]
+VolumeName=apps_linkding_data

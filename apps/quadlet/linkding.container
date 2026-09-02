@@ -1,0 +1,23 @@
+# Unité Quadlet : Linkding (Gestionnaire de signets)
+# Service léger de gestion et synchronisation centralisée de favoris (Django/SQLite).
+
+[Unit]
+Description=Linkding (Bookmark Manager)
+After=homelab-network.service
+Requires=homelab-network.service
+
+[Container]
+ContainerName=linkding
+Image=docker.io/sissbruecker/linkding:1.46.2
+Volume=linkding.volume:/etc/linkding/data
+Volume=/etc/localtime:/etc/localtime:ro
+Network=homelab.network
+EnvironmentFile=%h/homelab/apps/linkding.env
+NoNewPrivileges=true
+PodmanArgs=--memory=512m --cpus=0.5
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
