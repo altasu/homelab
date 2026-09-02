@@ -83,7 +83,7 @@ pages:
                 check-url: http://ntfy:80
 
               - title: Linkding
-                icon: si:linkding
+                icon: di:linkding
                 url: ${URL_LINKDING}
                 check-url: http://linkding:9090
 
@@ -104,6 +104,7 @@ pages:
 
           - type: releases
             title: Suivi des Versions Logicielles
+            cache: 6h
             repositories:
               - glanceapp/glance
               - dani-garcia/vaultwarden
@@ -111,3 +112,5 @@ pages:
               - prometheus/prometheus
               - actualbudget/actual
               - sissbruecker/linkding
+              - forgejo/forgejo
+              - binwiederhier/ntfy
