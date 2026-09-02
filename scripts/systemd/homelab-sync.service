@@ -1,0 +1,12 @@
+# Unité systemd (user) : synchronisation GitOps automatique du homelab
+# Déploiement : cp vers ~/.config/systemd/user/ puis
+#   systemctl --user daemon-reload && systemctl --user enable --now homelab-sync.timer
+
+[Unit]
+Description=Synchronisation GitOps automatique du homelab
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/homelab/scripts/homelab-sync.sh
+EnvironmentFile=-%h/homelab/apps/ntfy.env

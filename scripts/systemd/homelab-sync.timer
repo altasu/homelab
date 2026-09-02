@@ -1,0 +1,13 @@
+# Unité systemd (user) : déclenchement périodique de la synchronisation GitOps
+# Exécution toutes les 30 minutes et 10 minutes après le démarrage du serveur.
+
+[Unit]
+Description=Déclenchement périodique de la synchronisation GitOps homelab
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
