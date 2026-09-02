@@ -18,7 +18,7 @@ Description=Actual Budget (serveur de synchronisation)
 
 [Container]
 ContainerName=actual-budget
-Image=docker.io/actualbudget/actual-server:26.8.0-alpine
+Image=docker.io/actualbudget/actual-server:26.9.0-alpine
 Volume=actual-budget.volume:/data
 Network=homelab.network
 NoNewPrivileges=true
