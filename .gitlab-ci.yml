@@ -5,6 +5,7 @@
 stages:
   - test
   - deploy
+  - renovate
 
 validate-architecture:
   stage: test
@@ -59,3 +60,15 @@ pages:
       - public
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
+
+renovate:
+  stage: renovate
+  image: renovate/renovate:latest
+  variables:
+    RENOVATE_BASE_DIR: $CI_PROJECT_DIR/renovate
+    RENOVATE_GIT_AUTHOR: "Renovate Bot <bot@renovateapp.com>"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+  script:
+    - renovate

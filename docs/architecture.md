@@ -72,4 +72,9 @@ Le homelab adopte une approche hybride d'organisation des bases de données selo
    - Réservé aux applications à fortes transactions ou multi-utilisateurs complexes (Vaultwarden).
    - **Sécurité** : application stricte du principe du moindre privilège OWASP (rôle application dédié non-superuser par base de données, pas d'accès global).
 
-> **Migration en cours** : l'orchestration `podman-compose` évolue vers Quadlet (unités systemd utilisateur) — voir [quadlet-migration-plan.md](quadlet-migration-plan.md).
+## Automatisation & GitOps (Renovate & Déploiement Continu)
+
+Le homelab intègre une boucle GitOps complète pour la maintenance et la mise à jour des versions :
+
+1. **Renovate Bot (CI/CD)** : analyse les directives `Image=` des unités Quadlet et soumet des Merge Requests automatiques lors de la sortie de nouvelles versions stables.
+2. **Déploiement Continu (`homelab-sync`)** : service systemd utilisateur planifié toutes les 30 minutes qui synchronise la branche `main`, applique de manière ciblée les fichiers Quadlet modifiés dans `~/.config/containers/systemd/`, recharge le démon systemd et redémarre uniquement les conteneurs concernés avec notification `ntfy` — voir [le runbook GitOps](runbooks/gitops-renovate-sync.md).
