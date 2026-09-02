@@ -83,9 +83,30 @@ backup_volume() {
 }
 
 # ------------------------------------------------------------------------------
+# Définition des volumes à sauvegarder (Source unique de vérité)
+# Format : "nom_du_volume:sous_repertoire:libellé:exigence"
+# ------------------------------------------------------------------------------
+APP_VOLUMES=(
+    "apps_vaultwarden_data:vaultwarden:des fichiers statiques de Vaultwarden:requis"
+    "apps_actual_budget_data:actualbudget:d'Actual Budget:requis"
+    "apps_grafana_data:grafana:des tableaux de bord Grafana:optionnel"
+    "apps_ntfy_data:ntfy:des comptes ntfy:optionnel"
+    "apps_forgejo_data:forgejo:de Forgejo:optionnel"
+    "apps_linkding_data:linkding:de Linkding:optionnel"
+)
+
+TOTAL_STEPS=$(( 1 + ${#APP_VOLUMES[@]} ))
+CURRENT_STEP=1
+
+step_log() {
+    echo "[${CURRENT_STEP}/${TOTAL_STEPS}] $1"
+    CURRENT_STEP=$((CURRENT_STEP + 1))
+}
+
+# ------------------------------------------------------------------------------
 # 1. Sauvegarde logique PostgreSQL (niveau Data)
 # ------------------------------------------------------------------------------
-echo "[1/4] Sauvegarde des bases de données PostgreSQL..."
+step_log "Sauvegarde des bases de données PostgreSQL..."
 
 if ! podman container exists postgres-db; then
     echo "❌ Échec : le conteneur postgres-db n'existe pas — sauvegarde PostgreSQL ignorée."
@@ -110,26 +131,17 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 2-4. Sauvegarde des volumes applicatifs
+# 2-N. Sauvegarde des volumes applicatifs
 #
 # Note : le volume de Prometheus est volontairement ABSENT de cette liste —
 # l'historique de métriques est une donnée remplaçable dont la perte n'a
 # aucune conséquence opérationnelle.
 # ------------------------------------------------------------------------------
-echo "[2/4] Sauvegarde du volume Vaultwarden (pièces jointes, clés RSA)..."
-backup_volume apps_vaultwarden_data   vaultwarden  "des fichiers statiques de Vaultwarden" requis
-
-echo "[3/4] Sauvegarde du volume Actual Budget (SQLite)..."
-backup_volume apps_actual_budget_data actualbudget "d'Actual Budget"                       requis
-
-echo "[4/5] Sauvegarde du volume Grafana (tableaux de bord)..."
-backup_volume apps_grafana_data       grafana      "des tableaux de bord Grafana"          optionnel
-
-echo "[5/6] Sauvegarde du volume ntfy (comptes et jetons)..."
-backup_volume apps_ntfy_data          ntfy         "des comptes ntfy"                      optionnel
-
-echo "[6/6] Sauvegarde du volume Forgejo (dépôts Git et SQLite)..."
-backup_volume apps_forgejo_data       forgejo      "de Forgejo"                            optionnel
+for entry in "${APP_VOLUMES[@]}"; do
+    IFS=":" read -r volume subdir label requirement <<< "${entry}"
+    step_log "Sauvegarde du volume ${label}..."
+    backup_volume "${volume}" "${subdir}" "${label}" "${requirement}"
+done
 
 echo "================================================================="
 if [ "${EXIT_CODE}" -eq 0 ]; then
@@ -170,7 +182,8 @@ mv "${METRICS_DIR}/backup.prom.tmp" "${METRICS_DIR}/backup.prom"
 # ------------------------------------------------------------------------------
 if [ "${EXIT_CODE}" -eq 0 ]; then
     find "${DEST_DIR}/postgres" -type f -name "*.sql.gz" -mtime +7 -delete
-    for subdir in vaultwarden actualbudget grafana ntfy forgejo; do
+    for entry in "${APP_VOLUMES[@]}"; do
+        IFS=":" read -r _ subdir _ _ <<< "${entry}"
         [ -d "${DEST_DIR}/${subdir}" ] && \
             find "${DEST_DIR}/${subdir}" -type f -name "*.tar.gz" -mtime +7 -delete
     done
