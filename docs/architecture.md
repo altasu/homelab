@@ -23,6 +23,7 @@ flowchart TB
             win["Windows 11 VM (KVM)"]
             forgejo["Forgejo & Runner"]
             glance["Glance Dashboard"]
+            linkding["Linkding (Bookmarks)"]
         end
         subgraph data["Stage 2 : Data (data/) — LE PLUS CRITIQUE"]
             pg[("PostgreSQL")]
@@ -41,9 +42,11 @@ flowchart TB
     win --- net
     forgejo --- net
     glance --- net
+    linkding --- net
     pg --- net
 
     cloudflared -.->|"http://vaultwarden:80"| vw
+    cloudflared -.->|"http://linkding:9090"| linkding
     twingate -.->|"RDP:3389 / HTTP:8006"| win
     twingate -.->|"http://glance:8080"| glance
     twingate_host -.->|"Cockpit:9090 / SSH:22"| server
@@ -63,7 +66,7 @@ flowchart TB
 Le homelab adopte une approche hybride d'organisation des bases de données selon les besoins des services :
 
 1. **SQLite embarqué par service (`apps_<service>_data`)** :
-   - Utilisé pour Forgejo, Actual Budget, ntfy.
+   - Utilisé pour Forgejo, Actual Budget, ntfy, Linkding.
    - **Avantages** : empreinte mémoire nulle (0 MB RAM de daemon), isolation totale du rayon d'impact (blast radius), persistance autonome dans le Named Volume Quadlet et restauration 1:1 sans dépendance réseau.
 2. **PostgreSQL centralisé (Niveau `data/`)** :
    - Réservé aux applications à fortes transactions ou multi-utilisateurs complexes (Vaultwarden).
