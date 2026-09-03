@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Check scripts syntax (ShellCheck)
         uses: ludeeus/action-shellcheck@master
@@ -56,7 +56,7 @@ jobs:
     container: python:3.14-slim
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         
       - name: Install dependencies
         run: pip install --no-cache-dir mkdocs-material==9.7.7

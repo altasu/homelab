@@ -10,7 +10,7 @@ jobs:
     runs-on: docker # Utilise le label 'docker' que nous avons configuré
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Check scripts syntax (ShellCheck)
         run: find ./scripts -type f -name "*.sh" -exec shellcheck {} +
@@ -53,7 +53,7 @@ jobs:
     runs-on: docker
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         
       - name: Check Documentation Build (Strict)
         run: mkdocs build --strict
