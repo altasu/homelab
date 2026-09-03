@@ -8,7 +8,7 @@ Requires=homelab-network.service podman.socket
 
 [Container]
 ContainerName=forgejo-runner
-Image=data.forgejo.org/forgejo/runner:3.5.1
+Image=data.forgejo.org/forgejo/runner:13.1.0
 Network=homelab.network
 User=0:0
 Exec=/bin/sh -c 'cd /data && if [ ! -f .runner ]; then forgejo-runner generate-config > config.yml && sed -i "s|docker_host:.*|docker_host: unix:///run/user/1000/podman/podman.sock|g" config.yml && sed -i "s|network: .*|network: homelab_net|g" config.yml && forgejo-runner register --no-interactive --instance "$FORGEJO_URL" --token "$FORGEJO_TOKEN" --name "$FORGEJO_RUNNER_NAME" --labels "$FORGEJO_RUNNER_LABELS" --config config.yml; fi && exec forgejo-runner daemon --config config.yml'
