@@ -12,7 +12,7 @@ Description=Prometheus (collecte des metriques)
 
 [Container]
 ContainerName=prometheus
-Image=docker.io/prom/prometheus:v3.13.2
+Image=docker.io/prom/prometheus:v3.14.0
 Volume=prometheus.volume:/prometheus
 Volume=%h/homelab/apps/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro,z
 Network=homelab.network
