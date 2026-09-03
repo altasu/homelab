@@ -20,7 +20,7 @@ Description=ntfy (notifications push)
 
 [Container]
 ContainerName=ntfy
-Image=docker.io/binwiederhier/ntfy:v2.27.0
+Image=docker.io/binwiederhier/ntfy:v2.28.0
 Exec=serve
 EnvironmentFile=%h/homelab/apps/ntfy.env
 Volume=ntfy.volume:/var/lib/ntfy
