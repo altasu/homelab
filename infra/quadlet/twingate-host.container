@@ -8,7 +8,7 @@ Description=Twingate Connector (niveau Host)
 
 [Container]
 ContainerName=twingate-host-connector
-Image=docker.io/twingate/connector:1.89.0
+Image=docker.io/twingate/connector:1.92.0
 EnvironmentFile=%h/homelab/infra/twingate-host.env
 Network=host
 NoNewPrivileges=true
