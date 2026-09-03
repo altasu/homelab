@@ -48,7 +48,7 @@ validate-architecture:
     - if: $CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"
 
 pages:
-  image: python:3.13-slim
+  image: python:3.14-slim
   stage: deploy
   script:
     - pip install --no-cache-dir mkdocs-material==9.7.7

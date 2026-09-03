@@ -53,7 +53,7 @@ jobs:
 
   validate-docs:
     runs-on: ubuntu-latest
-    container: python:3.13-slim
+    container: python:3.14-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
