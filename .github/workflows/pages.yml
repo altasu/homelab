@@ -9,6 +9,10 @@ name: Publier la documentation
 on:
   push:
     branches: [main]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'README.md'
   workflow_dispatch:
 
 permissions:
