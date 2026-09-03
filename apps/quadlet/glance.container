@@ -8,7 +8,7 @@ Requires=homelab-network.service
 
 [Container]
 ContainerName=glance
-Image=docker.io/glanceapp/glance:v0.8.5
+Image=docker.io/glanceapp/glance:v0.8.6
 Volume=%h/homelab/apps/glance/glance.yml:/app/config/glance.yml:ro,Z
 Volume=/etc/localtime:/etc/localtime:ro
 Network=homelab.network
