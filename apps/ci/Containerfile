@@ -1,5 +1,5 @@
 # Image de base pour l'exécuteur CI/CD (Forgejo Runner)
-# Basée sur l'image officielle Node.js 20 (Debian Bookworm) avec outils de validation
+# Basée sur l'image officielle Node.js (Debian Bookworm) avec outils de validation
 FROM docker.io/library/node:24-bookworm-slim
 
 # Installation des dépendances essentielles pour la CI
