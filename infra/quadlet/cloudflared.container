@@ -12,7 +12,7 @@ Description=Cloudflare Tunnel (niveau Infra)
 
 [Container]
 ContainerName=cloudflare-tunnel
-Image=docker.io/cloudflare/cloudflared:2026.6.0
+Image=docker.io/cloudflare/cloudflared:2026.8.3
 Exec=tunnel run
 EnvironmentFile=%h/homelab/infra/cloudflared.env
 Network=homelab.network
