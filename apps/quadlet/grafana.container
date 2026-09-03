@@ -15,7 +15,7 @@ After=prometheus.service
 
 [Container]
 ContainerName=grafana
-Image=docker.io/grafana/grafana:13.1.2
+Image=docker.io/grafana/grafana:13.2.1
 EnvironmentFile=%h/homelab/apps/grafana.env
 Volume=grafana.volume:/var/lib/grafana
 # Provisionnement en tant que code : source de données et règles d'alerte
