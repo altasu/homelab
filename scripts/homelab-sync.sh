@@ -86,7 +86,42 @@ fi
 echo "✅ ${MSG}"
 
 # 7. Notification ntfy (si configuré)
-if [ -n "${NTFY_TOPIC:-}" ]; then
-    NTFY_URL="${NTFY_SERVER_URL:-https://ntfy.sh}/${NTFY_TOPIC}"
-    curl -s -H "Title: 🚀 Homelab GitOps Sync" -d "${MSG}" "${NTFY_URL}" || true
+# Si les variables ne sont pas dans l'environnement (ex: exécution hors systemd), charger apps/ntfy.env
+if [ -z "${NTFY_TOPIC:-}" ] && [ -f "${REPO_DIR}/apps/ntfy.env" ]; then
+    set -a
+    # shellcheck disable=SC1090,SC1091
+    . "${REPO_DIR}/apps/ntfy.env"
+    set +a
 fi
+
+NTFY_HOST="${NTFY_SERVER_URL:-${NTFY_BASE_URL:-https://ntfy.sh}}"
+NTFY_HOST="${NTFY_HOST%/}"
+
+if [ -n "${NTFY_TOPIC:-}" ]; then
+    NTFY_URL="${NTFY_HOST}/${NTFY_TOPIC}"
+    echo "📢 Envoi de la notification ntfy vers ${NTFY_URL}..."
+
+    CURL_ARGS=(
+        -s
+        -o /dev/null
+        -w "%{http_code}"
+        -H "Title: 🚀 Homelab GitOps Sync"
+        -H "Tags: rocket,git"
+        -d "${MSG}"
+    )
+
+    if [ -n "${NTFY_TOKEN:-}" ]; then
+        CURL_ARGS+=(-H "Authorization: Bearer ${NTFY_TOKEN}")
+    fi
+
+    HTTP_CODE=$(curl "${CURL_ARGS[@]}" "${NTFY_URL}" || echo "000")
+
+    if [ "${HTTP_CODE}" -ge 200 ] && [ "${HTTP_CODE}" -lt 300 ]; then
+        echo "✅ Notification ntfy envoyée avec succès (HTTP ${HTTP_CODE})."
+    else
+        echo "⚠️ Échec de notification ntfy vers ${NTFY_URL} (Code HTTP : ${HTTP_CODE})." >&2
+    fi
+else
+    echo "ℹ️ Notification ntfy ignorée : NTFY_TOPIC non défini dans apps/ntfy.env."
+fi
+

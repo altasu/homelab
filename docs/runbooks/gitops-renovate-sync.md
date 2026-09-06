@@ -66,7 +66,47 @@ systemctl --user enable --now homelab-sync.timer
 
 ---
 
-## 5. Commandes de Vérification et Diagnostic
+## 5. Configuration et Test des Notifications ntfy
+
+Le script `scripts/homelab-sync.sh` relaie les événements de synchronisation vers l'instance ntfy.
+
+### Variables d'environnement (`apps/ntfy.env`)
+
+L'unité systemd `homelab-sync.service` charge automatiquement `apps/ntfy.env` (`EnvironmentFile=-%h/homelab/apps/ntfy.env`) :
+
+| Variable | Description | Exemple |
+|---|---|---|
+| `NTFY_BASE_URL` ou `NTFY_SERVER_URL` | URL de l'instance ntfy (repli par défaut sur `https://ntfy.sh`) | `https://ntfy.mon-domaine.com` |
+| `NTFY_TOPIC` | Topic cible pour les déploiements GitOps (**requis** pour activer l'envoi) | `homelab-gitops` |
+| `NTFY_TOKEN` | Jeton d'authentification Bearer (requis si `NTFY_AUTH_DEFAULT_ACCESS=deny-all`) | `tk_...` |
+
+### Création d'un jeton dédié (si ntfy est restreint)
+
+Si le serveur ntfy applique une politique `deny-all`, générer un compte et un jeton restreints aux seules écritures sur le topic dédié :
+
+```bash
+# 1. Créer un compte de service technique
+podman exec -it ntfy ntfy user add gitops-notifier
+
+# 2. Accorder le droit d'écriture sur le topic
+podman exec -it ntfy ntfy access gitops-notifier homelab-gitops write-only
+
+# 3. Générer un jeton permanent
+podman exec -it ntfy ntfy token add gitops-notifier
+```
+
+Renseigner ensuite `NTFY_TOPIC` et `NTFY_TOKEN` dans `apps/ntfy.env`.
+
+### Test manuel de notification
+
+```bash
+# Test direct avec jeton
+curl -s -H "Authorization: Bearer <TOKEN>" -H "Title: 🚀 Test ntfy" -d "Test notification GitOps" https://<URL>/<TOPIC>
+```
+
+---
+
+## 6. Commandes de Vérification et Diagnostic
 
 | Action | Commande |
 |---|---|
@@ -74,3 +114,4 @@ systemctl --user enable --now homelab-sync.timer
 | Exécuter une synchronisation manuelle | `systemctl --user start homelab-sync.service` |
 | Consulter les journaux de synchronisation | `journalctl --user -u homelab-sync.service -n 50 --no-pager` |
 | Vérifier les statuts des conteneurs après sync | `systemctl --user is-active <service>` |
+
