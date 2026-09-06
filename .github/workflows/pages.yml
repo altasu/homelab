@@ -9,6 +9,10 @@ name: Publier la documentation
 on:
   push:
     branches: [main]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'README.md'
   workflow_dispatch:
 
 permissions:
@@ -28,7 +32,7 @@ jobs:
 
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - run: pip install --no-cache-dir mkdocs-material==9.7.7
 

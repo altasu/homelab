@@ -9,6 +9,7 @@
 set -euo pipefail
 
 REPO_DIR="${HOME}/homelab"
+QUADLET_DEST="${HOME}/.config/containers/systemd"
 
 if [ ! -d "${REPO_DIR}/.git" ]; then
     echo "❌ Répertoire Git introuvable : ${REPO_DIR}"

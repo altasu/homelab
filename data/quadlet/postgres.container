@@ -20,7 +20,7 @@ Description=PostgreSQL (niveau Data)
 
 [Container]
 ContainerName=postgres-db
-Image=docker.io/postgres:16.14-alpine
+Image=docker.io/postgres:16.15-alpine
 EnvironmentFile=%h/homelab/data/postgres.env
 Volume=postgres.volume:/var/lib/postgresql/data
 Network=homelab.network

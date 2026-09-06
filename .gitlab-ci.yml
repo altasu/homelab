@@ -48,7 +48,7 @@ validate-architecture:
     - if: $CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"
 
 pages:
-  image: python:3.13-slim
+  image: python:3.14-slim
   stage: deploy
   script:
     - pip install --no-cache-dir mkdocs-material==9.7.7
@@ -59,7 +59,13 @@ pages:
     paths:
       - public
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - docs/**/*
+        - mkdocs.yml
+        - README.md
 
 renovate:
   stage: renovate
@@ -67,8 +73,10 @@ renovate:
   variables:
     RENOVATE_BASE_DIR: $CI_PROJECT_DIR/renovate
     RENOVATE_GIT_AUTHOR: "Renovate Bot <bot@renovateapp.com>"
+    RENOVATE_PLATFORM: "gitlab"
+    LOG_LEVEL: "debug"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
   script:
-    - renovate
+    - renovate $CI_PROJECT_PATH

@@ -22,7 +22,7 @@ After=postgres.service
 
 [Container]
 ContainerName=vaultwarden
-Image=docker.io/vaultwarden/server:1.37.1-alpine
+Image=docker.io/vaultwarden/server:1.37.2-alpine
 EnvironmentFile=%h/homelab/apps/vaultwarden.env
 Volume=vaultwarden.volume:/data
 Network=homelab.network
