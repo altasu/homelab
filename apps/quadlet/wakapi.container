@@ -1,0 +1,32 @@
+# Unité Quadlet : Wakapi (Statistiques de code et télémétrie développeur)
+# Backend autonome compatible WakaTime écrit en Go avec persistance SQLite.
+#
+# Déploiement (utilisateur rootless) :
+#   cp apps/quadlet/wakapi.{container,volume} ~/.config/containers/systemd/
+#   systemctl --user daemon-reload && systemctl --user start wakapi
+#
+# Accès :
+#   - Externe : Cloudflare Tunnel -> http://wakapi:3000 (https://wakapi.altasworld.com)
+#   - Interne : http://wakapi:3000 sur homelab.network
+
+[Unit]
+Description=Wakapi (WakaTime compatible coding metrics)
+After=homelab-network.service
+Requires=homelab-network.service
+
+[Container]
+ContainerName=wakapi
+Image=ghcr.io/muety/wakapi:2.17.6
+Volume=wakapi.volume:/data
+
+Volume=/etc/localtime:/etc/localtime:ro
+Network=homelab.network
+EnvironmentFile=%h/homelab/apps/wakapi.env
+NoNewPrivileges=true
+PodmanArgs=--memory=128m --cpus=0.25
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

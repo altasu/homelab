@@ -93,6 +93,7 @@ APP_VOLUMES=(
     "apps_ntfy_data:ntfy:des comptes ntfy:optionnel"
     "apps_forgejo_data:forgejo:de Forgejo:optionnel"
     "apps_linkding_data:linkding:de Linkding:optionnel"
+    "apps_wakapi_data:wakapi:de Wakapi:optionnel"
 )
 
 TOTAL_STEPS=$(( 1 + ${#APP_VOLUMES[@]} ))

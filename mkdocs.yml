@@ -32,6 +32,7 @@ nav:
       - "Portail d'accueil : Glance": runbooks/quadlet-glance.md
       - "Gestionnaire de signets : Linkding": runbooks/quadlet-linkding.md
       - "Machine Virtuelle : Windows 11": runbooks/quadlet-windows.md
+      - "Télémétrie de code : Wakapi": runbooks/quadlet-wakapi.md
       - Observabilité: runbooks/observabilite.md
       - "GitOps & Renovate : déploiement continu": runbooks/gitops-renovate-sync.md
 
