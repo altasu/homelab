@@ -19,7 +19,7 @@ fi
 cd "${REPO_DIR}"
 
 # 0. S'assurer que le dépôt est bien sur la branche principale 'main' avant de procéder à la synchronisation
-CURRENT_BRANCH=$(git branch --show-currrent)
+CURRENT_BRANCH=$(git branch --show-current)
 if [ "${CURRENT_BRANCH}" != "main" ]; then
     echo "⚠️ Le server est sur la brache '${CURRENT_BRANCH}', basculement automatique sur 'main'..."
     git switch main
