@@ -18,6 +18,13 @@ fi
 
 cd "${REPO_DIR}"
 
+# 0. S'assurer que le dépôt est bien sur la branche principale 'main' avant de procéder à la synchronisation
+CURRENT_BRANCH=$(git branch --show-currrent)
+if [ "${CURRENT_BRANCH}" != "main" ]; then
+    echo "⚠️ Le server est sur la brache '${CURRENT_BRANCH}', basculement automatique sur 'main'..."
+    git switch main
+fi
+
 # 1. Vérification des mises à jour distantes
 git fetch origin main -q
 
