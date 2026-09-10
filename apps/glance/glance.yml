@@ -87,6 +87,11 @@ pages:
                 url: ${URL_LINKDING}
                 check-url: http://linkding:9090
 
+              - title: Wakapi
+                icon: si:wakatime
+                url: ${URL_WAKAPI}
+                check-url: http://wakapi:3000/api/health
+
           - type: rss
             title: Veille Technique & Open Source
             limit: 6
@@ -114,3 +119,4 @@ pages:
               - sissbruecker/linkding
               - forgejo/forgejo
               - binwiederhier/ntfy
+              - muety/wakapi
