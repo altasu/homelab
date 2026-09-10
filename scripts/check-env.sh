@@ -26,14 +26,17 @@ check_file() {
         return
     fi
 
-    # Permissions : 600 attendu (secrets lisibles par le seul propriétaire)
+    # Permissions : 600 attendu pour les secrets de production (644 normal pour les .example versionnés)
     local perms
     perms=$(stat -c "%a" "$f" 2>/dev/null || stat -f "%Lp" "$f" 2>/dev/null)
     if [ "$perms" = "600" ]; then
         echo "✅ Permissions 600"
+    elif [[ "$f" =~ \.example$ ]]; then
+        echo "ℹ️  Permissions ${perms:-inconnues} (fichier modèle versionné)"
     else
         echo "⚠️  Permissions ${perms:-inconnues} — recommandé : chmod 600 $f"
     fi
+
 
     # Lignes de valeurs uniquement : commentaires et lignes vides exclus
     # (les commentaires peuvent légitimement contenir apostrophes/quotes)
@@ -63,12 +66,19 @@ check_file() {
         echo "✅ Pas d'échappement \$\$"
     fi
 
-    if echo "$lines" | grep -q 'your_'; then
-        echo "❌ ERREUR : valeur d'exemple (your_...) non remplacée"
-        STATUS=1
+    if [[ "$f" =~ \.example$ ]]; then
+        if echo "$lines" | grep -q 'your_'; then
+            echo "ℹ️  Fichier modèle (.example) : valeurs d'exemple (your_...) détectées (normal)"
+        fi
     else
-        echo "✅ Pas de valeur d'exemple restante"
+        if echo "$lines" | grep -q 'your_'; then
+            echo "❌ ERREUR : valeur d'exemple (your_...) non remplacée"
+            STATUS=1
+        else
+            echo "✅ Pas de valeur d'exemple restante"
+        fi
     fi
+
 
     # Le caractère # peut être interprété comme un début de commentaire par
     # l'analyseur de fichier d'environnement : la valeur serait alors

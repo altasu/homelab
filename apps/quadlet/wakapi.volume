@@ -1,0 +1,6 @@
+# Unité Quadlet : volume de données Wakapi
+# Contient la base SQLite (/data/wakapi.db).
+# Couvert par le script automatisé scripts/backup.sh.
+
+[Volume]
+VolumeName=apps_wakapi_data
