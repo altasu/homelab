@@ -8,7 +8,7 @@ Requires=homelab-network.service
 
 [Container]
 ContainerName=linkding
-Image=docker.io/sissbruecker/linkding:1.46.2
+Image=docker.io/sissbruecker/linkding:1.47.0
 Volume=linkding.volume:/etc/linkding/data
 Volume=/etc/localtime:/etc/localtime:ro
 Network=homelab.network
