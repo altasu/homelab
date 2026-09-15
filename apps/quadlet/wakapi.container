@@ -16,7 +16,7 @@ Requires=homelab-network.service
 
 [Container]
 ContainerName=wakapi
-Image=ghcr.io/muety/wakapi:2.17.6
+Image=ghcr.io/muety/wakapi:2.18.0
 Volume=wakapi.volume:/data
 
 Volume=/etc/localtime:/etc/localtime:ro
