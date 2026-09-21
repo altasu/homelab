@@ -1,0 +1,35 @@
+# Unité Quadlet : Diun (Docker Image Update Notifier)
+# Surveille les mises à jour d'images de conteneurs via le socket Podman rootless
+# et transmet des notifications push immédiates vers l'instance ntfy auto-hébergée.
+#
+# Déploiement (utilisateur rootless) :
+#   cp apps/quadlet/diun.{container,volume} ~/.config/containers/systemd/
+#   systemctl --user daemon-reload && systemctl --user start diun
+#
+# Dépendances :
+#   - homelab-network.service (réseau virtuel interne homelab_net)
+#   - podman.socket (socket API Podman rootless sous %t/podman/podman.sock)
+#   - ntfy.service (récepteur des alertes push)
+
+[Unit]
+Description=Diun (Docker Image Update Notifier)
+After=homelab-network.service ntfy.service podman.socket
+Requires=homelab-network.service podman.socket
+
+[Container]
+ContainerName=diun
+Image=docker.io/crazymax/diun:4.33.0
+Volume=diun.volume:/data
+Volume=%t/podman/podman.sock:/var/run/docker.sock:ro
+Volume=/etc/localtime:/etc/localtime:ro
+Network=homelab.network
+EnvironmentFile=%h/homelab/apps/diun.env
+SecurityLabelDisable=true
+NoNewPrivileges=true
+PodmanArgs=--memory=64m --cpus=0.25
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

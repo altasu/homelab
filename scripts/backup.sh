@@ -94,6 +94,7 @@ APP_VOLUMES=(
     "apps_forgejo_data:forgejo:de Forgejo:optionnel"
     "apps_linkding_data:linkding:de Linkding:optionnel"
     "apps_wakapi_data:wakapi:de Wakapi:optionnel"
+    "apps_diun_data:diun:de Diun:optionnel"
 )
 
 TOTAL_STEPS=$(( 1 + ${#APP_VOLUMES[@]} ))

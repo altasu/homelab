@@ -1,0 +1,7 @@
+# Unité Quadlet : volume de données Diun
+# Stocke la base de données interne (/data/diun.db) pour mémoriser les manifestes analysés
+# et prévenir les alertes de mise à jour en double.
+# Couvert par le script automatisé scripts/backup.sh.
+
+[Volume]
+VolumeName=apps_diun_data
