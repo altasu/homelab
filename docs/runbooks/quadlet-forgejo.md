@@ -71,3 +71,12 @@ rm ~/.config/containers/systemd/forgejo.{container,volume}
 systemctl --user daemon-reload
 ```
 Le volume nommé `apps_forgejo_data` n'est pas supprimé par le rollback (données préservées).
+
+---
+
+## Leçons Retenues & Bonnes Pratiques
+
+- **Avantage décisif de SQLite pour Forgejo :** Contrairement à GitLab qui impose Redis, PostgreSQL et de multiples workers Sidekiq, Forgejo opère parfaitement avec SQLite en mode rootless. La consommation mémoire est de l'ordre de 180 Mo de RAM, permettant un fonctionnement ultra-rapide sur un matériel modeste.
+- **Sauvegarde atomique dépôts + base de données :** Tous les dépôts nus (`repositories/`), les clés SSH des utilisateurs et la base `gitea.db` cohabitent au sein de l'unique volume `apps_forgejo_data`. Cela simplifie radicalement les sauvegardes : un seul snapshot `.tar.gz` couvre l'état complet du serveur Git.
+- **Sélection du registre officiel :** Veiller à épingler l'image officielle hébergée sur `codeberg.org/forgejo/forgejo` et non sur des miroirs tiers non maintenus de Docker Hub.
+- **Confinement Quadlet :** L'unité bénéficie de `DropCapability=ALL`, `NoNewPrivileges=true` et d'un plafond cgroups strict (`512m / 1.0 vCPU`).

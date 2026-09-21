@@ -90,3 +90,15 @@ Utiliser le bouton **Test** du point de contact dans l'interface Grafana : ce ch
 ## Consommation constatée au déploiement
 
 Charge très faible sur le serveur (quelques pourcents de CPU, environ 1,5 Go de mémoire pour l'ensemble de la stack, disque système occupé à quelques pourcents) : marge confortable pour d'éventuels services supplémentaires.
+
+---
+
+## Leçons Retenues & Bonnes Pratiques
+
+- **Écriture atomique pour le collecteur *textfile* :** `scripts/backup.sh` écrit ses métriques dans un fichier temporaire (`metrics.prom.$$`) avant de le renommer atomiquement vers sa destination finale. Cela élimine tout risque de lecture d'un fichier incomplet par `node_exporter` pendant l'écriture.
+- **Détection des pannes silencieuses (`noDataState: Alerting`) :** Pour la métrique de fraîcheur des sauvegardes, l'absence de métrique est le symptôme exact d'un blocage du minuteur systemd ou du script. Configurer l'alerte pour passer en état critique en cas de données manquantes évite qu'une panne totale ne passe inaperçue.
+- **Formatage des webhooks ntfy (`?template=grafana`) :** Grafana Alerting envoie un payload JSON volumineux. L'utilisation du paramètre natif `?template=grafana` sur l'URL ntfy extrait automatiquement les labels clés (statut, sévérité, résumé) pour afficher des notifications push concises et lisibles sur smartphone.
+- **Cloisonnement strict des comptes de service ntfy :** Avec `NTFY_AUTH_DEFAULT_ACCESS=deny-all`, chaque producteur de notifications dispose de son propre compte de service :
+  - `svc-grafana` : accès `write-only` sur le topic `homelab` (alertes de supervision) ;
+  - `svc-gitops` : accès `write-only` sur le topic `homelab-gitops` (rapports de déploiement) ;
+  - `svc-diun` : accès `write-only` sur le topic `homelab` (mises à jour d'images).

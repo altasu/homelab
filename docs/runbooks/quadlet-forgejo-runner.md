@@ -72,3 +72,12 @@ systemctl --user stop forgejo-runner
 rm ~/.config/containers/systemd/forgejo-runner.{container,volume}
 systemctl --user daemon-reload
 ```
+
+---
+
+## Leçons Retenues & Bonnes Pratiques
+
+- **Exemption technique DinD & Permissions Root :** `forgejo-runner` nécessite `User=0:0` et `SecurityLabelDisable=true` pour interagir avec le socket Podman rootless de l'hôte et orchestrer l'exécution des conteneurs de jobs CI. C'est l'un des rares conteneurs exemptés de `DropCapability=ALL`, sous peine de bloquer l'initialisation des étapes d'actions (`step execution failed: permission denied`).
+- **Isomorphisme du chemin de socket Unix :** Le socket hôte `%t/podman/podman.sock` doit être monté exactement sous `/run/user/1000/podman/podman.sock` dans le conteneur, avec `DOCKER_HOST` pointant vers cette même URI. Si les chemins diffèrent, les montages de volumes déclarés par les conteneurs enfants résolvent un chemin introuvable sur l'hôte.
+- **Image hermétique locale (`localhost/homelab-ci:latest`) :** Plutôt que de télécharger les outils de build (Node, Python, ShellCheck) à chaque exécution de pipeline, une image locale hermétique pré-construite accélère considérablement l'exécution des workflows CI tout en réduisant la dépendance aux registres externes.
+- **Plafonnement cgroups impératif (`512m / 1.0 vCPU`) :** Un runner CI est susceptible d'exécuter du code arbitraire ou des boucles infinies. L'application stricte de quotas de ressources protège les services critiques du homelab contre toute famine CPU ou mémoire.

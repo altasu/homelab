@@ -47,8 +47,12 @@ Validation : depuis un appareil en données mobiles, accès HTTPS aux services p
 systemctl --user stop <service>
 rm ~/.config/containers/systemd/<service>.container
 systemctl --user daemon-reload
-podman-compose -f ~/homelab/infra/compose.yml up -d
+# Revenir à une révision Git antérieure si nécessaire :
+# git -C ~/homelab checkout <commit-sha> -- infra/quadlet/<service>.container
+# cp ~/homelab/infra/quadlet/<service>.container ~/.config/containers/systemd/
+# systemctl --user daemon-reload && systemctl --user start <service>
 ```
+Note : `infra/compose.yml` est supprimé (archivé dans l'historique Git). La source de vérité des versions est désormais les unités `infra/quadlet/*.container`.
 
 ## Correctif appliqué au passage : healthcheck PostgreSQL
 

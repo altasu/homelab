@@ -22,26 +22,35 @@ Chaque incident a été corrigé, testé (restauration réelle sur une instance 
 
 ## État actuel
 
-Huit services tournent sous Quadlet, rootless, avec :
+Quatorze conteneurs déclaratifs s'exécutent en production sous Quadlet (Podman rootless sous l'UID 1000), répartis en 3 tiers étanches (`infra/`, `data/`, `apps/`), avec :
 
-- des sauvegardes quotidiennes automatisées, à l'échec bruyant et à la restauration testée ;
-- une supervision Prometheus/Grafana couvrant l'hôte, les conteneurs — et la sauvegarde elle-même ;
-- des alertes acheminées vers un canal de notification dédié ;
-- un modèle de moindre privilège pour l'accès aux données (rôle applicatif dédié, non-superuser) ;
-- un test de redémarrage complet validé (reprise automatique dans le bon ordre au démarrage).
+- **Posture Zero Trust intégrale** : aucun port entrant exposé sur l'hôte, exposition publique chiffrée via Cloudflare Tunnel et accès d'administration distant via Twingate SDN ;
+- **Confinement de sécurité défensif** : suppression des capacités noyau Linux (`DropCapability=ALL`), interdiction d'élévation de privilèges (`NoNewPrivileges=true`) et plafonnement systématique des ressources par Cgroups v2 (CPU et RAM) sur l'ensemble des conteneurs ;
+- **Sauvegardes quotidiennes résilientes** : script automatisé (`scripts/backup.sh`) à l'échec bruyant, validation d'intégrité gzip et restauration périodique testée sur les volumes et la base PostgreSQL ;
+- **Observabilité et alertes push** : supervision temps réel Prometheus/Grafana (hôte, conteneurs, état des sauvegardes) couplée à des notifications push ntfy cloisonnées par jetons et utilisateurs de service dédiés ;
+- **Cycle de vie GitOps continu** : boucle de mise à jour automatisée orchestrant Renovate Bot et un minuteur systemd local (`homelab-sync.timer`).
 
-## Runbooks
+## Guide des Runbooks
 
-- [Sauvegardes : vérification et restauration](runbooks/sauvegardes-verification-restauration.md)
-- [Pilote Quadlet : Actual Budget](runbooks/quadlet-pilote-actual-budget.md)
-- [Bascule : Vaultwarden](runbooks/quadlet-bascule-vaultwarden.md)
-- [Bascule : PostgreSQL et moindre privilège](runbooks/quadlet-bascule-postgres.md)
-- [Bascule : infrastructure réseau](runbooks/quadlet-bascule-infra.md)
-- [Réseau Hôte : Twingate (Zero Trust)](runbooks/quadlet-twingate-host.md)
-- [Service Git : Forgejo](runbooks/quadlet-forgejo.md)
-- [Service Git : Forgejo Runner (CI/CD)](runbooks/quadlet-forgejo-runner.md)
-- [Portail d'accueil : Glance Dashboard](runbooks/quadlet-glance.md)
-- [Gestionnaire de signets : Linkding](runbooks/quadlet-linkding.md)
-- [Machine Virtuelle : Windows 11](runbooks/quadlet-windows.md)
-- [Observabilité](runbooks/observabilite.md)
-- [GitOps & Déploiement continu](runbooks/gitops-renovate-sync.md)
+### Socle, Gouvernance & Exploitation
+- [Sauvegardes : vérification d'intégrité et restauration de test](runbooks/sauvegardes-verification-restauration.md)
+- [Observabilité : métriques, supervision des sauvegardes et alertes push](runbooks/observabilite.md)
+- [GitOps & Déploiement continu : boucle Renovate et synchronisation systemd](runbooks/gitops-renovate-sync.md)
+
+### Infrastructure Réseau & Tunnels
+- [Bascule : infrastructure réseau (Cloudflare Tunnel & Twingate Conteneur)](runbooks/quadlet-bascule-infra.md)
+- [Réseau Hôte : Connecteur Twingate Hôte (Accès Zero Trust Cockpit & SSH)](runbooks/quadlet-twingate-host.md)
+
+### Données & Persistance
+- [Bascule : PostgreSQL et politique de moindre privilège (OWASP)](runbooks/quadlet-bascule-postgres.md)
+
+### Applications & Services Métier
+- [Pilote Quadlet : Actual Budget (Gestion budgétaire)](runbooks/quadlet-pilote-actual-budget.md)
+- [Bascule : Vaultwarden (Gestionnaire de mots de passe)](runbooks/quadlet-bascule-vaultwarden.md)
+- [Portail d'accueil : Glance Dashboard (Agrégateur de flux & télémétrie)](runbooks/quadlet-glance.md)
+- [Gestionnaire de signets : Linkding (Bookmarks souverains)](runbooks/quadlet-linkding.md)
+- [Télémétrie de code : Wakapi (Statistiques WakaTime self-hosted)](runbooks/quadlet-wakapi.md)
+- [Surveillance des conteneurs : Diun (Notifications de mises à jour d'images)](runbooks/quadlet-diun.md)
+- [Forge logicielle : Forgejo (Serveur Git autonome)](runbooks/quadlet-forgejo.md)
+- [Exécuteur CI/CD : Forgejo Runner (Actions hermétiques rootless)](runbooks/quadlet-forgejo-runner.md)
+- [Virtualisation : Windows 11 VM (Station de travail KVM rootless)](runbooks/quadlet-windows.md)

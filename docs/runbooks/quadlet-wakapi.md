@@ -115,7 +115,39 @@ api_key = votre_cle_api_wakapi
 
 ## 7. Sauvegarde et Résilience
 
-La sauvegarde du volume `apps_wakapi_data` est intégrée dans le cycle quotidien de `scripts/backup.sh` :
-
-- Archive générée : `wakapi_data_<TIMESTAMP>.tar.gz` sur `/mnt/backup_vault/wakapi/`.
+- Archive générée : `wakapi_data_<TIMESTAMP>.tar.gz` sur le disque externe.
 - Test d'intégrité de décompression automatique (`gunzip -t`).
+
+---
+
+## 8. Procédure de Rollback (Retour Arrière)
+
+En cas de régression ou de défaillance lors d'une mise à jour de Wakapi :
+
+```bash
+# 1. Stopper l'unité systemd
+systemctl --user stop wakapi
+
+# 2. Retirer les unités Quadlet actives
+rm -f ~/.config/containers/systemd/wakapi.{container,volume}
+systemctl --user daemon-reload
+
+# 3. Supprimer le conteneur résiduel
+podman rm -f wakapi
+```
+
+Pour restaurer une version précédente depuis l'historique Git :
+```bash
+git -C ~/homelab checkout <commit-sha> -- apps/quadlet/wakapi.container
+cp ~/homelab/apps/quadlet/wakapi.container ~/.config/containers/systemd/
+systemctl --user daemon-reload && systemctl --user start wakapi
+```
+
+---
+
+## 9. Leçons Retenues & Bonnes Pratiques
+
+- **Verrouillage strict des inscriptions (`WAKAPI_ALLOW_SIGNUP=false`) :** Dès la création du compte initial effectuée, la variable d'environnement doit repasser à `false`. Étant exposé publiquement via Cloudflare Tunnel, laisser les inscriptions ouvertes exposerait l'instance à un détournement de stockage télémétrique.
+- **Normalisation de l'API WakaTime (`/api`) :** Les plugins WakaTime (IntelliJ, VS Code) requièrent explicitement le suffixe `/api` dans `api_url = https://wakapi.<domaine>/api`. Omettre ce suffixe provoque des erreurs silencieuses 404 lors de l'envoi des *heartbeats* de frappe.
+- **Efficacité de l'architecture binaire Go + SQLite :** Contrairement aux stacks télémétriques lourdes, Wakapi est un binaire Go compilé statiquement opérant sur SQLite en mode WAL. L'empreinte mémoire reste inférieure à 30 Mo de RAM, permettant un confinement cgroups strict à `128m` sans aucun risque de déclenchement d'OOM Killer.
+- **Résilience des tokens IDE :** Les clés API générées par Wakapi sont persistées dans `/data/wakapi.db`. La sauvegarde quotidienne du volume `apps_wakapi_data` assure qu'en cas de réinstallation, aucun IDE local n'a besoin d'être reconfiguré.

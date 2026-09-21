@@ -114,3 +114,12 @@ rm ~/.config/containers/systemd/linkding.{container,volume}
 systemctl --user daemon-reload
 ```
 Le volume nommé `apps_linkding_data` est conservé pour éviter toute perte accidentelle de données.
+
+---
+
+## Leçons Retenues & Bonnes Pratiques
+
+- **Robustesse du mode SQLite WAL :** Linkding exécute un serveur d'application Python/uWSGI couplé à un orchestrateur de tâches asynchrones (Huey) pour l'extraction des titres et aperçus de pages web. L'activation du mode WAL (*Write-Ahead Logging*) sur SQLite garantit que les lectures et écritures concurrentes ne provoquent aucun verrouillage de base (`database is locked`).
+- **Dimensionnement cgroups défensif (512 Mo / 0.5 vCPU) :** Bien qu'un gestionnaire de signets semble léger, le processus d'indexation en arrière-plan et de récupération des favicons peut générer des pics mémoire transitoires. Le plafond à 512 Mo protège l'hôte contre l'épuisement mémoire tout en garantissant une réactivité immédiate.
+- **Sécurité des extensions de navigateur :** L'intégration des navigateurs repose exclusivement sur un jeton d'authentification d'API (Settings → Integrations). Cette clé permet d'ajouter des favoris en un clic sans jamais stocker les identifiants d'administration sur les postes clients.
+- **Confinement rootless intégral :** Linkding tourne sous l'UID 1000 sans aucun port hôte mappé, avec `DropCapability=ALL` et `NoNewPrivileges=true`. L'exposition publique passe uniquement par le tunnel Cloudflare chiffré.

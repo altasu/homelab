@@ -115,3 +115,12 @@ curl -s -H "Authorization: Bearer <TOKEN>" -H "Title: 🚀 Test ntfy" -d "Test n
 | Consulter les journaux de synchronisation | `journalctl --user -u homelab-sync.service -n 50 --no-pager` |
 | Vérifier les statuts des conteneurs après sync | `systemctl --user is-active <service>` |
 
+---
+
+## 7. Leçons Retenues & Bonnes Pratiques
+
+- **Protection contre les ruptures de schéma (Règle PostgreSQL) :** Renovate propose automatiquement des montées de version majeures. Pour PostgreSQL, un passage automatique de 16 à 17 corromprait les données sans `pg_upgrade` manuel. La directive `packageRules` dans `renovate.json` restreint expressément les mises à jour à `<17.0.0` (mises à jour de patch uniquement).
+- **Contournement du Rate-Limiting GitHub API :** Lors de l'analyse de dizaines de dépôts amont, l'API publique non authentifiée de GitHub bloque rapidement Renovate avec une erreur 403. L'injection d'un jeton personnel masqué (`GITHUB_COM_TOKEN`) dans les variables CI de GitLab assure une exécution ininterrompue du bot.
+- **Redémarrages chirurgicaux (`homelab-sync.sh`) :** Le script de synchronisation n'applique pas de redémarrage aveugle global. Il utilise `git diff --name-only` entre les révisions Git pour identifier précisément les unités modifiées dans `apps/quadlet/` ou `infra/quadlet/` et ne redémarre que les services impactés.
+- **Notification push GitOps dédiée (`svc-gitops`) :** Les rapports de synchronisation sont dirigés exclusivement vers le canal `homelab-gitops` avec le jeton du compte `svc-gitops`, garantissant une traçabilité totale sans polluer le canal principal d'alertes système.
+

@@ -27,9 +27,12 @@ Vérifications : connexion web via le tunnel, ouverture + modification d'une ent
 systemctl --user stop vaultwarden
 rm ~/.config/containers/systemd/vaultwarden.{container,volume}
 systemctl --user daemon-reload
-podman-compose -f ~/homelab/apps/compose.yml up -d
+# Revenir à une révision Git antérieure si nécessaire :
+# git -C ~/homelab checkout <commit-sha> -- apps/quadlet/vaultwarden.container
+# cp ~/homelab/apps/quadlet/vaultwarden.container ~/.config/containers/systemd/
+# systemctl --user daemon-reload && systemctl --user start vaultwarden
 ```
-Note : compose relancerait la version épinglée dans `apps/compose.yml` — si des migrations de schéma plus récentes ont déjà tourné, ne jamais revenir à une version antérieure.
+Note : `apps/compose.yml` est supprimé (archivé dans l'historique Git). La source de vérité des versions est désormais `apps/quadlet/vaultwarden.container`. Ne jamais revenir à une version antérieure si des migrations de schéma plus récentes ont déjà tourné.
 
 ## Constat post-bascule : ADMIN_TOKEN détecté « en clair »
 

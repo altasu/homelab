@@ -147,3 +147,39 @@ La base de données `/data/diun.db` est couverte par `scripts/backup.sh` sous l'
 
 - **Archive générée :** `diun_data_<TIMESTAMP>.tar.gz` dans le répertoire des sauvegardes.
 - **Restauration :** En cas de perte de volume, Diun recrée simplement son fichier de base au démarrage et effectue un scan complet des images sans impacter les services hôtes.
+
+---
+
+## 7. Procédure de Rollback (Retour Arrière)
+
+En cas d'anomalie ou de régression sur le service Diun :
+
+```bash
+# 1. Arrêter le conteneur systemd
+systemctl --user stop diun
+
+# 2. Retirer les unités Quadlet de la configuration active
+rm -f ~/.config/containers/systemd/diun.{container,volume}
+
+# 3. Recharger le démon systemd
+systemctl --user daemon-reload
+
+# 4. Supprimer le conteneur résiduel si nécessaire
+podman rm -f diun
+```
+
+Pour restaurer une version précédente de l'unité Quadlet à partir de l'historique Git :
+```bash
+git -C ~/homelab checkout <commit-sha> -- apps/quadlet/diun.container
+cp ~/homelab/apps/quadlet/diun.container ~/.config/containers/systemd/
+systemctl --user daemon-reload && systemctl --user start diun
+```
+
+---
+
+## 8. Leçons Retenues & Bonnes Pratiques
+
+- **Isolation Zero Trust ntfy (`svc-diun`) :** Avec la directive `NTFY_AUTH_DEFAULT_ACCESS=deny-all`, toute publication anonyme renvoie une erreur HTTP 403. Plutôt que de réutiliser un compte partagé, Diun dispose de son propre compte de service dédié `svc-diun`, confiné en `write-only` sur le topic `homelab`. Un jeton compromis n'expose aucun autre canal ni aucun droit de lecture.
+- **Confinement SELinux sur Socket Unix :** La communication entre le conteneur confiné et le socket API Podman rootless (`%t/podman/podman.sock`) impose la directive `SecurityLabelDisable=true`. Sans celle-ci, SELinux bloque silencieusement les requêtes HTTP Unix et Diun échoue à initialiser le fournisseur Docker.
+- **Persistance Anti-Spam (`diun.db`) :** Le volume nommé `apps_diun_data` protège l'administrateur contre les tempêtes d'alertes : Diun stocke les empreintes (digests SHA-256) des manifestes distants déjà analysés. Si ce volume était éphémère, chaque redémarrage du conteneur déclencherait à nouveau 18 notifications simultanées.
+- **Dépendance explicite systemd :** L'ajout de `Requires=podman.socket` et `After=podman.socket` garantit que le socket d'écoute utilisateur est opérationnel avant que Diun ne tente de s'y connecter au démarrage du système.

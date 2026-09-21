@@ -80,20 +80,23 @@ Une fois l'installation terminée, la méthode d'accès recommandée est le **RD
    - **Password** : Le `PASSWORD` configuré dans `windows.env`.
 3. Activer le partage du presse-papier (*Clipboard*) et des dossiers locaux dans les paramètres de la connexion RDP pour glisser-déposer vos fichiers numériques directement depuis le Mac.
 
-## Recommandations d'Exploitation & Bonnes Pratiques
-
-- **Synchronisation du fuseau horaire** : Le fuseau horaire et l'horloge matérielle (RTC) sont automatiquement synchronisés avec l'hôte via le montage de `/etc/localtime` et la variable `TZ` dans l'unité Quadlet. Aucun ajustement manuel n'est requis dans Windows.
-- **Gestion de l'alimentation** : L'image `dockurr/windows` désactive automatiquement la mise en veille (*Never Sleep*) pour garantir que la VM reste joignable 24h/24 sans interruption de session.
-- **Ressources en veille** : Lorsque vous fermez votre session RDP, Windows bascule ses cœurs en état de veille processeur (C-States) et ne consomme que ~0.5% CPU et ~2GB RAM.
-
 ## Arrêt et Rollback
 
 ```bash
-# Arrêter proprement la VM
+# Arrêter proprement la VM (permet à Windows de flusher le système de fichiers NTFS)
 systemctl --user stop windows
 
 # Désactiver et supprimer l'unité
-rm ~/.config/containers/systemd/windows.{container,volume}
+rm -f ~/.config/containers/systemd/windows.{container,volume}
 systemctl --user daemon-reload
 ```
 Le volume `apps_windows_data` conserve l'intégralité du disque virtuel `data.qcow2` et des données utilisateur.
+
+---
+
+## Leçons Retenues & Bonnes Pratiques
+
+- **Exemption technique KVM rootless :** La virtualisation KVM sous Podman rootless requiert obligatoirement `AddDevice=/dev/kvm` et le périphérique réseau virtuel `AddDevice=/dev/net/tun` couplé à `AddCapability=NET_ADMIN`. C'est la raison pour laquelle ce conteneur est exempté de la politique globale `DropCapability=ALL`.
+- **Délai d'initialisation (`TimeoutStartSec=600`) :** Le premier amorçage d'une image Windows 11 déploie une installation non surveillée (*unattended ISO setup*) qui dure 5 à 8 minutes. Sans un `TimeoutStartSec` généreux dans systemd, le superviseur tue le conteneur pour inactivité apparente avant la fin de l'installation.
+- **RDP natif vs Web Viewer noVNC :** L'interface web HTTP 8006 (noVNC) est utile uniquement pour observer le déroulement de l'installation. Pour une utilisation professionnelle, l'accès RDP natif (port 3389) via le tunnel privé Twingate offre l'accélération matérielle, le multi-écrans, la synchronisation du presse-papier et un framerate fluide à 60 fps.
+- **Synchronisation temporelle et mise en veille :** Le montage en lecture seule de `/etc/localtime` couplé au réglage `TZ=Europe/Paris` évite les dérives d'horloge dans Windows. De plus, l'image `dockurr/windows` désactive nativement la veille du système d'exploitation invité, assurant la disponibilité 24/7 de la machine.

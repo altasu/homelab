@@ -31,8 +31,9 @@ tar -tzf <archive>.tar.gz | grep rsa_key
 **Niveau 3 — Restauration de test (référence)** — prouve que la sauvegarde est *restaurable*, pas seulement lisible :
 ```bash
 # Instance PostgreSQL jetable, isolée (PAS sur homelab_net)
-# Utiliser exactement la même image/version que data/compose.yml (source de vérité)
-podman run --rm -d --name pg-restore-test -e POSTGRES_PASSWORD=testonly <image PostgreSQL de data/compose.yml>
+# Utiliser exactement la même image/version que data/quadlet/postgres.container (source de vérité)
+# grep "^Image=" data/quadlet/postgres.container
+podman run --rm -d --name pg-restore-test -e POSTGRES_PASSWORD=testonly <image PostgreSQL de data/quadlet/postgres.container>
 sleep 5
 zcat <dump>.sql.gz | podman exec -i pg-restore-test psql -U postgres
 podman exec pg-restore-test psql -U postgres -l                                   # vwarden_db présent ?
@@ -81,8 +82,5 @@ Vérification réussie le 2026-08-03 : base recréée, tables chargées, nombre 
 
 **Leçon transverse** : dans tout script de sauvegarde, l'échec doit être **bruyant**. Vérifier non seulement que la commande se termine, mais que le résultat est *plausible* (taille, marqueur de fin).
 
-## Améliorations futures retenues
 
-- [ ] Rôle PostgreSQL dédié non-superuser par application (moindre privilège OWASP) — prévu lors de la migration du niveau Data (voir plan Quadlet, Étape 4).
-- [x] Étendre `backup.sh` aux volumes des futurs services — fait pour Actual Budget (données SQLite, l'application ne supporte pas PostgreSQL), avec garde-fou `podman volume exists`. Standard de nommage adopté : `<tier>_<service>_data`, le garde-fou et l'archive devant référencer exactement le même nom.
-- [ ] Alerte en cas d'échec de `backup.service` (`OnFailure=` vers une unité de notification) — à étudier avec l'observabilité (Étape 7).
+> **Note (2026-09-21) :** `backup.sh` couvre désormais tous les volumes Quadlet actifs : `apps_vaultwarden_data` (volume Vaultwarden), `apps_actual_budget_data`, `apps_diun_data` et le dump PostgreSQL. Standard de nommage `<tier>_<service>_data` appliqué uniformément. Les améliorations futures (rôle PostgreSQL dédié OWASP, alerte `OnFailure=` ntfy) sont suivies dans la feuille de route Obsidian.

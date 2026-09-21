@@ -64,3 +64,12 @@ systemctl --user stop glance
 rm ~/.config/containers/systemd/glance.container
 systemctl --user daemon-reload
 ```
+
+---
+
+## Leçons Retenues & Bonnes Pratiques
+
+- **Standardisation monochrome stricte des icônes :** Pour garantir une cohérence visuelle parfaite lors des bascules de thèmes (Dark, Gold, Light), les icônes doivent provenir exclusivement des bibliothèques `si:` (*Simple Icons*) ou `mdi:` (*Material Design Icons*). Les icônes issues de bibliothèques avec couleurs pré-définies (comme `di:` ou `sh:`) créent des artefacts sombres illisibles sur fond noir ou cassent le design system.
+- **Ergonomie « No-Scroll » en 3 colonnes :** L'agencement du tableau de bord a été optimisé pour tenir intégralement sur un écran standard 1080p sans défilement vertical : Col 1 (Télémétrie CPU/RAM/Disque + Outils d'administration), Col 2 (Applications métier + Flux RSS), Col 3 (Calendrier + Suivi des releases GitHub).
+- **Isolation Zero Trust des FQDN et IPs (`glance.env`) :** Les adresses IP privées (`192.168.x.x`) et les domaines réels ne sont jamais écrits en dur dans `glance.yml`. Ils sont injectés dynamiquement depuis le fichier d'environnement non versionné via la syntaxe `${URL_...}`, ce qui rend le fichier YAML publiable en open-source sans risque de fuite d'informations.
+- **Télémétrie hôte native (`server-stats`) :** L'intégration directe du widget `server-stats` dans Glance permet de visualiser l'état de santé du serveur sans avoir à ouvrir Cockpit ou Grafana pour un contrôle rapide.
