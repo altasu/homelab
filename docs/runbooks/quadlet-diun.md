@@ -66,13 +66,19 @@ Vérifier et ajuster les paramètres selon le besoin :
 
 - `DIUN_NOTIF_NTFY_TOPIC` : Topic ntfy abonné sur votre smartphone (par défaut `homelab`).
 - `DIUN_WATCH_SCHEDULE` : Fréquence du balayage (par défaut `0 */6 * * *`, toutes les 6 heures).
-- `DIUN_NOTIF_NTFY_TOKEN` : Jeton d'authentification Bearer obligatoire si le serveur ntfy est en mode `NTFY_AUTH_DEFAULT_ACCESS=deny-all` (voir `apps/ntfy.env`).
+- `DIUN_NOTIF_NTFY_TOKEN` : Jeton d'authentification Bearer obligatoire si le serveur ntfy est en mode `NTFY_AUTH_DEFAULT_ACCESS=deny-all`. Le compte de service dédié est `svc-diun` (architecture Zero Trust).
 
-Si nécessaire, autoriser l'utilisateur ntfy existant à écrire sur le topic `homelab` :
+Créer le compte de service et générer le jeton si ce n'est pas encore fait :
 
 ```bash
-# Autoriser l'utilisateur du homelab à publier sur le topic 'homelab'
-podman exec -it ntfy ntfy access <nom_utilisateur> homelab write-only
+# Créer l'utilisateur de service dédié Diun
+podman exec -it ntfy ntfy user add svc-diun
+
+# Autoriser uniquement l'écriture sur le topic 'homelab' (principe du moindre privilège)
+podman exec -it ntfy ntfy access svc-diun homelab write-only
+
+# Générer un jeton labellisé (note le token affiché : tk_...)
+podman exec -it ntfy ntfy token add --label="diun" svc-diun
 
 # Renseigner le jeton dans apps/diun.env :
 # DIUN_NOTIF_NTFY_TOKEN=tk_...
