@@ -18,6 +18,7 @@ Volume=/:/host:ro,rslave
 Volume=%h/.local/share/homelab-metrics:/textfile:ro,z
 Network=homelab.network
 NoNewPrivileges=true
+DropCapability=ALL
 Exec=--path.rootfs=/host --collector.textfile.directory=/textfile
 PodmanArgs=--memory=128m --cpus=0.25
 

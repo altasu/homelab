@@ -22,6 +22,7 @@ Image=codeberg.org/forgejo/forgejo:16.0.5-rootless
 Volume=forgejo.volume:/var/lib/gitea
 Network=homelab.network
 NoNewPrivileges=true
+DropCapability=ALL
 # Limites de ressources (serveur modeste, 512MB RAM alloués)
 PodmanArgs=--memory=512m --cpus=1.0
 

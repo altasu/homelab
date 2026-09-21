@@ -24,6 +24,7 @@ Volume=%h/homelab/apps/monitoring/grafana/datasources:/etc/grafana/provisioning/
 Volume=%h/homelab/apps/monitoring/grafana/alerting:/etc/grafana/provisioning/alerting:ro,z
 Network=homelab.network
 NoNewPrivileges=true
+DropCapability=ALL
 PodmanArgs=--memory=256m --cpus=0.5
 
 [Service]

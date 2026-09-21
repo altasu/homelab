@@ -23,6 +23,7 @@ Volume=/etc/localtime:/etc/localtime:ro
 Network=homelab.network
 EnvironmentFile=%h/homelab/apps/wakapi.env
 NoNewPrivileges=true
+DropCapability=ALL
 PodmanArgs=--memory=128m --cpus=0.25
 
 [Service]

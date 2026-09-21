@@ -17,6 +17,7 @@ Volume=prometheus.volume:/prometheus
 Volume=%h/homelab/apps/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro,z
 Network=homelab.network
 NoNewPrivileges=true
+DropCapability=ALL
 Exec=--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=15d
 PodmanArgs=--memory=512m --cpus=0.5
 

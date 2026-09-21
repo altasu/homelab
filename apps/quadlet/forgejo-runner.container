@@ -29,6 +29,7 @@ Volume=%t/podman/podman.sock:/run/user/1000/podman/podman.sock
 
 # Monter le fichier de configuration (généré automatiquement par le runner)
 Volume=forgejo-runner.volume:/data
+PodmanArgs=--memory=512m --cpus=1.0
 
 [Service]
 Restart=on-failure

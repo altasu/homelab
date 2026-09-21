@@ -26,6 +26,7 @@ Network=homelab.network
 EnvironmentFile=%h/homelab/apps/diun.env
 SecurityLabelDisable=true
 NoNewPrivileges=true
+DropCapability=ALL
 PodmanArgs=--memory=64m --cpus=0.25
 
 [Service]

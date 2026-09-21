@@ -26,6 +26,7 @@ EnvironmentFile=%h/homelab/apps/ntfy.env
 Volume=ntfy.volume:/var/lib/ntfy
 Network=homelab.network
 NoNewPrivileges=true
+DropCapability=ALL
 PodmanArgs=--memory=128m --cpus=0.25
 
 [Service]
