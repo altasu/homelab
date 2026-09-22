@@ -1,0 +1,30 @@
+# Unité Quadlet : Instance Redis dédiée à Nextcloud
+# Assure la mise en cache mémoire des transactions et le verrouillage de fichiers (file locking).
+#
+# Dépendances :
+#   - homelab-network.service (réseau virtuel interne homelab_net)
+#
+# Confinement :
+#   - DropCapability=ALL et NoNewPrivileges=true
+#   - Mémoire plafonnée à 128 Mo / 0.25 vCPU
+
+[Unit]
+Description=Nextcloud Redis Cache Server
+After=homelab-network.service
+Requires=homelab-network.service
+
+[Container]
+ContainerName=nextcloud-redis
+Image=docker.io/library/redis:7.4-alpine
+Volume=nextcloud-redis.volume:/data
+Network=homelab.network
+NoNewPrivileges=true
+DropCapability=ALL
+Exec=redis-server --save 60 1 --loglevel warning
+PodmanArgs=--memory=128m --cpus=0.25
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,35 @@
+# Unité Quadlet : Nextcloud Hub (Solution Cloud Souveraine & Partage de Fichiers)
+# Remplace Microsoft 365 / OneDrive pour la synchronisation multi-postes et mobile.
+#
+# Déploiement (utilisateur rootless) :
+#   cp apps/quadlet/nextcloud*.{container,volume} ~/.config/containers/systemd/
+#   /usr/libexec/podman/quadlet -dryrun -user
+#   systemctl --user daemon-reload && systemctl --user start nextcloud
+#
+# Dépendances :
+#   - homelab-network.service (réseau virtuel interne homelab_net)
+#   - postgres.service (base de données relationnelle Data Tier)
+#   - nextcloud-redis.service (cache mémoire et verrous transactionnels)
+
+[Unit]
+Description=Nextcloud Hub (Cloud & File Sync)
+After=homelab-network.service postgres.service nextcloud-redis.service
+Requires=homelab-network.service nextcloud-redis.service
+
+[Container]
+ContainerName=nextcloud
+Image=docker.io/library/nextcloud:30.0.6-apache
+Volume=nextcloud-html.volume:/var/www/html
+Volume=nextcloud-data.volume:/var/www/html/data
+Volume=/etc/localtime:/etc/localtime:ro
+Network=homelab.network
+EnvironmentFile=%h/homelab/apps/nextcloud.env
+NoNewPrivileges=true
+PodmanArgs=--memory=1024m --cpus=1.0
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target
