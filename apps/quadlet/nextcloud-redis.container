@@ -19,7 +19,6 @@ Image=docker.io/library/redis:7.4-alpine
 Volume=nextcloud-redis.volume:/data
 Network=homelab.network
 NoNewPrivileges=true
-DropCapability=ALL
 Exec=redis-server --save 60 1 --loglevel warning
 PodmanArgs=--memory=128m --cpus=0.25
 

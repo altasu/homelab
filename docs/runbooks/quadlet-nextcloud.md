@@ -1,6 +1,6 @@
 # Runbook — Quadlet : Déploiement et exploitation de Nextcloud Hub (Cloud & Fichiers)
 
-Ce runbook détaille l'architecture, le déploiement et l'exploitation de la plateforme **Nextcloud Hub** (`docker.io/library/nextcloud:30.0.6-apache`) sous forme d'unités déclaratives Podman Quadlet systemd rootless.
+Ce runbook détaille l'architecture, le déploiement et l'exploitation de la plateforme **Nextcloud Hub** (`docker.io/library/nextcloud`) sous forme d'unités déclaratives Podman Quadlet systemd rootless.
 
 ---
 
@@ -28,7 +28,7 @@ flowchart TD
     end
 
     subgraph Host["Serveur Homelab (Rootless)"]
-        nc["Nextcloud Hub (Quadlet)<br>nextcloud:30-apache"]
+        nc["Nextcloud Hub (Quadlet)<br>nextcloud (Apache)"]
         redis["Nextcloud Redis (Quadlet)<br>redis:7-alpine"]
         cron["nextcloud-cron.timer<br>(systemd user)"]
         
@@ -207,6 +207,7 @@ podman rm -f nextcloud nextcloud-redis
 ## 9. Leçons Retenues & Bonnes Pratiques
 
 - **Nécessité absolue de Redis pour les verrous de fichiers :** Sans instance Redis dédiée, Nextcloud utilise la base de données SQL pour verrouiller les fichiers en cours d'écriture (`file locking`). Lors de synchronisations massives (milliers de fichiers OneDrive), cela provoque des deadlocks PostgreSQL et paralyse le serveur. Redis garantit des verrous atomiques en mémoire ultra-rapides.
+- **Exemption `DropCapability=ALL` pour Redis Alpine :** L'image officielle `redis:alpine` démarre son script d'entrée (`docker-entrypoint.sh`) en tant que root pour ajuster les permissions de `/data` puis utilise `setpriv` pour basculer vers l'utilisateur non privilégié `redis` (UID 999). L'application de `DropCapability=ALL` supprime la capacité noyau `CAP_SETUID`, ce qui fait échouer l'appel système `setresuid` (`Operation not permitted`, code 127). Redis doit donc conserver ses capacités rootless par défaut, combinées à `NoNewPrivileges=true`.
 - **Bypass de la limite Cloudflare 100 Mo :** Pour ingérer les centaines de gigaoctets de données initiales depuis OneDrive, utiliser impérativement le réseau local (LAN) ou le tunnel Twingate SDN. Cloudflare Tunnel rejette systématiquement les fichiers individuels de plus de 100 Mo (`HTTP 413 Entity Too Large`).
 - **Exécution native du cron via systemd :** Le mode AJAX par défaut de Nextcloud dépend des visites sur l'interface web pour purger les fichiers temporaires et vérifier les versions. Le minuteur systemd `nextcloud-cron.timer` garantit une maintenance périodique stricte toutes les 15 minutes, même si aucun utilisateur n'est connecté.
 - **Sécurité et headers de proxy inverse :** Les directives `OVERWRITEPROTOCOL=https`, `OVERWRITEHOST` et `TRUSTED_PROXIES` sont indispensables pour éviter les boucles de redirection infinies et garantir que Nextcloud génère des URLs sécurisées derrière les tunnels.

@@ -87,6 +87,11 @@ pages:
                 url: ${URL_LINKDING}
                 check-url: http://linkding:9090
 
+              - title: Nextcloud
+                icon: si:nextcloud
+                url: ${URL_NEXTCLOUD}
+                check-url: http://nextcloud:80/status.php
+
               - title: Wakapi
                 icon: si:wakatime
                 url: ${URL_WAKAPI}
@@ -120,3 +125,4 @@ pages:
               - forgejo/forgejo
               - binwiederhier/ntfy
               - muety/wakapi
+              - nextcloud/server

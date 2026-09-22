@@ -18,7 +18,7 @@ Requires=homelab-network.service nextcloud-redis.service
 
 [Container]
 ContainerName=nextcloud
-Image=docker.io/library/nextcloud:30.0.6-apache
+Image=docker.io/library/nextcloud:35.0.0-apache
 Volume=nextcloud-html.volume:/var/www/html
 Volume=nextcloud-data.volume:/var/www/html/data
 Volume=/etc/localtime:/etc/localtime:ro
