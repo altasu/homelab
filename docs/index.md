@@ -54,4 +54,3 @@ La plateforme opère sous Podman Quadlet (rootless sous l'UID 1000), organisée 
 - [Cloud & Synchronisation de fichiers : Nextcloud Hub](runbooks/quadlet-nextcloud.md)
 - [Forge logicielle : Forgejo (Serveur Git autonome)](runbooks/quadlet-forgejo.md)
 - [Exécuteur CI/CD : Forgejo Runner (Actions hermétiques rootless)](runbooks/quadlet-forgejo-runner.md)
-- [Virtualisation : Windows 11 VM (Station de travail KVM rootless)](runbooks/quadlet-windows.md)

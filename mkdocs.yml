@@ -31,7 +31,6 @@ nav:
       - "Service Git : Forgejo Runner (CI/CD)": runbooks/quadlet-forgejo-runner.md
       - "Portail d'accueil : Glance": runbooks/quadlet-glance.md
       - "Gestionnaire de signets : Linkding": runbooks/quadlet-linkding.md
-      - "Machine Virtuelle : Windows 11": runbooks/quadlet-windows.md
       - "Télémétrie de code : Wakapi": runbooks/quadlet-wakapi.md
       - "Surveillance des conteneurs : Diun": runbooks/quadlet-diun.md
       - "Cloud & Fichiers : Nextcloud": runbooks/quadlet-nextcloud.md
