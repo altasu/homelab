@@ -1,0 +1,10 @@
+# Unité systemd utilisateur : exécution des tâches d'arrière-plan Nextcloud (cron)
+# Exécute cron.php sous l'utilisateur www-data dans le conteneur Nextcloud.
+
+[Unit]
+Description=Nextcloud background tasks (cron)
+After=nextcloud.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/podman exec -u www-data nextcloud php -f /var/www/html/cron.php

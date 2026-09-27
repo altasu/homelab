@@ -1,0 +1,5 @@
+# Unité Quadlet : Volume de stockage des données utilisateurs Nextcloud
+# Persistance de /var/www/html/data (documents, fichiers, sauvegardes)
+
+[Volume]
+VolumeName=apps_nextcloud_data

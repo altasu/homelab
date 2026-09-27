@@ -34,6 +34,7 @@ nav:
       - "Machine Virtuelle : Windows 11": runbooks/quadlet-windows.md
       - "Télémétrie de code : Wakapi": runbooks/quadlet-wakapi.md
       - "Surveillance des conteneurs : Diun": runbooks/quadlet-diun.md
+      - "Cloud & Fichiers : Nextcloud": runbooks/quadlet-nextcloud.md
       - Observabilité: runbooks/observabilite.md
       - "GitOps & Renovate : déploiement continu": runbooks/gitops-renovate-sync.md
 

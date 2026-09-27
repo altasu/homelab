@@ -1,0 +1,14 @@
+# Minuteur systemd utilisateur : exécution périodique des tâches d'arrière-plan Nextcloud
+# Déclenchement toutes les 15 minutes pour assurer la synchronisation et le nettoyage.
+
+[Unit]
+Description=Nextcloud background tasks timer
+After=nextcloud.service
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+Unit=nextcloud-cron.service
+
+[Install]
+WantedBy=timers.target

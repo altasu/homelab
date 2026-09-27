@@ -6,7 +6,7 @@
 #   systemctl --user daemon-reload && systemctl --user start wakapi
 #
 # Accès :
-#   - Externe : Cloudflare Tunnel -> http://wakapi:3000 (https://wakapi.altasworld.com)
+#   - Externe : Cloudflare Tunnel -> http://wakapi:3000 (https://wakapi.votre-domaine.com)
 #   - Interne : http://wakapi:3000 sur homelab.network
 
 [Unit]

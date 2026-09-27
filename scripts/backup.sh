@@ -95,6 +95,8 @@ APP_VOLUMES=(
     "apps_linkding_data:linkding:de Linkding:optionnel"
     "apps_wakapi_data:wakapi:de Wakapi:optionnel"
     "apps_diun_data:diun:de Diun:optionnel"
+    "apps_nextcloud_html:nextcloud:de la configuration de Nextcloud:optionnel"
+    "apps_nextcloud_data:nextcloud_data:des données utilisateurs de Nextcloud:optionnel"
 )
 
 TOTAL_STEPS=$(( 1 + ${#APP_VOLUMES[@]} ))

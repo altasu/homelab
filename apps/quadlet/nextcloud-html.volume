@@ -1,0 +1,5 @@
+# Unité Quadlet : Volume applicatif Nextcloud (code, apps, configuration)
+# Persistance de /var/www/html
+
+[Volume]
+VolumeName=apps_nextcloud_html
