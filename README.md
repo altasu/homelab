@@ -33,7 +33,7 @@ Le cycle de vie et les mises à jour sont entièrement automatisés selon une ap
 cp infra/quadlet/* data/quadlet/* apps/quadlet/* ~/.config/containers/systemd/
 systemctl --user daemon-reload
 systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector twingate-host \
-  prometheus grafana node-exporter podman-exporter ntfy windows forgejo forgejo-runner glance linkding
+  prometheus grafana node-exporter podman-exporter ntfy forgejo forgejo-runner glance linkding
 
 # Activation de la synchronisation continue GitOps
 systemctl --user enable --now homelab-sync.timer
@@ -86,7 +86,7 @@ Service lifecycle and automated updates follow a secure **pull-based GitOps** mo
 cp infra/quadlet/* data/quadlet/* apps/quadlet/* ~/.config/containers/systemd/
 systemctl --user daemon-reload
 systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector twingate-host \
-  prometheus grafana node-exporter podman-exporter ntfy windows forgejo forgejo-runner glance linkding
+  prometheus grafana node-exporter podman-exporter ntfy forgejo forgejo-runner glance linkding
 
 # Enable GitOps continuous synchronization timer
 systemctl --user enable --now homelab-sync.timer

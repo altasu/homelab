@@ -20,7 +20,6 @@ flowchart TB
         subgraph apps["Stage 3 : Apps (apps/)"]
             vw["Vaultwarden"]
             ab["Actual Budget"]
-            win["Windows 11 VM (KVM)"]
             forgejo["Forgejo & Runner"]
             glance["Glance Dashboard"]
             linkding["Linkding (Bookmarks)"]
@@ -42,7 +41,6 @@ flowchart TB
     twingate --- net
     vw --- net
     ab --- net
-    win --- net
     forgejo --- net
     glance --- net
     linkding --- net
