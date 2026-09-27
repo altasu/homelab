@@ -52,7 +52,7 @@ flowchart TD
 
 | Fichier (dépôt) | Rôle |
 |---|---|
-| `apps/quadlet/onlyoffice.container` | Unité conteneur Quadlet ONLYOFFICE (limites : 2048 Mo RAM / 1.5 vCPU) |
+| `apps/quadlet/onlyoffice.container` | Unité conteneur Quadlet ONLYOFFICE (limites : 4096 Mo RAM / 2.0 vCPU) |
 | `apps/quadlet/onlyoffice-data.volume` | Volume nommé `apps_onlyoffice_data` (polices personnalisées et certificats) |
 | `apps/quadlet/onlyoffice-log.volume` | Volume nommé `apps_onlyoffice_log` (journaux de diagnostic du moteur) |
 | `apps/quadlet/onlyoffice-lib.volume` | Volume nommé `apps_onlyoffice_lib` (base interne et cache de conversion) |
@@ -64,7 +64,7 @@ flowchart TD
 ## 3. Confinement & Sécurité Rootless
 
 - **Confinement Cgroups :** Plafonnement des ressources pour isoler les pics de compilation et de conversion de gros documents PDF/Excel :
-  - ONLYOFFICE : `--memory=2048m --cpus=1.5`
+  - ONLYOFFICE : `--memory=4096m --cpus=2.0`
 - **Sécurité Linux :** `NoNewPrivileges=true` activé sur le conteneur.
 - **Isolation Réseau :** Aucun port hôte publié. L'accès s'effectue exclusivement via le réseau virtuel interne `homelab.network`.
 

@@ -24,8 +24,8 @@ Volume=onlyoffice-log.volume:/var/log/onlyoffice
 Volume=onlyoffice-lib.volume:/var/lib/onlyoffice
 Network=homelab.network
 NoNewPrivileges=true
-# Limites cgroups adaptées au moteur de conversion Node.js / Core C++
-PodmanArgs=--memory=2048m --cpus=1.5
+# Limites cgroups adaptées aux recommandations officielles ONLYOFFICE (Node.js & C++ Core)
+PodmanArgs=--memory=4096m --cpus=2.0
 
 [Service]
 Restart=on-failure
