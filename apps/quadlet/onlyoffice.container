@@ -1,0 +1,35 @@
+# Unité Quadlet : ONLYOFFICE Document Server (Moteur Bureautique Nextcloud)
+# Exécute la suite bureautique collaborative en conteneur rootless.
+#
+# Déploiement (utilisateur rootless) :
+#   cp apps/quadlet/onlyoffice*.{container,volume} ~/.config/containers/systemd/
+#   /usr/libexec/podman/quadlet -dryrun -user
+#   systemctl --user daemon-reload
+#   systemctl --user start onlyoffice
+#
+# Intégration Nextcloud :
+#   podman exec -u www-data nextcloud php occ app:install onlyoffice
+
+[Unit]
+Description=ONLYOFFICE Document Server (Nextcloud Office)
+After=homelab-network.service nextcloud.service
+Requires=homelab-network.service nextcloud.service
+
+[Container]
+ContainerName=onlyoffice
+Image=docker.io/onlyoffice/documentserver:9.4.0.1
+EnvironmentFile=%h/homelab/apps/onlyoffice.env
+Volume=onlyoffice-data.volume:/var/www/onlyoffice/Data
+Volume=onlyoffice-log.volume:/var/log/onlyoffice
+Volume=onlyoffice-lib.volume:/var/lib/onlyoffice
+Network=homelab.network
+NoNewPrivileges=true
+# Limites cgroups adaptées au moteur de conversion Node.js / Core C++
+PodmanArgs=--memory=2048m --cpus=1.5
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target

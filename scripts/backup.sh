@@ -97,6 +97,7 @@ APP_VOLUMES=(
     "apps_diun_data:diun:de Diun:optionnel"
     "apps_nextcloud_html:nextcloud:de la configuration de Nextcloud:optionnel"
     "apps_nextcloud_data:nextcloud_data:des données utilisateurs de Nextcloud:optionnel"
+    "apps_onlyoffice_data:onlyoffice:des données d'OnlyOffice:optionnel"
 )
 
 TOTAL_STEPS=$(( 1 + ${#APP_VOLUMES[@]} ))
