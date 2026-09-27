@@ -4,7 +4,7 @@
 
 services:
   cloudflared:
-    image: docker.io/cloudflare/cloudflared:2026.9.1
+    image: docker.io/cloudflare/cloudflared:2026.9.3
     container_name: cloudflare-tunnel
     restart: unless-stopped
     command: tunnel run
@@ -14,7 +14,7 @@ services:
       - homelab_net
 
   twingate-connector:
-    image: docker.io/twingate/connector:1.92.0
+    image: docker.io/twingate/connector:1.93.0
     container_name: twingate-connector
     restart: unless-stopped
     environment:
