@@ -15,7 +15,7 @@ Requires=homelab-network.service
 
 [Container]
 ContainerName=nextcloud-redis
-Image=docker.io/library/redis:7.4-alpine
+Image=docker.io/library/redis:8.10-alpine
 Volume=nextcloud-redis.volume:/data
 Network=homelab.network
 NoNewPrivileges=true
