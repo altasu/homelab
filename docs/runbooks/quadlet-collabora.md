@@ -81,7 +81,7 @@ chmod 600 apps/collabora.env
 ```bash
 # Exemple de configuration réelle :
 server_name=office.votre-domaine.com
-aliasgroup1=https://cloud\\.votre-domaine\\.com:443
+aliasgroup1=https://cloud.votre-domaine.com,https://cloud\\.votre-domaine\\.com,https://cloud.votre-domaine.com:443,https://cloud\\.votre-domaine\\.com:443
 username=admin
 password=DEFINIR_UN_MOT_DE_PASSE_ADMIN_ROBUSTE
 extra_params=--o:ssl.enable=false --o:ssl.termination=true --o:mount_jail_tree=false
@@ -167,9 +167,13 @@ podman exec -u www-data nextcloud php occ richdocuments:activate-config
   systemctl --user restart collabora.service
   ```
 
-### Erreur : « Hôte non autorisé » lors de l'ouverture d'un fichier Nextcloud
-- **Cause :** L'URL de Nextcloud n'est pas acceptée par la regex `aliasgroup1`.
-- **Remède :** Vérifier que les points sont bien échappés dans `apps/collabora.env` (`https://cloud\\.votre-domaine\\.com:443`).
+### Erreur : « Hôte WOPI non autorisé » lors de l'ouverture d'un fichier Nextcloud
+- **Cause :** L'URL de Nextcloud transmise dans le paramètre `WOPISrc` (sans le port `:443` en HTTPS standard) n'est pas acceptée par la regex `aliasgroup1`.
+- **Remède :** Configurer `aliasgroup1` en couvrant les formes avec et sans port `:443`, ainsi que les formes avec et sans échappement de point :
+  ```bash
+  aliasgroup1=https://cloud.votre-domaine.com,https://cloud\\.votre-domaine\\.com,https://cloud.votre-domaine.com:443,https://cloud\\.votre-domaine\\.com:443
+  ```
+  Puis redémarrer l'unité : `systemctl --user restart collabora.service`.
 
 ### Consultation des journaux :
 ```bash
