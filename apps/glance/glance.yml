@@ -44,6 +44,10 @@ pages:
                     url: https://twingate.com
                     icon: mdi:vpn
                     description: Console Zero Trust SDN
+                  - title: Collabora Admin
+                    url: ${URL_COLLABORA}/browser/dist/admin/admin.html
+                    icon: mdi:file-document-edit-outline
+                    description: Console bureautique CODE
 
       # Colonne 2 : Portail Centralisé des Services Homelab
       - size: full
