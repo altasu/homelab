@@ -1,0 +1,35 @@
+# Unité Quadlet : Immich Server (Serveur Principal & Cœur Applicatif)
+# Fournit l'API REST, l'interface web réactive et gère les téléversements mobiles.
+#
+# Dépendances :
+#   - immich-postgres.service (base de données vectorielle)
+#   - immich-redis.service (file d'attente des tâches)
+#   - immich-machine-learning.service (moteur d'analyse IA)
+#
+# Confinement & Accélération Matérielle :
+#   - Mémoire Cgroups : 1024 Mo (1.0 Go)
+#   - Processeur Cgroups : 1.0 vCPU
+#   - Accélération Matérielle : Intel Quick Sync Video (QSV) via --device=/dev/dri
+#   - Port publié : 2283:2283 (HTTP)
+
+[Unit]
+Description=Immich Server (Photos & Videos Platform)
+After=homelab-network.service immich-postgres.service immich-redis.service immich-machine-learning.service
+Requires=homelab-network.service immich-postgres.service immich-redis.service
+
+[Container]
+ContainerName=immich-server
+Image=ghcr.io/immich-app/immich-server:v3.2.4
+Volume=immich-library.volume:/data:Z
+Volume=/etc/localtime:/etc/localtime:ro
+Network=homelab.network
+EnvironmentFile=%h/homelab/apps/immich.env
+NoNewPrivileges=true
+PublishPort=2283:2283
+PodmanArgs=--device=/dev/dri --memory=1024m --cpus=1.0
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

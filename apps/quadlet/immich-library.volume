@@ -1,0 +1,6 @@
+# Unité Quadlet : Volume de la photothèque et des médias Immich
+# Stocke les photos originales, vidéos, miniatures (thumbnails) et fichiers encodés.
+# Persistance couverte par scripts/backup.sh.
+
+[Volume]
+VolumeName=apps_immich_library

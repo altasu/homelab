@@ -83,10 +83,46 @@ backup_volume() {
 }
 
 # ------------------------------------------------------------------------------
-# Définition des volumes à sauvegarder (Source unique de vérité)
-# Format : "nom_du_volume:sous_repertoire:libellé:exigence"
+# Fonction de sauvegarde incrémentielle (rsync) pour les grands volumes de données
+# (Photothèque Immich, Fichiers utilisateurs volumineux Nextcloud).
+#
+# Contrairement à tar -czf qui recompresse inutilement des gigaoctets de médias
+# déjà compressés (JPEG, MP4), rsync effectue une synchronisation différentielle
+# ultra-rapide : seuls les fichiers nouveaux ou modifiés sont transférés.
+# Les fichiers restent directement lisibles et restaurables dans <subdir>/current/.
 # ------------------------------------------------------------------------------
-APP_VOLUMES=(
+backup_incremental_volume() {
+    local volume="$1" subdir="$2" label="$3" requirement="$4"
+    local dest_dir="${DEST_DIR}/${subdir}/current"
+
+    if ! podman volume exists "${volume}"; then
+        if [ "${requirement}" = "requis" ]; then
+            echo "❌ Échec : volume ${volume} introuvable alors qu'il est attendu."
+            EXIT_CODE=1
+        else
+            echo "⏭  Volume ${volume} absent (service non déployé) — ${label} ignoré."
+        fi
+        return
+    fi
+
+    mkdir -p "${dest_dir}"
+    if podman run --rm \
+        --volume "${volume}:/data:ro" \
+        --volume "${dest_dir}:/backup:z" \
+        docker.io/alpine:3.22 \
+        sh -c "apk add --no-cache rsync >/dev/null 2>&1 && rsync -a --delete /data/ /backup/" ; then
+        echo "✅ Sauvegarde incrémentielle ${label} réussie."
+    else
+        echo "❌ Échec de la sauvegarde incrémentielle ${label} !"
+        EXIT_CODE=1
+    fi
+}
+
+# ------------------------------------------------------------------------------
+# Définition des volumes à sauvegarder (Source unique de vérité)
+# ------------------------------------------------------------------------------
+# 1. Volumes d'état et configurations (archivage tar.gz horodaté avec rétention)
+APP_ARCHIVE_VOLUMES=(
     "apps_vaultwarden_data:vaultwarden:des fichiers statiques de Vaultwarden:requis"
     "apps_actual_budget_data:actualbudget:d'Actual Budget:requis"
     "apps_grafana_data:grafana:des tableaux de bord Grafana:optionnel"
@@ -96,10 +132,15 @@ APP_VOLUMES=(
     "apps_wakapi_data:wakapi:de Wakapi:optionnel"
     "apps_diun_data:diun:de Diun:optionnel"
     "apps_nextcloud_html:nextcloud:de la configuration de Nextcloud:optionnel"
-    "apps_nextcloud_data:nextcloud_data:des données utilisateurs de Nextcloud:optionnel"
 )
 
-TOTAL_STEPS=$(( 1 + ${#APP_VOLUMES[@]} ))
+# 2. Volumes de stockage massif (synchronisation incrémentielle rsync)
+APP_INCREMENTAL_VOLUMES=(
+    "apps_nextcloud_data:nextcloud_data:des données utilisateurs de Nextcloud:optionnel"
+    "apps_immich_library:immich_library:des photos et médias Immich:optionnel"
+)
+
+TOTAL_STEPS=$(( 2 + ${#APP_ARCHIVE_VOLUMES[@]} + ${#APP_INCREMENTAL_VOLUMES[@]} ))
 CURRENT_STEP=1
 
 step_log() {
@@ -135,16 +176,43 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 2-N. Sauvegarde des volumes applicatifs
-#
-# Note : le volume de Prometheus est volontairement ABSENT de cette liste —
-# l'historique de métriques est une donnée remplaçable dont la perte n'a
-# aucune conséquence opérationnelle.
+# 1b. Sauvegarde logique Immich PostgreSQL (Base vectorielle, si déployée)
 # ------------------------------------------------------------------------------
-for entry in "${APP_VOLUMES[@]}"; do
+if podman container exists immich-postgres; then
+    step_log "Sauvegarde de la base de données vectorielle Immich..."
+    mkdir -p "${DEST_DIR}/immich"
+    IMMICH_DUMP_FILE="${DEST_DIR}/immich/immich_db_${TIMESTAMP}.sql.gz"
+    if podman exec immich-postgres pg_dumpall -U postgres | gzip > "${IMMICH_DUMP_FILE}"; then
+        if [ "$(gzip -dc "${IMMICH_DUMP_FILE}" | head -c 1 | wc -c)" -eq 0 ]; then
+            echo "❌ Échec : le dump Immich PostgreSQL est vide — archive supprimée."
+            rm -f "${IMMICH_DUMP_FILE}"
+            EXIT_CODE=1
+        else
+            echo "✅ Sauvegarde de la base Immich réussie."
+        fi
+    else
+        echo "❌ Échec de la sauvegarde d'Immich PostgreSQL ! Archive incomplète supprimée."
+        rm -f "${IMMICH_DUMP_FILE}"
+        EXIT_CODE=1
+    fi
+fi
+
+# ------------------------------------------------------------------------------
+# 2. Sauvegarde des volumes d'état et configurations (archives tar.gz)
+# ------------------------------------------------------------------------------
+for entry in "${APP_ARCHIVE_VOLUMES[@]}"; do
     IFS=":" read -r volume subdir label requirement <<< "${entry}"
     step_log "Sauvegarde du volume ${label}..."
     backup_volume "${volume}" "${subdir}" "${label}" "${requirement}"
+done
+
+# ------------------------------------------------------------------------------
+# 3. Sauvegarde incrémentielle des grands volumes de données (synchronisation rsync)
+# ------------------------------------------------------------------------------
+for entry in "${APP_INCREMENTAL_VOLUMES[@]}"; do
+    IFS=":" read -r volume subdir label requirement <<< "${entry}"
+    step_log "Sauvegarde incrémentielle ${label}..."
+    backup_incremental_volume "${volume}" "${subdir}" "${label}" "${requirement}"
 done
 
 echo "================================================================="
@@ -186,7 +254,9 @@ mv "${METRICS_DIR}/backup.prom.tmp" "${METRICS_DIR}/backup.prom"
 # ------------------------------------------------------------------------------
 if [ "${EXIT_CODE}" -eq 0 ]; then
     find "${DEST_DIR}/postgres" -type f -name "*.sql.gz" -mtime +7 -delete
-    for entry in "${APP_VOLUMES[@]}"; do
+    [ -d "${DEST_DIR}/immich" ] && \
+        find "${DEST_DIR}/immich" -type f -name "*.sql.gz" -mtime +7 -delete
+    for entry in "${APP_ARCHIVE_VOLUMES[@]}"; do
         IFS=":" read -r _ subdir _ _ <<< "${entry}"
         [ -d "${DEST_DIR}/${subdir}" ] && \
             find "${DEST_DIR}/${subdir}" -type f -name "*.tar.gz" -mtime +7 -delete

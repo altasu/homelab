@@ -1,0 +1,28 @@
+# Unité Quadlet : Immich Valkey / Redis (File d'Attente et Cache Mémoire)
+# Gère les files de traitement asynchrones pour l'indexation et la génération de médias.
+#
+# Confinement & Ressources :
+#   - Mémoire Cgroups : 128 Mo
+#   - Processeur Cgroups : 0.25 vCPU
+#   - Réseau : homelab.network (DNS interne : immich-redis)
+
+[Unit]
+Description=Immich Valkey Cache and Queue
+After=homelab-network.service
+Requires=homelab-network.service
+
+[Container]
+ContainerName=immich-redis
+Image=docker.io/valkey/valkey:9.0.6-alpine
+Network=homelab.network
+NoNewPrivileges=true
+Exec=valkey-server --save "" --appendonly no --loglevel warning
+HealthCmd=valkey-cli ping | grep -q PONG || exit 1
+HealthInterval=30s
+PodmanArgs=--memory=128m --cpus=0.25
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

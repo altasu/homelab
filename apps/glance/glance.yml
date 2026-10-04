@@ -101,6 +101,11 @@ pages:
                 url: ${URL_WAKAPI}
                 check-url: http://wakapi:3000/api/health
 
+              - title: Immich
+                icon: si:immich
+                url: ${URL_IMMICH}
+                check-url: http://immich-server:2283/api/server/ping
+
           - type: rss
             title: Veille Technique & Open Source
             limit: 6
@@ -130,3 +135,5 @@ pages:
               - binwiederhier/ntfy
               - muety/wakapi
               - nextcloud/server
+              - immich-app/immich
+

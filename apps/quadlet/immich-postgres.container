@@ -1,0 +1,31 @@
+# Unité Quadlet : Immich PostgreSQL (Base de Données Vectorielle Dédiée)
+# Image officielle intégrant les extensions C VectorChord et pgvector pour la recherche sémantique.
+#
+# Confinement & Ressources :
+#   - Mémoire Cgroups : 512 Mo
+#   - Processeur Cgroups : 0.5 vCPU
+#   - Mémoire partagée (--shm-size) : 128 Mo (obligatoire pour les index vectoriels)
+#   - Réseau : homelab.network (DNS interne : immich-postgres)
+
+[Unit]
+Description=Immich PostgreSQL Vector Database (VectorChord)
+After=homelab-network.service
+Requires=homelab-network.service
+
+[Container]
+ContainerName=immich-postgres
+Image=ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
+Volume=immich-postgres.volume:/var/lib/postgresql/data:Z
+Network=homelab.network
+EnvironmentFile=%h/homelab/apps/immich.env
+NoNewPrivileges=true
+HealthCmd=pg_isready -q -U $$POSTGRES_USER -d $$POSTGRES_DB
+HealthInterval=30s
+Notify=healthy
+PodmanArgs=--shm-size=128m --memory=512m --cpus=0.5
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
