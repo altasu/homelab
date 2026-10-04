@@ -1,0 +1,29 @@
+# Unité Quadlet : Collabora Online CODE (Nextcloud Office)
+# Suite bureautique collaborative en ligne via protocole WOPI.
+#
+# Déploiement :
+#   cp apps/quadlet/collabora.container ~/.config/containers/systemd/
+#   /usr/libexec/podman/quadlet -dryrun -user
+#   systemctl --user daemon-reload
+#   systemctl --user start collabora
+#
+# Accès : Cloudflare Tunnel -> http://collabora:9980 (sous-domaine office.votre-domaine.com)
+
+[Unit]
+Description=Collabora Online CODE (Nextcloud Office)
+After=homelab-network.service nextcloud.service
+Requires=homelab-network.service
+
+[Container]
+ContainerName=collabora
+Image=docker.io/collabora/code:26.04.4.2.1
+Network=homelab.network
+EnvironmentFile=%h/homelab/apps/collabora.env
+NoNewPrivileges=true
+PodmanArgs=--memory=1024m --cpus=1.0
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
