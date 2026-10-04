@@ -48,14 +48,58 @@ systemctl --user start glance
 systemctl --user status glance --no-pager
 ```
 
-## Personnalisation des Services
+## Personnalisation des Services & Standard d'Intégrité
 
-Pour ajouter ou modifier des raccourcis et des sondes de surveillance :
-1. Éditez le fichier `apps/glance/glance.yml`.
-2. Redémarrez l'unité pour appliquer immédiatement les changements :
-```bash
-systemctl --user restart glance
-```
+### Règles d'Or pour l'ajout d'un service
+1. **Standardisation stricte des icônes :** Utiliser exclusivement des icônes monochromatiques issues des jeux `si:` ([Simple Icons](https://simpleicons.org/)) ou `mdi:` ([Material Design Icons](https://pictogrammers.com/library/mdi/)). Elles héritent automatiquement de la couleur d'accentuation du thème. Les jeux pré-colorés ou badges (ex: `di:`, `sh:`, `fa:`) sont strictement proscrits.
+2. **Parité absolue des variables :** Toute variable d'URL interpolée sous la forme `${URL_SERVICE}` dans `apps/glance/glance.yml` doit impérativement être déclarée dans `apps/glance.env.example` (IaC public) et dans `apps/glance.env` (production sur l'hôte).
+
+### Point de Contrôle Automatisé (`scripts/check-glance.sh`)
+
+Un script de contrôle d'intégrité valide la configuration à deux niveaux de la chaîne GitOps :
+
+- **Niveau 1 — CI/CD GitLab (`validate-architecture`) :**
+  Exécuté sur chaque commit et Merge Request pour vérifier :
+  - L'absence de tabulations illégales dans le YAML.
+  - La conformité syntaxique YAML complète.
+  - Le respect des préfixes d'icônes `si:` ou `mdi:`.
+  - La déclaration de chaque `${VAR}` dans `apps/glance.env.example`.
+  ```bash
+  # Test statique local / CI
+  scripts/check-glance.sh apps/glance/glance.yml apps/glance.env.example
+  ```
+
+- **Niveau 2 — GitOps Runtime (`scripts/homelab-sync.sh`) :**
+  Lors d'une synchronisation sur le serveur hôte :
+  - Le script compare les variables requises par `glance.yml` avec le fichier réel `apps/glance.env`.
+  - **Garde-fou anti-crash :** Si une variable est manquante sur le serveur, le redémarrage de Glance est **suspendu** pour préserver la haute disponibilité du tableau de bord existant.
+  - Une alerte haute priorité est instantanément transmise via `ntfy` pour inviter l'administrateur à renseigner la variable dans `apps/glance.env`.
+  ```bash
+  # Test runtime sur l'hôte (vérifie que les variables réelles ne sont pas vides)
+  scripts/check-glance.sh apps/glance/glance.yml apps/glance.env --runtime
+  ```
+
+## Procédure d'Ajout d'un Nouveau Service
+
+1. Déclarer la variable d'exemple dans `apps/glance.env.example` :
+   ```ini
+   URL_NOUVEAU_SERVICE=https://service.votre-domaine.com
+   ```
+2. Ajouter le raccourci ou le moniteur dans `apps/glance/glance.yml` :
+   ```yaml
+   - title: Nouveau Service
+     icon: si:monochromeicon
+     url: ${URL_NOUVEAU_SERVICE}
+   ```
+3. Vérifier localement la conformité :
+   ```bash
+   ./scripts/check-glance.sh
+   ```
+4. Une fois la MR fusionnée sur `main`, ajouter l'URL de production dans `apps/glance.env` sur l'hôte avant ou après la synchronisation :
+   ```bash
+   echo "URL_NOUVEAU_SERVICE=https://service.altasworld.com" >> apps/glance.env
+   systemctl --user restart glance
+   ```
 
 ## Rollback
 

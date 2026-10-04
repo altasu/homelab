@@ -46,6 +46,7 @@ git pull origin main --ff-only
 
 RESTARTED_SERVICES=()
 QUADLET_UPDATED=0
+GLANCE_SKIPPED_REASON=""
 
 # 4. Traitement STRICTEMENT CIBLÉ uniquement sur les fichiers modifiés
 for file in ${CHANGED_FILES}; do
@@ -62,8 +63,27 @@ for file in ${CHANGED_FILES}; do
             RESTARTED_SERVICES+=("${svc}")
             ;;
         apps/glance/glance.yml)
-            echo "🚀 Configuration Glance modifiée — redémarrage ciblé de glance"
-            RESTARTED_SERVICES+=("glance")
+            echo "🔍 Configuration Glance modifiée — exécution du garde-fou pré-vol..."
+            GLANCE_ENV="${REPO_DIR}/apps/glance.env"
+            if [ ! -f "${GLANCE_ENV}" ]; then
+                echo "⚠️ [Garde-fou Glance] ${GLANCE_ENV} introuvable ! Redémarrage de glance suspendu pour éviter une interruption de service."
+                GLANCE_SKIPPED_REASON="fichier apps/glance.env introuvable"
+            elif "${REPO_DIR}/scripts/check-glance.sh" "${REPO_DIR}/apps/glance/glance.yml" "${GLANCE_ENV}" --runtime >/dev/null 2>&1; then
+                echo "✅ [Garde-fou Glance] Pré-vol réussi : syntaxe et variables valides. Redémarrage de glance programmé."
+                RESTARTED_SERVICES+=("glance")
+            else
+                MISSING_GLANCE_VARS=()
+                REQUIRED_VARS=$(grep -oE '\$\{[A-Za-z0-9_]+\}' "${REPO_DIR}/apps/glance/glance.yml" | sed -E 's/^\$\{([A-Za-z0-9_]+)\}$/\1/' | sort -u || true)
+                for rv in ${REQUIRED_VARS}; do
+                    if ! grep -qE "^[[:space:]]*${rv}=" "${GLANCE_ENV}"; then
+                        MISSING_GLANCE_VARS+=("${rv}")
+                    fi
+                done
+                MISSING_STR=$(IFS=,; echo "${MISSING_GLANCE_VARS[*]}")
+                echo "⚠️ [Garde-fou Glance] Variable(s) manquante(s) dans apps/glance.env : [${MISSING_STR}]."
+                echo "🛑 Redémarrage de glance suspendu pour maintenir le tableau de bord actif."
+                GLANCE_SKIPPED_REASON="variables manquantes dans apps/glance.env : ${MISSING_STR}"
+            fi
             ;;
         apps/monitoring/prometheus/*)
             echo "🚀 Configuration Prometheus modifiée — redémarrage ciblé de prometheus"
@@ -90,6 +110,10 @@ else
     MSG="Homelab mis à jour (${REMOTE_HASH:0:7}) - Aucun service à redémarrer."
 fi
 
+if [ -n "${GLANCE_SKIPPED_REASON}" ]; then
+    MSG="${MSG} | ⚠️ Glance ignoré (${GLANCE_SKIPPED_REASON})"
+fi
+
 echo "✅ ${MSG}"
 
 # 7. Notification ntfy (si configuré)
@@ -108,12 +132,19 @@ if [ -n "${NTFY_TOPIC:-}" ]; then
     NTFY_URL="${NTFY_HOST}/${NTFY_TOPIC}"
     echo "📢 Envoi de la notification ntfy vers ${NTFY_URL}..."
 
+    NTFY_TITLE="🚀 Homelab GitOps Sync"
+    NTFY_TAGS="rocket,git"
+    if [ -n "${GLANCE_SKIPPED_REASON}" ]; then
+        NTFY_TITLE="⚠️ Homelab GitOps Sync — Attention Glance"
+        NTFY_TAGS="warning,git"
+    fi
+
     CURL_ARGS=(
         -s
         -o /dev/null
         -w "%{http_code}"
-        -H "Title: 🚀 Homelab GitOps Sync"
-        -H "Tags: rocket,git"
+        -H "Title: ${NTFY_TITLE}"
+        -H "Tags: ${NTFY_TAGS}"
         -d "${MSG}"
     )
 
