@@ -45,6 +45,7 @@ Le script applique le principe de **moindre privilège et de rayon d'impact mini
 - **Ciblage strict des fichiers modifiés :** Seuls les fichiers `.container`, `.volume` ou `.network` apparaissant dans `git diff` sont copiés vers `~/.config/containers/systemd/`. Les autres services ne sont ni écrasés ni modifiés.
 - **Rechargement conditionnel :** `systemctl --user daemon-reload` n'est invoqué que si une unité Quadlet a effectivement changé.
 - **Redémarrage chirurgical :** Seul le conteneur impacté est redémarré (`systemctl --user restart <service>`).
+- **Garde-fous pré-vol applicatifs :** Pour les services critiques comme le tableau de bord Glance, une validation de configuration runtime est exécutée via `scripts/check-glance.sh` avant tout redémarrage. Si des variables d'environnement manquent dans la configuration locale (`apps/glance.env`), le redémarrage de Glance est suspendu pour éviter toute panne et une alerte ntfy ciblée est émise.
 
 ---
 
