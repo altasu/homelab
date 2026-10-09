@@ -16,7 +16,7 @@ Requires=homelab-network.service
 
 [Container]
 ContainerName=collabora
-Image=docker.io/collabora/code:26.04.4.2.1
+Image=docker.io/collabora/code:26.04.5.1.1
 Network=homelab.network
 EnvironmentFile=%h/homelab/apps/collabora.env
 NoNewPrivileges=true
