@@ -1,0 +1,6 @@
+# Unité Quadlet : Volume de cache des modèles d'apprentissage automatique (ML) Immich
+# Mémorise les modèles ONNX téléchargés (reconnaissance faciale, CLIP, etc.)
+# pour éviter de les retélécharger à chaque redémarrage du conteneur.
+
+[Volume]
+VolumeName=apps_immich_model_cache

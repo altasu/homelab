@@ -1,0 +1,27 @@
+# Unité Quadlet : Immich Machine Learning (Moteur d'Intelligence Artificielle)
+# Exécute l'inférence ONNX Runtime pour la détection de visages et l'indexation sémantique (CLIP).
+#
+# Confinement & Ressources :
+#   - Mémoire Cgroups : 1536 Mo (1.5 Go)
+#   - Processeur Cgroups : 1.5 vCPU
+#   - Réseau : homelab.network (DNS interne : immich-machine-learning:3003)
+
+[Unit]
+Description=Immich Machine Learning Engine
+After=homelab-network.service
+Requires=homelab-network.service
+
+[Container]
+ContainerName=immich-machine-learning
+Image=ghcr.io/immich-app/immich-machine-learning:v3.2.4
+Volume=immich-model-cache.volume:/cache:Z
+Network=homelab.network
+EnvironmentFile=%h/homelab/apps/immich.env
+NoNewPrivileges=true
+PodmanArgs=--memory=1536m --cpus=1.5
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,6 @@
+# Unité Quadlet : Volume de données PostgreSQL dédié à Immich
+# Contient les métadonnées, tables relationnelles et index vectoriels VectorChord / pgvector.
+# Couvert par scripts/backup.sh (dump logique pg_dumpall).
+
+[Volume]
+VolumeName=apps_immich_postgres_data

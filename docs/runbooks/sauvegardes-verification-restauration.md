@@ -12,6 +12,24 @@
 
 Conclusion : la sauvegarde du volume reste nécessaire même avec un backend PostgreSQL.
 
+---
+
+## Architecture Hybride de Sauvegarde (`scripts/backup.sh`)
+
+Pour concilier intégrité absolue des bases de données et performance face à des volumes de stockage massifs (photos, vidéos, documents), `scripts/backup.sh` applique une **stratégie hybride à 3 piliers** :
+
+1. **Bases de Données Relationnelles & Vectorielles (Dumps logiques `.sql.gz`) :**
+   - Central PostgreSQL (`postgres-db`) et Immich PostgreSQL (`immich-postgres`).
+   - Export cohérent via `pg_dumpall` avec compression à la volée. Rétention glissante sur 7 jours.
+2. **Volumes d'État et Configurations Lisses (Archives compressées `.tar.gz`) :**
+   - Services légers (`< 50 Mo`) : Vaultwarden, Actual Budget, Grafana, ntfy, Forgejo, Linkding, Wakapi, Diun, configuration Nextcloud.
+   - Archivage complet horodaté et autonome avec rétention glissante sur 7 jours.
+3. **Grands Volumes Multimédia & Données Utilisateurs (Synchronisation incrémentielle `rsync`) :**
+   - Photothèque Immich (`apps_immich_library`) et données volumineuses Nextcloud (`apps_nextcloud_data`).
+   - Synchronisation différentielle ultra-rapide vers `${DEST_DIR}/<service>/current/` via un conteneur éphémère Alpine en montage lecture seule (`:ro`).
+   - **Bénéfices :** Seuls les fichiers nouveaux, modifiés ou supprimés sont transférés (sauvegarde quotidienne en quelques secondes au lieu de plusieurs heures de compression gzip intensive sur les médias déjà compressés). Les fichiers restent directement lisibles et restaurables sans extraction d'archive.
+
+
 ## Vérification d'intégrité — trois niveaux
 
 **Niveau 1 — Intégrité de compression** (silence = succès) :
