@@ -70,6 +70,7 @@ backup_volume() {
 
     mkdir -p "${DEST_DIR}/${subdir}"
     if podman run --rm \
+        --security-opt label=disable \
         --volume "${volume}:/data:ro" \
         --volume "${DEST_DIR}/${subdir}:/backup:z" \
         docker.io/alpine:3.22 \
@@ -107,6 +108,7 @@ backup_incremental_volume() {
 
     mkdir -p "${dest_dir}"
     if podman run --rm \
+        --security-opt label=disable \
         --volume "${volume}:/data:ro" \
         --volume "${dest_dir}:/backup:z" \
         docker.io/alpine:3.22 \

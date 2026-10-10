@@ -20,7 +20,7 @@ Requires=homelab-network.service immich-postgres.service immich-redis.service
 [Container]
 ContainerName=immich-server
 Image=ghcr.io/immich-app/immich-server:v3.3.1
-Volume=immich-library.volume:/data:Z
+Volume=immich-library.volume:/data:z
 Volume=/etc/localtime:/etc/localtime:ro
 Network=homelab.network
 EnvironmentFile=%h/homelab/apps/immich.env
