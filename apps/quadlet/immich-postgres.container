@@ -14,7 +14,7 @@ Requires=homelab-network.service
 
 [Container]
 ContainerName=immich-postgres
-Image=ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
+Image=ghcr.io/immich-app/postgres:16-vectorchord0.4.3-pgvectors0.2.0
 Volume=immich-postgres.volume:/var/lib/postgresql/data:Z
 Network=homelab.network
 EnvironmentFile=%h/homelab/apps/immich.env
