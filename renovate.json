@@ -11,6 +11,11 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["docker.io/postgres"],
       "allowedVersions": "<17.0.0"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/immich-app/postgres"],
+      "allowedVersions": "<15.0.0"
     }
   ],
   "timezone": "Europe/Paris"

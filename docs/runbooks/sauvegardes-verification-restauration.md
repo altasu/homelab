@@ -29,6 +29,9 @@ Pour concilier intégrité absolue des bases de données et performance face à 
    - Synchronisation différentielle ultra-rapide vers `${DEST_DIR}/<service>/current/` via un conteneur éphémère Alpine en montage lecture seule (`:ro`).
    - **Bénéfices :** Seuls les fichiers nouveaux, modifiés ou supprimés sont transférés (sauvegarde quotidienne en quelques secondes au lieu de plusieurs heures de compression gzip intensive sur les médias déjà compressés). Les fichiers restent directement lisibles et restaurables sans extraction d'archive.
 
+> [!NOTE] Confinement SELinux & Isolation MCS
+> Les conteneurs éphémères de sauvegarde s'exécutent avec l'option `--security-opt label=disable` pour accéder en lecture seule (`:ro`) aux volumes montés avec des contextes SELinux (`:Z` ou `:z`) sans déclencher de refus d'accès `Permission denied (13)`.
+
 
 ## Vérification d'intégrité — trois niveaux
 
