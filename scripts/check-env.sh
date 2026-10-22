@@ -70,6 +70,16 @@ check_file() {
         if echo "$lines" | grep -q 'your_'; then
             echo "ℹ️  Fichier modèle (.example) : valeurs d'exemple (your_...) détectées (normal)"
         fi
+        # Vérification anti-fuite : tous les FQDN publics doivent utiliser des domaines d'exemple génériques
+        local non_placeholder_domains
+        non_placeholder_domains=$(echo "$lines" | grep -oE 'https?://[A-Za-z0-9.-]+\.[a-z]{2,}' | grep -vE '(votre-domaine\.com|example\.com|your[-_]domain|github\.com|codeberg\.org|docker\.io|quay\.io|ghcr\.io|ntfy\.sh)' || true)
+        if [ -n "$non_placeholder_domains" ]; then
+            echo "❌ ERREUR : Nom de domaine non générique détecté dans le modèle ($non_placeholder_domains) !"
+            echo "   Utiliser exclusivement 'votre-domaine.com' ou 'example.com'."
+            STATUS=1
+        else
+            echo "✅ Domaines génériques conformes (.example)"
+        fi
     else
         if echo "$lines" | grep -q 'your_'; then
             echo "❌ ERREUR : valeur d'exemple (your_...) non remplacée"

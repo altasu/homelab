@@ -134,12 +134,14 @@ APP_ARCHIVE_VOLUMES=(
     "apps_wakapi_data:wakapi:de Wakapi:optionnel"
     "apps_diun_data:diun:de Diun:optionnel"
     "apps_nextcloud_html:nextcloud:de la configuration de Nextcloud:optionnel"
+    "apps_paperless_data:paperless:des index et métadonnées de Paperless-ngx:optionnel"
 )
 
 # 2. Volumes de stockage massif (synchronisation incrémentielle rsync)
 APP_INCREMENTAL_VOLUMES=(
     "apps_nextcloud_data:nextcloud_data:des données utilisateurs de Nextcloud:optionnel"
     "apps_immich_library:immich_library:des photos et médias Immich:optionnel"
+    "apps_paperless_media:paperless_media:des documents numérisés Paperless-ngx:optionnel"
 )
 
 TOTAL_STEPS=$(( 2 + ${#APP_ARCHIVE_VOLUMES[@]} + ${#APP_INCREMENTAL_VOLUMES[@]} ))

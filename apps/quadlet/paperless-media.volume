@@ -1,0 +1,6 @@
+# Unité Quadlet : Volume de stockage des documents pour Paperless-ngx
+# Contient les documents PDF originaux et les versions traitées par OCR.
+# Couvert par synchronisation différentielle incrémentielle (rsync) dans scripts/backup.sh.
+
+[Volume]
+VolumeName=apps_paperless_media

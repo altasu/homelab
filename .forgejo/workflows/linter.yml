@@ -49,6 +49,18 @@ jobs:
             echo "✅ Tous les dossiers de déploiement possèdent un .env.example."
           fi
 
+      - name: Verify Secret & Domain Leakage Prevention
+        run: |
+          echo "Vérification de l'absence de noms de domaine personnalisés dans les modèles..."
+          LEAKS=$(grep -rnE 'https?://[A-Za-z0-9.-]+\.com' apps/*.env.example | grep -vE '(votre-domaine\.com|example\.com|your[-_]domain|github\.com|codeberg\.org|docker\.io|quay\.io|ghcr\.io)' || true)
+          if [ -n "$LEAKS" ]; then
+            echo "❌ ERREUR SÉCURITÉ : Domaine non-générique détecté dans un fichier modèle versionné :"
+            echo "$LEAKS"
+            exit 1
+          else
+            echo "✅ Zéro domaine réel détecté dans les modèles versionnés."
+          fi
+
   validate-docs:
     runs-on: docker
     steps:

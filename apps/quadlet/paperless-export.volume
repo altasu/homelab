@@ -1,0 +1,5 @@
+# Unité Quadlet : Répertoire d'export pour Paperless-ngx
+# Utilisé pour les exports de reprise après sinistre (document_exporter).
+
+[Volume]
+VolumeName=apps_paperless_export

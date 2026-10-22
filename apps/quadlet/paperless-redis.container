@@ -1,0 +1,33 @@
+# Unité Quadlet : Instance Redis dédiée à Paperless-ngx
+# Assure la gestion de la file de tâches asynchrone Celery (OCR, indexation et classification).
+#
+# Dépendances :
+#   - homelab-network.service (réseau virtuel interne homelab_net)
+#
+# Confinement & Résilience :
+#   - NoNewPrivileges=true
+#   - Mémoire Cgroups plafonnée à 128 Mo / 0.25 vCPU
+#   - Sonde de santé HealthCmd et RestartSec=5s anti-emballement
+
+[Unit]
+Description=Paperless-ngx Redis Queue and Cache
+After=homelab-network.service
+Requires=homelab-network.service
+
+[Container]
+ContainerName=paperless-redis
+Image=docker.io/library/redis:7.4-alpine
+Volume=paperless-redis.volume:/data
+Network=homelab.network
+NoNewPrivileges=true
+Exec=redis-server --save "" --appendonly no --loglevel warning
+HealthCmd=redis-cli ping | grep -q PONG || exit 1
+HealthInterval=30s
+PodmanArgs=--memory=128m --cpus=0.25
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target
