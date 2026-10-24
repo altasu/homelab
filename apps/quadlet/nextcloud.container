@@ -14,7 +14,8 @@
 [Unit]
 Description=Nextcloud Hub (Cloud & File Sync)
 After=homelab-network.service postgres.service nextcloud-redis.service
-Requires=homelab-network.service nextcloud-redis.service
+Requires=homelab-network.service
+Wants=nextcloud-redis.service
 
 [Container]
 ContainerName=nextcloud

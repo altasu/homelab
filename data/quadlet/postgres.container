@@ -34,7 +34,8 @@ NoNewPrivileges=true
 HealthCmd=pg_isready -q -U $$POSTGRES_USER -d $$POSTGRES_DB
 HealthInterval=30s
 Notify=healthy
-PodmanArgs=--memory=512m --cpus=0.5
+Exec=postgres -c shared_buffers=256MB -c work_mem=16MB -c checkpoint_completion_target=0.9 -c effective_cache_size=3GB
+PodmanArgs=--memory=1024m --cpus=0.75
 
 [Service]
 Restart=on-failure
