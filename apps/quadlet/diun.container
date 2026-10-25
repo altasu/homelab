@@ -18,7 +18,7 @@ Requires=homelab-network.service podman.socket
 
 [Container]
 ContainerName=diun
-Image=docker.io/crazymax/diun:4.33.0
+Image=docker.io/crazymax/diun:4.33.1
 Volume=diun.volume:/data
 Volume=%t/podman/podman.sock:/var/run/docker.sock:ro
 Volume=/etc/localtime:/etc/localtime:ro
