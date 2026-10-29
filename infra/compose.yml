@@ -14,7 +14,7 @@ services:
       - homelab_net
 
   twingate-connector:
-    image: docker.io/twingate/connector:1.94.0
+    image: docker.io/twingate/connector:1.95.0
     container_name: twingate-connector
     restart: unless-stopped
     environment:
