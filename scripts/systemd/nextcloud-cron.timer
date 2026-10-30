@@ -3,7 +3,6 @@
 
 [Unit]
 Description=Nextcloud background tasks timer
-After=nextcloud.service
 
 [Timer]
 OnBootSec=5min

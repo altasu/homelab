@@ -14,7 +14,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set -a
 # shellcheck source=/dev/null
-source "${SCRIPT_DIR}/../data/.env"
+[ -f "${SCRIPT_DIR}/../data/.env" ] && source "${SCRIPT_DIR}/../data/.env"
+[ -f "${SCRIPT_DIR}/../data/postgres.env" ] && source "${SCRIPT_DIR}/../data/postgres.env"
 set +a
 
 # pipefail : sans lui, `commande | gzip > fichier` renvoie le code de gzip,
@@ -129,10 +130,8 @@ APP_ARCHIVE_VOLUMES=(
     "apps_actual_budget_data:actualbudget:d'Actual Budget:requis"
     "apps_grafana_data:grafana:des tableaux de bord Grafana:optionnel"
     "apps_ntfy_data:ntfy:des comptes ntfy:optionnel"
-    "apps_forgejo_data:forgejo:de Forgejo:optionnel"
     "apps_linkding_data:linkding:de Linkding:optionnel"
     "apps_wakapi_data:wakapi:de Wakapi:optionnel"
-    "apps_diun_data:diun:de Diun:optionnel"
     "apps_nextcloud_html:nextcloud:de la configuration de Nextcloud:optionnel"
 )
 
@@ -160,8 +159,9 @@ if ! podman container exists postgres-db; then
     EXIT_CODE=1
 else
     PG_DUMP_FILE="${DEST_DIR}/postgres/pg_dumpall_${TIMESTAMP}.sql.gz"
+    local pg_user="${POSTGRES_USER:-$(podman exec postgres-db printenv POSTGRES_USER 2>/dev/null || echo postgres)}"
     # Grâce à `set -o pipefail`, un échec de pg_dumpall est bien détecté ici.
-    if podman exec postgres-db pg_dumpall -U "${POSTGRES_USER}" | gzip > "${PG_DUMP_FILE}"; then
+    if podman exec postgres-db pg_dumpall -U "${pg_user}" | gzip > "${PG_DUMP_FILE}"; then
         # Double contrôle : une archive valide mais vide reste un échec
         if [ "$(gzip -dc "${PG_DUMP_FILE}" | head -c 1 | wc -c)" -eq 0 ]; then
             echo "❌ Échec : le dump PostgreSQL est vide — archive supprimée."

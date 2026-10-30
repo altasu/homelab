@@ -44,10 +44,6 @@ pages:
                     url: https://twingate.com
                     icon: mdi:vpn
                     description: Console Zero Trust SDN
-                  - title: Collabora Admin
-                    url: ${URL_COLLABORA}/browser/dist/admin/admin.html
-                    icon: mdi:file-document-edit-outline
-                    description: Console bureautique CODE
 
       # Colonne 2 : Portail Centralisé des Services Homelab
       - size: full
@@ -65,11 +61,6 @@ pages:
                 icon: si:actualbudget
                 url: ${URL_ACTUAL_BUDGET}
                 check-url: http://actual-budget:5006
-
-              - title: Forgejo
-                icon: si:forgejo
-                url: ${URL_FORGEJO}
-                check-url: http://forgejo:3000
 
               - title: Grafana
                 icon: si:grafana
@@ -131,7 +122,6 @@ pages:
               - prometheus/prometheus
               - actualbudget/actual
               - sissbruecker/linkding
-              - forgejo/forgejo
               - binwiederhier/ntfy
               - muety/wakapi
               - nextcloud/server
