@@ -19,7 +19,7 @@ Wants=nextcloud-redis.service
 
 [Container]
 ContainerName=nextcloud
-Image=docker.io/library/nextcloud:35.0.2-apache
+Image=docker.io/library/nextcloud:35.0.3-apache
 Volume=nextcloud-html.volume:/var/www/html
 Volume=nextcloud-data.volume:/var/www/html/data
 Volume=/etc/localtime:/etc/localtime:ro
