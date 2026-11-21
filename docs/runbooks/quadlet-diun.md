@@ -1,5 +1,9 @@
 # Runbook — Quadlet : Surveillance et Notifications de Mises à Jour avec Diun
 
+> [!NOTE]
+> **Statut : Service Décommissionné & Archivé (Octobre 2026)**  
+> Suite au passage sur disque dur mécanique (HDD 1 To), ce service a été retiré de la production active (la détection et les mises à jour des dépendances étant entièrement automatisées en amont par Renovate Bot).
+
 Ce runbook détaille le déploiement, l'exploitation et la sauvegarde de l'agent **Diun** (*Docker Image Update Notifier*) sous forme d'unités déclaratives Quadlet systemd rootless.
 
 ---

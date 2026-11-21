@@ -15,7 +15,8 @@
 [Unit]
 Description=Immich Server (Photos & Videos Platform)
 After=homelab-network.service immich-postgres.service immich-redis.service immich-machine-learning.service
-Requires=homelab-network.service immich-postgres.service immich-redis.service
+Requires=homelab-network.service
+Wants=immich-postgres.service immich-redis.service
 
 [Container]
 ContainerName=immich-server
@@ -30,6 +31,7 @@ PodmanArgs=--device=/dev/dri --memory=1024m --cpus=1.0
 
 [Service]
 Restart=on-failure
+RestartSec=10s
 
 [Install]
 WantedBy=default.target

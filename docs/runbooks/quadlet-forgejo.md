@@ -1,5 +1,9 @@
 # Runbook — Quadlet : Déploiement et exploitation de Forgejo (Git self-hosted)
 
+> [!NOTE]
+> **Statut : Service Décommissionné & Archivé (Octobre 2026)**  
+> Suite au passage sur disque dur mécanique (HDD 1 To) et à la rationalisation de l'infrastructure, ce service a été retiré de la production active (le homelab et les projets étant directement versionnés sur GitLab.com).
+
 Ce runbook décrit le déploiement, l'exploitation et la restauration du service **Forgejo** (forge logicielle et serveur Git souverain) au format d'unités Quadlet systemd rootless.
 
 ## Fichiers IaC impliqués
