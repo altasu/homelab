@@ -57,10 +57,19 @@ for file in ${CHANGED_FILES}; do
             filename=$(basename "${file}")
             svc=$(basename "${file}" | sed -E 's/\.(container|volume|network)$//')
             
-            echo "📦 Mise à jour ciblée : ${file} -> ${QUADLET_DEST}/${filename}"
-            cp "${REPO_DIR}/${file}" "${QUADLET_DEST}/${filename}"
-            QUADLET_UPDATED=1
-            RESTARTED_SERVICES+=("${svc}")
+            if [ -f "${REPO_DIR}/${file}" ]; then
+                echo "📦 Mise à jour ciblée : ${file} -> ${QUADLET_DEST}/${filename}"
+                cp "${REPO_DIR}/${file}" "${QUADLET_DEST}/${filename}"
+                QUADLET_UPDATED=1
+                RESTARTED_SERVICES+=("${svc}")
+            else
+                echo "🗑️ Suppression ciblée : ${file} -> retrait de ${QUADLET_DEST}/${filename}"
+                if [[ "${file}" == *.container ]]; then
+                    systemctl --user stop "${svc}" 2>/dev/null || true
+                fi
+                rm -f "${QUADLET_DEST}/${filename}"
+                QUADLET_UPDATED=1
+            fi
             ;;
         apps/glance/glance.yml)
             echo "🔍 Configuration Glance modifiée — exécution du garde-fou pré-vol..."
