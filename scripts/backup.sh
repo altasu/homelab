@@ -159,7 +159,7 @@ if ! podman container exists postgres-db; then
     EXIT_CODE=1
 else
     PG_DUMP_FILE="${DEST_DIR}/postgres/pg_dumpall_${TIMESTAMP}.sql.gz"
-    local pg_user="${POSTGRES_USER:-$(podman exec postgres-db printenv POSTGRES_USER 2>/dev/null || echo postgres)}"
+    pg_user="${POSTGRES_USER:-$(podman exec postgres-db printenv POSTGRES_USER 2>/dev/null || echo postgres)}"
     # Grâce à `set -o pipefail`, un échec de pg_dumpall est bien détecté ici.
     if podman exec postgres-db pg_dumpall -U "${pg_user}" | gzip > "${PG_DUMP_FILE}"; then
         # Double contrôle : une archive valide mais vide reste un échec

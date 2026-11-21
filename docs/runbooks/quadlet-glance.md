@@ -97,7 +97,7 @@ Un script de contrôle d'intégrité valide la configuration à deux niveaux de 
    ```
 4. Une fois la MR fusionnée sur `main`, ajouter l'URL de production dans `apps/glance.env` sur l'hôte avant ou après la synchronisation :
    ```bash
-   echo "URL_NOUVEAU_SERVICE=https://service.altasworld.com" >> apps/glance.env
+   echo "URL_NOUVEAU_SERVICE=https://service.votre-domaine.com" >> apps/glance.env
    systemctl --user restart glance
    ```
 

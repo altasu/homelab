@@ -36,7 +36,6 @@ ARCHIVE_VOLUMES=(
     "apps_ntfy_data:ntfy:ntfy"
     "apps_grafana_data:grafana:Grafana"
     "apps_wakapi_data:wakapi:Wakapi"
-    "apps_diun_data:diun:Diun"
 )
 
 echo "==> [1/6] Restoring state volumes from tar.gz archives..."
@@ -142,7 +141,6 @@ SERVICES=(
     "nextcloud"
     "glance"
     "linkding"
-    "forgejo"
     "ntfy"
     "prometheus"
     "grafana"

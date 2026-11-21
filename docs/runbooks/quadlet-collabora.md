@@ -1,5 +1,9 @@
 # Runbook — Quadlet : Déploiement et exploitation de Collabora Online CODE (Suite bureautique)
 
+> [!NOTE]
+> **Statut : Service Décommissionné & Archivé (Octobre 2026)**  
+> Suite au passage sur disque dur mécanique (HDD 1 To) et à la rationalisation de l'infrastructure, ce service a été retiré de la production active afin de libérer ~1 Go de mémoire vive et supprimer la surcharge CPU/IOPS inutile (l'édition documentaire étant assurée localement sur les postes de travail).
+
 Ce runbook détaille l'architecture, le déploiement et l'exploitation de **Collabora Online Development Edition (CODE)** (`docker.io/collabora/code`) intégré à **Nextcloud Hub** sous forme d'unité Podman Quadlet systemd rootless.
 
 ---
