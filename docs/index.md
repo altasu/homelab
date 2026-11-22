@@ -50,10 +50,10 @@ La plateforme opère sous Podman Quadlet (rootless sous l'UID 1000), organisée 
 - [Portail d'accueil : Glance Dashboard (Agrégateur de flux & télémétrie)](runbooks/quadlet-glance.md)
 - [Gestionnaire de signets : Linkding (Bookmarks souverains)](runbooks/quadlet-linkding.md)
 - [Télémétrie de code : Wakapi (Statistiques WakaTime self-hosted)](runbooks/quadlet-wakapi.md)
-- [Cloud & Synchronisation de fichiers : Nextcloud Hub](runbooks/quadlet-nextcloud.md)
-- [Photos & Vidéos : Immich (Gestion multimédia et inférence IA)](runbooks/quadlet-immich.md)
 
-### Services Archivés (Optimisation HDD & Rationalisation)
+### Services Archivés (Optimisation HDD & Modèle Hybride ADR-010)
+- [Cloud & Synchronisation de fichiers : Nextcloud Hub (archivé)](runbooks/quadlet-nextcloud.md)
+- [Photos & Vidéos : Immich (archivé)](runbooks/quadlet-immich.md)
 - [Forge logicielle : Forgejo (archivé)](runbooks/quadlet-forgejo.md)
 - [Exécuteur CI/CD : Forgejo Runner (archivé)](runbooks/quadlet-forgejo-runner.md)
 - [Surveillance des conteneurs : Diun (archivé)](runbooks/quadlet-diun.md)

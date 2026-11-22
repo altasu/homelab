@@ -14,8 +14,8 @@
     },
     {
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["ghcr.io/immich-app/postgres"],
-      "allowedVersions": "<15.0.0"
+      "matchPackageNames": ["docker.io/library/redis"],
+      "allowedVersions": "<8.0.0"
     }
   ],
   "timezone": "Europe/Paris"

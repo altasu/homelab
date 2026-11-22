@@ -82,20 +82,10 @@ pages:
                 url: ${URL_LINKDING}
                 check-url: http://linkding:9090
 
-              - title: Nextcloud
-                icon: si:nextcloud
-                url: ${URL_NEXTCLOUD}
-                check-url: http://nextcloud:80/status.php
-
               - title: Wakapi
                 icon: si:wakatime
                 url: ${URL_WAKAPI}
                 check-url: http://wakapi:3000/api/health
-
-              - title: Immich
-                icon: si:immich
-                url: ${URL_IMMICH}
-                check-url: http://immich-server:2283/api/server/ping
 
           - type: rss
             title: Veille Technique & Open Source
@@ -124,6 +114,4 @@ pages:
               - sissbruecker/linkding
               - binwiederhier/ntfy
               - muety/wakapi
-              - nextcloud/server
-              - immich-app/immich
 

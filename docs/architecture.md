@@ -24,9 +24,6 @@ flowchart TB
             linkding["Linkding (Bookmarks)"]
             wakapi["Wakapi (WakaTime)"]
             ntfy["ntfy (Push)"]
-            nc["Nextcloud Hub"]
-            ncr["Nextcloud Redis"]
-            immich["Immich (Photos & Vidéos)"]
             obs["Prometheus & Grafana"]
         end
         subgraph data["Stage 2 : Data (data/) — LE PLUS CRITIQUE"]
@@ -47,24 +44,17 @@ flowchart TB
     linkding --- net
     wakapi --- net
     ntfy --- net
-    nc --- net
-    ncr --- net
-    immich --- net
     obs --- net
     pg --- net
 
     cloudflared -.->|"http://vaultwarden:80"| vw
     cloudflared -.->|"http://linkding:9090"| linkding
     cloudflared -.->|"http://wakapi:3000"| wakapi
-    cloudflared -.->|"http://nextcloud:80"| nc
     twingate -.->|"http://glance:8080"| glance
     twingate -.->|"http://actual-budget:5006"| ab
     twingate -.->|"http://grafana:3000"| obs
-    twingate -.->|"http://immich-server:2283"| immich
     twingate_host -.->|"Cockpit:9090 / SSH:22"| server
     vw -.->|"postgres-db:5432"| pg
-    nc -.->|"postgres-db:5432"| pg
-    nc -.->|"nextcloud-redis:6379"| ncr
 ```
 
 ## Principes
@@ -83,10 +73,8 @@ Le homelab adopte une approche hybride d'organisation des bases de données selo
    - Utilisé pour Actual Budget, ntfy, Linkding, Wakapi.
    - **Avantages** : empreinte mémoire nulle (0 MB RAM de daemon), isolation totale du rayon d'impact (blast radius), persistance autonome dans le Named Volume Quadlet et restauration 1:1 sans dépendance réseau.
 2. **PostgreSQL centralisé (Niveau `data/`)** :
-   - Réservé aux applications à fortes transactions ou multi-utilisateurs complexes (Vaultwarden, Nextcloud).
+   - Réservé aux applications à fortes transactions ou critiques (Vaultwarden).
    - **Sécurité** : application stricte du principe du moindre privilège OWASP (rôle application dédié non-superuser par base de données, pas d'accès global).
-3. **PostgreSQL dédié vectoriel (Immich)** :
-   - Embarque les extensions C spécialisées (`vectorchord`) isolées du cluster principal pour prévenir tout conflit d'extensions.
 
 ## Automatisation & GitOps (Renovate & Déploiement Continu)
 

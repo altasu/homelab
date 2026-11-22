@@ -1,5 +1,9 @@
 # Runbook — Quadlet : Déploiement et exploitation de Nextcloud Hub (Cloud & Fichiers)
 
+> [!NOTE]
+> **Statut : Service Décommissionné & Archivé (Novembre 2026 — ADR-010)**  
+> Dans le cadre de la stratégie hybride par paliers (stockage fichiers volumineux délégué au cloud managé et allègement I/O du disque HDD 5400 RPM), ce service a été retiré de la production active au profit d'un socle souverain minimaliste.
+
 Ce runbook détaille l'architecture, le déploiement et l'exploitation de la plateforme **Nextcloud Hub** (`docker.io/library/nextcloud`) sous forme d'unités déclaratives Podman Quadlet systemd rootless.
 
 ---
