@@ -15,6 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set -a
 # shellcheck source=/dev/null
 [ -f "${SCRIPT_DIR}/../data/.env" ] && source "${SCRIPT_DIR}/../data/.env"
+# shellcheck source=/dev/null
 [ -f "${SCRIPT_DIR}/../data/postgres.env" ] && source "${SCRIPT_DIR}/../data/postgres.env"
 set +a
 

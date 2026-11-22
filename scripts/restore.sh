@@ -40,7 +40,7 @@ ARCHIVE_VOLUMES=(
 echo "==> [1/6] Restoring state volumes from tar.gz archives..."
 for entry in "${ARCHIVE_VOLUMES[@]}"; do
     IFS=":" read -r volume subdir label <<< "${entry}"
-    latest_archive=$(ls -t "${BACKUP_VAULT}/${subdir}"/*.tar.gz 2>/dev/null | head -1 || true)
+    latest_archive=$(find "${BACKUP_VAULT}/${subdir}" -maxdepth 1 -type f -name '*.tar.gz' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -n1 | cut -d' ' -f2- || true)
     
     if [ -n "${latest_archive}" ] && [ -f "${latest_archive}" ]; then
         echo "📦 Restoring ${label} (${volume}) from $(basename "${latest_archive}")..."
@@ -96,7 +96,7 @@ echo "==> [4/6] Initializing PostgreSQL and restoring logical dump..."
 systemctl --user start postgres.service
 
 echo "⏳ Waiting for PostgreSQL container to become ready..."
-for i in {1..30}; do
+for _ in {1..30}; do
     if podman container exists postgres-db && [ "$(podman inspect postgres-db --format '{{.State.Health.Status}}' 2>/dev/null)" = "healthy" ]; then
         echo "✓ PostgreSQL is healthy."
         break
@@ -104,7 +104,7 @@ for i in {1..30}; do
     sleep 2
 done
 
-LATEST_PG_DUMP=$(ls -t "${BACKUP_VAULT}/postgres"/pg_dumpall_*.sql.gz 2>/dev/null | head -1 || true)
+LATEST_PG_DUMP=$(find "${BACKUP_VAULT}/postgres" -maxdepth 1 -type f -name 'pg_dumpall_*.sql.gz' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -n1 | cut -d' ' -f2- || true)
 if [ -n "${LATEST_PG_DUMP}" ]; then
     echo "📥 Injecting $(basename "${LATEST_PG_DUMP}") into PostgreSQL..."
     PG_USER=$(podman exec postgres-db printenv POSTGRES_USER || echo "postgres")
