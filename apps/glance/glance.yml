@@ -44,10 +44,6 @@ pages:
                     url: https://twingate.com
                     icon: mdi:vpn
                     description: Console Zero Trust SDN
-                  - title: Collabora Admin
-                    url: ${URL_COLLABORA}/browser/dist/admin/admin.html
-                    icon: mdi:file-document-edit-outline
-                    description: Console bureautique CODE
 
       # Colonne 2 : Portail Centralisé des Services Homelab
       - size: full
@@ -65,11 +61,6 @@ pages:
                 icon: si:actualbudget
                 url: ${URL_ACTUAL_BUDGET}
                 check-url: http://actual-budget:5006
-
-              - title: Forgejo
-                icon: si:forgejo
-                url: ${URL_FORGEJO}
-                check-url: http://forgejo:3000
 
               - title: Grafana
                 icon: si:grafana
@@ -91,26 +82,15 @@ pages:
                 url: ${URL_LINKDING}
                 check-url: http://linkding:9090
 
-              - title: Nextcloud
-                icon: si:nextcloud
-                url: ${URL_NEXTCLOUD}
-                check-url: http://nextcloud:80/status.php
-
               - title: Wakapi
                 icon: si:wakatime
                 url: ${URL_WAKAPI}
                 check-url: http://wakapi:3000/api/health
 
-              - title: Immich
-                icon: si:immich
-                url: ${URL_IMMICH}
-                check-url: http://immich-server:2283/api/server/ping
-
               - title: Paperless
                 icon: si:paperlessngx
                 url: ${URL_PAPERLESS}
                 check-url: http://paperless:8000/api/
-
           - type: rss
             title: Veille Technique & Open Source
             limit: 6
@@ -136,10 +116,7 @@ pages:
               - prometheus/prometheus
               - actualbudget/actual
               - sissbruecker/linkding
-              - forgejo/forgejo
               - binwiederhier/ntfy
               - muety/wakapi
-              - nextcloud/server
-              - immich-app/immich
               - paperless-ngx/paperless-ngx
 

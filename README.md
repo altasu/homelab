@@ -16,7 +16,7 @@ Ce dépôt contient l'Infrastructure as Code (IaC) de mon homelab personnel, con
 |:------|:--------|:------:|:-----|
 | **Stage 1** | `infra/` | ✅ Actif | Passerelle Zero Trust (Cloudflare + Twingate) |
 | **Stage 2** | `data/` | ✅ Actif | Persistance (PostgreSQL sur disque externe) |
-| **Stage 3** | `apps/` | ✅ Actif | Applications (Vaultwarden, Actual Budget, Windows 11 VM, Forgejo & Runner, Glance, Linkding) et observabilité (Prometheus, Grafana, node_exporter, ntfy) |
+| **Stage 3** | `apps/` | ✅ Actif | Applications (Vaultwarden, Actual Budget, Glance, Linkding, Wakapi) et observabilité (Prometheus, Grafana, node_exporter, ntfy) |
 
 Tous les stages partagent le réseau externe Podman `homelab_net` (sauf les connecteurs hôtes).
 
@@ -33,7 +33,7 @@ Le cycle de vie et les mises à jour sont entièrement automatisés selon une ap
 cp infra/quadlet/* data/quadlet/* apps/quadlet/* ~/.config/containers/systemd/
 systemctl --user daemon-reload
 systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector twingate-host \
-  prometheus grafana node-exporter podman-exporter ntfy forgejo forgejo-runner glance linkding
+  prometheus grafana node-exporter podman-exporter ntfy glance linkding wakapi
 
 # Activation de la synchronisation continue GitOps
 systemctl --user enable --now homelab-sync.timer
@@ -69,7 +69,7 @@ This repository contains the Infrastructure as Code (IaC) for my personal homela
 |:------|:----------|:------:|:-----|
 | **Stage 1** | `infra/` | ✅ Active | Zero Trust Gateway (Cloudflare + Twingate) |
 | **Stage 2** | `data/` | ✅ Active | Persistence (PostgreSQL on external drive) |
-| **Stage 3** | `apps/` | ✅ Active | Applications (Vaultwarden, Actual Budget, Windows 11 VM, Forgejo & Runner, Glance, Linkding) and observability (Prometheus, Grafana, node_exporter, ntfy) |
+| **Stage 3** | `apps/` | ✅ Active | Applications (Vaultwarden, Actual Budget, Glance, Linkding, Wakapi) and observability (Prometheus, Grafana, node_exporter, ntfy) |
 
 All stages share the external Podman network `homelab_net` (except host connectors).
 
@@ -86,7 +86,7 @@ Service lifecycle and automated updates follow a secure **pull-based GitOps** mo
 cp infra/quadlet/* data/quadlet/* apps/quadlet/* ~/.config/containers/systemd/
 systemctl --user daemon-reload
 systemctl --user start postgres vaultwarden actual-budget cloudflared twingate-connector twingate-host \
-  prometheus grafana node-exporter podman-exporter ntfy forgejo forgejo-runner glance linkding
+  prometheus grafana node-exporter podman-exporter ntfy glance linkding wakapi
 
 # Enable GitOps continuous synchronization timer
 systemctl --user enable --now homelab-sync.timer

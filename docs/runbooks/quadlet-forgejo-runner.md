@@ -1,5 +1,9 @@
 # Runbook — Quadlet : Déploiement du Runner Forgejo Actions (CI/CD)
 
+> [!NOTE]
+> **Statut : Service Décommissionné & Archivé (Octobre 2026)**  
+> Suite au passage sur disque dur mécanique (HDD 1 To), ce service a été retiré de la production active afin de supprimer les builds concurrents sur le processeur double-cœur (les pipelines CI/CD étant délégués à GitLab CI).
+
 Ce runbook décrit le déploiement et l'exploitation de **Forgejo Runner**, l'agent qui exécute les pipelines CI/CD de Forgejo Actions, sous forme d'unité Quadlet systemd rootless.
 
 ## Fichiers IaC impliqués

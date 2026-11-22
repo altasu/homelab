@@ -27,17 +27,18 @@ nav:
       - "Bascule : PostgreSQL": runbooks/quadlet-bascule-postgres.md
       - "Bascule : Infra (tunnels)": runbooks/quadlet-bascule-infra.md
       - "Réseau Hôte : Twingate (Zero Trust)": runbooks/quadlet-twingate-host.md
-      - "Service Git : Forgejo": runbooks/quadlet-forgejo.md
-      - "Service Git : Forgejo Runner (CI/CD)": runbooks/quadlet-forgejo-runner.md
       - "Portail d'accueil : Glance": runbooks/quadlet-glance.md
       - "Gestionnaire de signets : Linkding": runbooks/quadlet-linkding.md
       - "Télémétrie de code : Wakapi": runbooks/quadlet-wakapi.md
-      - "Surveillance des conteneurs : Diun": runbooks/quadlet-diun.md
-      - "Cloud & Fichiers : Nextcloud": runbooks/quadlet-nextcloud.md
-      - "Suite bureautique : Collabora Online (CODE)": runbooks/quadlet-collabora.md
-      - "Photos & Vidéos : Immich": runbooks/quadlet-immich.md
       - Observabilité: runbooks/observabilite.md
       - "GitOps & Renovate : déploiement continu": runbooks/gitops-renovate-sync.md
+      - "Archives & Décommissionnement":
+          - "Cloud & Fichiers : Nextcloud (archivé)": runbooks/quadlet-nextcloud.md
+          - "Photos & Vidéos : Immich (archivé)": runbooks/quadlet-immich.md
+          - "Service Git : Forgejo (archivé)": runbooks/quadlet-forgejo.md
+          - "Exécuteur CI/CD : Forgejo Runner (archivé)": runbooks/quadlet-forgejo-runner.md
+          - "Surveillance : Diun (archivé)": runbooks/quadlet-diun.md
+          - "Bureautique : Collabora Online (archivé)": runbooks/quadlet-collabora.md
 
 markdown_extensions:
   - admonition

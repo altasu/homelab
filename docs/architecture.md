@@ -20,12 +20,11 @@ flowchart TB
         subgraph apps["Stage 3 : Apps (apps/)"]
             vw["Vaultwarden"]
             ab["Actual Budget"]
-            forgejo["Forgejo & Runner"]
             glance["Glance Dashboard"]
             linkding["Linkding (Bookmarks)"]
             wakapi["Wakapi (WakaTime)"]
             ntfy["ntfy (Push)"]
-            diun["Diun (Mises à jour)"]
+            obs["Prometheus & Grafana"]
         end
         subgraph data["Stage 2 : Data (data/) — LE PLUS CRITIQUE"]
             pg[("PostgreSQL")]
@@ -41,22 +40,21 @@ flowchart TB
     twingate --- net
     vw --- net
     ab --- net
-    forgejo --- net
     glance --- net
     linkding --- net
     wakapi --- net
     ntfy --- net
-    diun --- net
+    obs --- net
     pg --- net
 
     cloudflared -.->|"http://vaultwarden:80"| vw
     cloudflared -.->|"http://linkding:9090"| linkding
     cloudflared -.->|"http://wakapi:3000"| wakapi
-    twingate -.->|"RDP:3389 / HTTP:8006"| win
     twingate -.->|"http://glance:8080"| glance
+    twingate -.->|"http://actual-budget:5006"| ab
+    twingate -.->|"http://grafana:3000"| obs
     twingate_host -.->|"Cockpit:9090 / SSH:22"| server
     vw -.->|"postgres-db:5432"| pg
-    diun -.->|"http://ntfy:80"| ntfy
 ```
 
 ## Principes
@@ -72,10 +70,10 @@ flowchart TB
 Le homelab adopte une approche hybride d'organisation des bases de données selon les besoins des services :
 
 1. **SQLite embarqué par service (`apps_<service>_data`)** :
-   - Utilisé pour Forgejo, Actual Budget, ntfy, Linkding, Wakapi, Diun.
+   - Utilisé pour Actual Budget, ntfy, Linkding, Wakapi.
    - **Avantages** : empreinte mémoire nulle (0 MB RAM de daemon), isolation totale du rayon d'impact (blast radius), persistance autonome dans le Named Volume Quadlet et restauration 1:1 sans dépendance réseau.
 2. **PostgreSQL centralisé (Niveau `data/`)** :
-   - Réservé aux applications à fortes transactions ou multi-utilisateurs complexes (Vaultwarden).
+   - Réservé aux applications à fortes transactions ou critiques (Vaultwarden).
    - **Sécurité** : application stricte du principe du moindre privilège OWASP (rôle application dédié non-superuser par base de données, pas d'accès global).
 
 ## Automatisation & GitOps (Renovate & Déploiement Continu)

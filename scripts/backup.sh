@@ -14,7 +14,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set -a
 # shellcheck source=/dev/null
-source "${SCRIPT_DIR}/../data/.env"
+[ -f "${SCRIPT_DIR}/../data/.env" ] && source "${SCRIPT_DIR}/../data/.env"
+[ -f "${SCRIPT_DIR}/../data/postgres.env" ] && source "${SCRIPT_DIR}/../data/postgres.env"
 set +a
 
 # pipefail : sans lui, `commande | gzip > fichier` renvoie le code de gzip,
@@ -129,22 +130,17 @@ APP_ARCHIVE_VOLUMES=(
     "apps_actual_budget_data:actualbudget:d'Actual Budget:requis"
     "apps_grafana_data:grafana:des tableaux de bord Grafana:optionnel"
     "apps_ntfy_data:ntfy:des comptes ntfy:optionnel"
-    "apps_forgejo_data:forgejo:de Forgejo:optionnel"
     "apps_linkding_data:linkding:de Linkding:optionnel"
     "apps_wakapi_data:wakapi:de Wakapi:optionnel"
-    "apps_diun_data:diun:de Diun:optionnel"
-    "apps_nextcloud_html:nextcloud:de la configuration de Nextcloud:optionnel"
     "apps_paperless_data:paperless:des index et métadonnées de Paperless-ngx:optionnel"
 )
 
 # 2. Volumes de stockage massif (synchronisation incrémentielle rsync)
 APP_INCREMENTAL_VOLUMES=(
-    "apps_nextcloud_data:nextcloud_data:des données utilisateurs de Nextcloud:optionnel"
-    "apps_immich_library:immich_library:des photos et médias Immich:optionnel"
     "apps_paperless_media:paperless_media:des documents numérisés Paperless-ngx:optionnel"
 )
 
-TOTAL_STEPS=$(( 2 + ${#APP_ARCHIVE_VOLUMES[@]} + ${#APP_INCREMENTAL_VOLUMES[@]} ))
+TOTAL_STEPS=$(( 1 + ${#APP_ARCHIVE_VOLUMES[@]} + ${#APP_INCREMENTAL_VOLUMES[@]} ))
 CURRENT_STEP=1
 
 step_log() {
@@ -162,8 +158,9 @@ if ! podman container exists postgres-db; then
     EXIT_CODE=1
 else
     PG_DUMP_FILE="${DEST_DIR}/postgres/pg_dumpall_${TIMESTAMP}.sql.gz"
+    pg_user="${POSTGRES_USER:-$(podman exec postgres-db printenv POSTGRES_USER 2>/dev/null || echo postgres)}"
     # Grâce à `set -o pipefail`, un échec de pg_dumpall est bien détecté ici.
-    if podman exec postgres-db pg_dumpall -U "${POSTGRES_USER}" | gzip > "${PG_DUMP_FILE}"; then
+    if podman exec postgres-db pg_dumpall -U "${pg_user}" | gzip > "${PG_DUMP_FILE}"; then
         # Double contrôle : une archive valide mais vide reste un échec
         if [ "$(gzip -dc "${PG_DUMP_FILE}" | head -c 1 | wc -c)" -eq 0 ]; then
             echo "❌ Échec : le dump PostgreSQL est vide — archive supprimée."
@@ -175,28 +172,6 @@ else
     else
         echo "❌ Échec de la sauvegarde de PostgreSQL ! Archive incomplète supprimée."
         rm -f "${PG_DUMP_FILE}"
-        EXIT_CODE=1
-    fi
-fi
-
-# ------------------------------------------------------------------------------
-# 1b. Sauvegarde logique Immich PostgreSQL (Base vectorielle, si déployée)
-# ------------------------------------------------------------------------------
-if podman container exists immich-postgres; then
-    step_log "Sauvegarde de la base de données vectorielle Immich..."
-    mkdir -p "${DEST_DIR}/immich"
-    IMMICH_DUMP_FILE="${DEST_DIR}/immich/immich_db_${TIMESTAMP}.sql.gz"
-    if podman exec immich-postgres pg_dumpall -U postgres | gzip > "${IMMICH_DUMP_FILE}"; then
-        if [ "$(gzip -dc "${IMMICH_DUMP_FILE}" | head -c 1 | wc -c)" -eq 0 ]; then
-            echo "❌ Échec : le dump Immich PostgreSQL est vide — archive supprimée."
-            rm -f "${IMMICH_DUMP_FILE}"
-            EXIT_CODE=1
-        else
-            echo "✅ Sauvegarde de la base Immich réussie."
-        fi
-    else
-        echo "❌ Échec de la sauvegarde d'Immich PostgreSQL ! Archive incomplète supprimée."
-        rm -f "${IMMICH_DUMP_FILE}"
         EXIT_CODE=1
     fi
 fi
@@ -258,8 +233,6 @@ mv "${METRICS_DIR}/backup.prom.tmp" "${METRICS_DIR}/backup.prom"
 # ------------------------------------------------------------------------------
 if [ "${EXIT_CODE}" -eq 0 ]; then
     find "${DEST_DIR}/postgres" -type f -name "*.sql.gz" -mtime +7 -delete
-    [ -d "${DEST_DIR}/immich" ] && \
-        find "${DEST_DIR}/immich" -type f -name "*.sql.gz" -mtime +7 -delete
     for entry in "${APP_ARCHIVE_VOLUMES[@]}"; do
         IFS=":" read -r _ subdir _ _ <<< "${entry}"
         [ -d "${DEST_DIR}/${subdir}" ] && \
