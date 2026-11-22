@@ -19,7 +19,7 @@ Wants=paperless-redis.service
 
 [Container]
 ContainerName=paperless
-Image=ghcr.io/paperless-ngx/paperless-ngx:3.3.3
+Image=ghcr.io/paperless-ngx/paperless-ngx:3.5.1
 Volume=paperless-data.volume:/usr/src/paperless/data
 Volume=paperless-media.volume:/usr/src/paperless/media
 Volume=paperless-consume.volume:/usr/src/paperless/consume
