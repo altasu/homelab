@@ -1,5 +1,0 @@
-# Unité Quadlet : Volume de données Redis pour Nextcloud
-# Persistance du cache mémoire et des verrous de transactions de fichiers.
-
-[Volume]
-VolumeName=apps_nextcloud_redis_data

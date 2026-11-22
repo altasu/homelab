@@ -132,16 +132,12 @@ APP_ARCHIVE_VOLUMES=(
     "apps_ntfy_data:ntfy:des comptes ntfy:optionnel"
     "apps_linkding_data:linkding:de Linkding:optionnel"
     "apps_wakapi_data:wakapi:de Wakapi:optionnel"
-    "apps_nextcloud_html:nextcloud:de la configuration de Nextcloud:optionnel"
 )
 
 # 2. Volumes de stockage massif (synchronisation incrémentielle rsync)
-APP_INCREMENTAL_VOLUMES=(
-    "apps_nextcloud_data:nextcloud_data:des données utilisateurs de Nextcloud:optionnel"
-    "apps_immich_library:immich_library:des photos et médias Immich:optionnel"
-)
+APP_INCREMENTAL_VOLUMES=()
 
-TOTAL_STEPS=$(( 2 + ${#APP_ARCHIVE_VOLUMES[@]} + ${#APP_INCREMENTAL_VOLUMES[@]} ))
+TOTAL_STEPS=$(( 1 + ${#APP_ARCHIVE_VOLUMES[@]} + ${#APP_INCREMENTAL_VOLUMES[@]} ))
 CURRENT_STEP=1
 
 step_log() {
@@ -173,28 +169,6 @@ else
     else
         echo "❌ Échec de la sauvegarde de PostgreSQL ! Archive incomplète supprimée."
         rm -f "${PG_DUMP_FILE}"
-        EXIT_CODE=1
-    fi
-fi
-
-# ------------------------------------------------------------------------------
-# 1b. Sauvegarde logique Immich PostgreSQL (Base vectorielle, si déployée)
-# ------------------------------------------------------------------------------
-if podman container exists immich-postgres; then
-    step_log "Sauvegarde de la base de données vectorielle Immich..."
-    mkdir -p "${DEST_DIR}/immich"
-    IMMICH_DUMP_FILE="${DEST_DIR}/immich/immich_db_${TIMESTAMP}.sql.gz"
-    if podman exec immich-postgres pg_dumpall -U postgres | gzip > "${IMMICH_DUMP_FILE}"; then
-        if [ "$(gzip -dc "${IMMICH_DUMP_FILE}" | head -c 1 | wc -c)" -eq 0 ]; then
-            echo "❌ Échec : le dump Immich PostgreSQL est vide — archive supprimée."
-            rm -f "${IMMICH_DUMP_FILE}"
-            EXIT_CODE=1
-        else
-            echo "✅ Sauvegarde de la base Immich réussie."
-        fi
-    else
-        echo "❌ Échec de la sauvegarde d'Immich PostgreSQL ! Archive incomplète supprimée."
-        rm -f "${IMMICH_DUMP_FILE}"
         EXIT_CODE=1
     fi
 fi
@@ -256,8 +230,6 @@ mv "${METRICS_DIR}/backup.prom.tmp" "${METRICS_DIR}/backup.prom"
 # ------------------------------------------------------------------------------
 if [ "${EXIT_CODE}" -eq 0 ]; then
     find "${DEST_DIR}/postgres" -type f -name "*.sql.gz" -mtime +7 -delete
-    [ -d "${DEST_DIR}/immich" ] && \
-        find "${DEST_DIR}/immich" -type f -name "*.sql.gz" -mtime +7 -delete
     for entry in "${APP_ARCHIVE_VOLUMES[@]}"; do
         IFS=":" read -r _ subdir _ _ <<< "${entry}"
         [ -d "${DEST_DIR}/${subdir}" ] && \

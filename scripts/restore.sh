@@ -30,7 +30,6 @@ mkdir -p "${QUADLET_DEST}"
 ARCHIVE_VOLUMES=(
     "apps_vaultwarden_data:vaultwarden:Vaultwarden"
     "apps_actual_budget_data:actualbudget:Actual Budget"
-    "apps_nextcloud_html:nextcloud:Nextcloud HTML"
     "apps_forgejo_data:forgejo:Forgejo"
     "apps_linkding_data:linkding:Linkding"
     "apps_ntfy_data:ntfy:ntfy"
@@ -60,10 +59,7 @@ for entry in "${ARCHIVE_VOLUMES[@]}"; do
 done
 
 # 2. Large Media Volumes (rsync)
-INCREMENTAL_VOLUMES=(
-    "apps_nextcloud_data:nextcloud_data:Nextcloud Data"
-    "apps_immich_library:immich_library:Immich Library"
-)
+INCREMENTAL_VOLUMES=()
 
 echo "==> [2/6] Restoring large media volumes (rsync)..."
 for entry in "${INCREMENTAL_VOLUMES[@]}"; do
@@ -118,16 +114,6 @@ else
     echo "⚠️  No PostgreSQL dump found in ${BACKUP_VAULT}/postgres/ !"
 fi
 
-# 4b. Restore Immich PostgreSQL (if dump exists)
-LATEST_IMMICH_DUMP=$(ls -t "${BACKUP_VAULT}/immich"/immich_db_*.sql.gz 2>/dev/null | head -1 || true)
-if [ -n "${LATEST_IMMICH_DUMP}" ] && [ -f "${HOMELAB_DIR}/apps/quadlet/immich-postgres.container" ]; then
-    echo "📥 Restoring Immich Vector Database..."
-    systemctl --user start immich-postgres.service || true
-    sleep 5
-    zcat "${LATEST_IMMICH_DUMP}" | podman exec -i immich-postgres psql -U postgres >/dev/null 2>&1 || true
-    echo "✓ Immich database restored."
-fi
-
 # 5. Start Core Services
 echo "==> [5/6] Starting application services..."
 SERVICES=(
@@ -137,10 +123,9 @@ SERVICES=(
     "twingate-host"
     "vaultwarden"
     "actual-budget"
-    "nextcloud-redis"
-    "nextcloud"
     "glance"
     "linkding"
+    "wakapi"
     "ntfy"
     "prometheus"
     "grafana"
@@ -163,7 +148,6 @@ cp -r "${HOMELAB_DIR}"/scripts/systemd/*.timer "${HOME}/.config/systemd/user/" 2
 systemctl --user daemon-reload
 systemctl --user enable --now backup.timer || true
 systemctl --user enable --now homelab-sync.timer || true
-systemctl --user enable --now nextcloud-cron.timer || true
 
 echo ""
 echo "=============================================================================="

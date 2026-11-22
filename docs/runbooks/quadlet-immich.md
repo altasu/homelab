@@ -1,5 +1,9 @@
 # Runbook — Quadlet : Déploiement et exploitation d'Immich (Gestionnaire Photos & Vidéos)
 
+> [!NOTE]
+> **Statut : Service Décommissionné & Archivé (Novembre 2026 — ADR-010)**  
+> Dans le cadre de la stratégie hybride par paliers (photothèque familiale et vidéos déléguées à Google Photos pour préserver le disque mécanique HDD 5400 RPM et libérer ~4 Go de RAM), cette suite de 4 conteneurs a été retirée de la production active.
+
 Ce runbook détaille l'architecture, le déploiement et l'exploitation de la suite souveraine de sauvegarde et gestion multimédia **Immich** sous forme d'unités Podman Quadlet systemd rootless.
 
 ---
