@@ -13,7 +13,7 @@ Description=node_exporter (metriques de l'hote)
 
 [Container]
 ContainerName=node-exporter
-Image=docker.io/prom/node-exporter:v1.12.1
+Image=docker.io/prom/node-exporter:v1.13.1
 Volume=/:/host:ro,rslave
 Volume=%h/.local/share/homelab-metrics:/textfile:ro,z
 Network=homelab.network
