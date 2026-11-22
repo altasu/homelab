@@ -1,0 +1,5 @@
+# Unité Quadlet : Volume de données d'indexation pour Paperless-ngx
+# Contient les index de recherche plein texte (Tantivy/Whoosh) et modèles de classification.
+
+[Volume]
+VolumeName=apps_paperless_data

@@ -1,0 +1,42 @@
+# Unité Quadlet : Paperless-ngx (Gestion Électronique de Documents & OCR)
+# Numérisation, OCR multilingue (FR/TR/EN), indexation et archivage souverain de documents.
+#
+# Déploiement (utilisateur rootless) :
+#   cp apps/quadlet/paperless*.{container,volume} ~/.config/containers/systemd/
+#   /usr/libexec/podman/quadlet -dryrun -user
+#   systemctl --user daemon-reload && systemctl --user start paperless
+#
+# Dépendances :
+#   - homelab-network.service (réseau virtuel interne homelab_net)
+#   - postgres.service (base de données relationnelle Data Tier : paperless_db)
+#   - paperless-redis.service (file de tâches Celery et cache mémoire)
+
+[Unit]
+Description=Paperless-ngx (Document Management System & OCR)
+After=homelab-network.service postgres.service paperless-redis.service
+Requires=homelab-network.service
+Wants=paperless-redis.service
+
+[Container]
+ContainerName=paperless
+Image=ghcr.io/paperless-ngx/paperless-ngx:3.3.3
+Volume=paperless-data.volume:/usr/src/paperless/data
+Volume=paperless-media.volume:/usr/src/paperless/media
+Volume=paperless-consume.volume:/usr/src/paperless/consume
+Volume=paperless-export.volume:/usr/src/paperless/export
+Volume=/etc/localtime:/etc/localtime:ro
+Network=homelab.network
+EnvironmentFile=%h/homelab/apps/paperless.env
+NoNewPrivileges=true
+HealthCmd=curl -fsS http://localhost:8000/api/ || exit 1
+HealthInterval=30s
+Notify=healthy
+PodmanArgs=--memory=1536m --cpus=1.5
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target

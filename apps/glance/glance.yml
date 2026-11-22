@@ -87,6 +87,10 @@ pages:
                 url: ${URL_WAKAPI}
                 check-url: http://wakapi:3000/api/health
 
+              - title: Paperless
+                icon: si:paperlessngx
+                url: ${URL_PAPERLESS}
+                check-url: http://paperless:8000/api/
           - type: rss
             title: Veille Technique & Open Source
             limit: 6
@@ -114,4 +118,5 @@ pages:
               - sissbruecker/linkding
               - binwiederhier/ntfy
               - muety/wakapi
+              - paperless-ngx/paperless-ngx
 

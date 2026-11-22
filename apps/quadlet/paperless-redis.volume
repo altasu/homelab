@@ -1,0 +1,5 @@
+# Unité Quadlet : Volume de données Redis pour Paperless-ngx
+# Persistance du cache mémoire et des files d'attente Celery.
+
+[Volume]
+VolumeName=apps_paperless_redis_data

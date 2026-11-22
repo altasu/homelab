@@ -132,10 +132,13 @@ APP_ARCHIVE_VOLUMES=(
     "apps_ntfy_data:ntfy:des comptes ntfy:optionnel"
     "apps_linkding_data:linkding:de Linkding:optionnel"
     "apps_wakapi_data:wakapi:de Wakapi:optionnel"
+    "apps_paperless_data:paperless:des index et métadonnées de Paperless-ngx:optionnel"
 )
 
 # 2. Volumes de stockage massif (synchronisation incrémentielle rsync)
-APP_INCREMENTAL_VOLUMES=()
+APP_INCREMENTAL_VOLUMES=(
+    "apps_paperless_media:paperless_media:des documents numérisés Paperless-ngx:optionnel"
+)
 
 TOTAL_STEPS=$(( 1 + ${#APP_ARCHIVE_VOLUMES[@]} + ${#APP_INCREMENTAL_VOLUMES[@]} ))
 CURRENT_STEP=1
